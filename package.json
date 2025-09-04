@@ -1,0 +1,119 @@
+{
+  "name": "vscode-ai-inline-chat",
+  "displayName": "AI Inline + Chat",
+  "publisher": "olegnaumov",
+  "description": "Inline автодополнение кода и чат с ИИ. Стриминг, workspace context, hotkeys.",
+  "version": "1.1.0",
+  "main": "./out/extension.js",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "icon": "media/icon.svg",
+  "viewsContainers": {
+    "activitybar": [
+      {
+        "id": "aiInlineChatContainer",
+        "title": "AI",
+        "icon": "media/icon.svg"
+      }
+    ]
+  },
+  "views": {
+    "aiInlineChatContainer": [
+      {
+        "id": "aiInlineChatView",
+        "name": "AI Chat"
+      }
+    ]
+  },
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:aiInlineChat.openChat",
+    "onCommand:aiInlineChat.clearChat",
+    "onCommand:aiInlineChat.acceptInline",
+    "onCommand:aiInlineChat.sendSelectionToChat"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "aiInlineChat.openChat",
+        "title": "AI: Open Chat Panel"
+      },
+      {
+        "command": "aiInlineChat.clearChat",
+        "title": "AI: Clear Chat History"
+      },
+      {
+        "command": "aiInlineChat.acceptInline",
+        "title": "AI: Accept Inline Suggestion"
+      },
+      {
+        "command": "aiInlineChat.sendSelectionToChat",
+        "title": "AI: Send Selection to Chat"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "aiInlineChatContainer",
+          "title": "AI",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "aiInlineChatContainer": [
+        {
+          "id": "aiInlineChatView",
+          "name": "AI Chat"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "aiInlineChat.sendSelectionToChat",
+        "key": "ctrl+enter",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "aiInlineChat.acceptInline",
+        "key": "ctrl+.",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "aiInlineChat.openChat",
+        "key": "ctrl+alt+i",
+        "when": "editorTextFocus"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -w -p .",
+    "build": "npm run compile",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.34.0",
+    "@types/node": "^20.11.30",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "esbuild-plugin-tsc": "^0.5.0",
+    "eslint": "^9.34.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-unused-imports": "^4.2.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.4.0",
+    "typescript-eslint": "^8.42.0",
+    "vsce": "^2.15.0",
+    "vscode": "^1.85.0"
+  },
+  "dependencies": {
+    "@types/vscode": "^1.103.0",
+    "axios": "^1.11.0"
+  }
+}
