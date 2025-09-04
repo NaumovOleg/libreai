@@ -8,14 +8,13 @@ build({
   platform: 'node',
   sourcemap: false,
   // target: 'node20',
-  outfile: './out/extension.cjs',
+  outfile: '../out/extension.js',
   entryNames: '[name]',
   target: 'esnext',
   format: 'cjs',
   loader: { '.ts': 'ts' },
   plugins: [esbuildPluginTsc()],
   external: ['vscode'],
-  //   external: ['mock-aws-s3', '@mapbox'],
 }).catch((_err) => {
   process.exit(1);
 });

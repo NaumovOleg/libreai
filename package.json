@@ -1,14 +1,14 @@
 {
-  "name": "vscode-ai-inline-chat",
+  "name": "libreai",
+  "private": true,
   "displayName": "AI Inline + Chat",
   "publisher": "olegnaumov",
   "description": "Inline автодополнение кода и чат с ИИ. Стриминг, workspace context, hotkeys.",
   "version": "1.1.0",
-  "main": "./out/extension.cjs",
+  "main": "./out/extension.js",
   "engines": {
     "vscode": "^1.85.0"
   },
-  "type": "module",
   "categories": [
     "Other"
   ],
@@ -16,44 +16,14 @@
   "activationEvents": [
     "onStartupFinished"
   ],
+  "workspaces": [
+    "chat",
+    "extension"
+  ],
   "scripts": {
-    "compile": "tsc -p .",
-    "watch": "tsc -w -p .",
-    "build2": "npm run compile",
-    "package": "vsce package",
-    "build": "node ./esbuild.config.mjs",
-    "dev": "nodemon --config ./nodemon.json",
-    "build-front": "cd ./frontend tsc -b && vite build"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.34.0",
-    "@types/node": "^20.11.30",
-    "@types/react": "^19.1.12",
-    "@typescript-eslint/eslint-plugin": "^8.42.0",
-    "esbuild": "^0.25.9",
-    "esbuild-plugin-tsc": "^0.5.0",
-    "eslint": "^9.34.0",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-prettier": "^5.5.4",
-    "eslint-plugin-simple-import-sort": "^12.1.1",
-    "eslint-plugin-unused-imports": "^4.2.0",
-    "prettier": "^3.6.2",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.2",
-    "typescript-eslint": "^8.42.0"
-  },
-  "dependencies": {
-    "@types/vscode": "^1.103.0",
-    "@vitejs/plugin-react": "^5.0.2",
-    "axios": "^1.11.0",
-    "globals": "^16.3.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "vite": "^7.1.4",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vsce": "^2.15.0",
-    "vscode": "^1.1.37"
+    "build": "yarn workspace chat build && yarn workspace extension build",
+    "build:chat": "yarn workspace chat build",
+    "build:extension": "yarn workspace extension build"
   },
   "contributes": {
     "viewsContainers": {

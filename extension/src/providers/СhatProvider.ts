@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 
 export class ChatProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
-  private mediaFolder = 'media/views/chat';
+  private mediaFolder = 'out/chat';
 
   constructor(private readonly extensionUri: vscode.Uri) {}
 
@@ -55,19 +55,26 @@ export class ChatProvider implements vscode.WebviewViewProvider {
   ) {
     webviewView.webview.options = {
       enableScripts: true,
-      localResourceRoots: [vscode.Uri.file(path.join(this.extensionUri.fsPath, 'chat', 'dist'))],
+      localResourceRoots: [vscode.Uri.file(path.join(this.extensionUri.fsPath, 'out', 'chat'))],
     };
 
-    const htmlPath = path.join(this.extensionUri.fsPath, 'chat', 'dist', 'index.html');
+    const htmlPath = path.join(this.extensionUri.fsPath, 'out', 'chat', 'index.html');
     let html = fs.readFileSync(htmlPath, 'utf-8');
 
     // Исправляем пути для webview
-    html = html.replace(
-      /src="dist\/bundle\.js"/,
-      `src="${webviewView.webview.asWebviewUri(
-        vscode.Uri.file(path.join(this.extensionUri.fsPath, 'media', 'react', 'dist', 'bundle.js')),
-      )}"`,
-    );
+    html = html
+      .replace(
+        /href="\/index\.css"/,
+        `href="${webviewView.webview.asWebviewUri(
+          vscode.Uri.file(path.join(this.extensionUri.fsPath, this.mediaFolder, 'index.css')),
+        )}"`,
+      )
+      .replace(
+        /src="\/index\.js"/,
+        `src="${webviewView.webview.asWebviewUri(
+          vscode.Uri.file(path.join(this.extensionUri.fsPath, this.mediaFolder, 'index.js')),
+        )}"`,
+      );
 
     webviewView.webview.html = html;
   }
