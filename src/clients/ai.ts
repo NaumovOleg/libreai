@@ -1,7 +1,6 @@
+import { AIConfig, PromptMessages } from '@utils';
 import axios from 'axios';
 import * as vscode from 'vscode';
-
-import { AIConfig } from './types';
 
 export class AIClient {
   private cfg: AIConfig;
@@ -28,7 +27,6 @@ export class AIClient {
     });
   }
 
-  /** Простой чат без стриминга */
   async chat(
     messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
   ): Promise<string> {
@@ -36,7 +34,11 @@ export class AIClient {
     return this.chatOpenAI(messages);
   }
 
-  /** Чат со стримингом */
+  async triggerSuggestions(messages: PromptMessages): Promise<string> {
+    if (this.cfg.provider === 'ollama') return this.triggerSuggestionsOllama(messages);
+    return this.chatOpenAI(messages);
+  }
+
   async *streamChat(
     messages: Array<{ role: string; content: string }>,
   ): AsyncGenerator<string, void, unknown> {
@@ -47,9 +49,33 @@ export class AIClient {
     }
   }
 
-  /** Ollama чат */
-  private async chatOllama(messages: Array<{ role: string; content: string }>): Promise<string> {
+  private async triggerSuggestionsOllama(
+    messages: Array<{ role: string; content: string }>,
+  ): Promise<string> {
     const url = this.cfg.endpoint.replace(/\/$/, '') + '/api/chat';
+
+    const body = JSON.stringify({
+      model: this.cfg.model,
+      messages,
+      stream: false,
+      options: {
+        temperature: this.cfg.temperature,
+        num_predict: this.cfg.maxTokens,
+      },
+    });
+
+    console.log(body);
+
+    const headers = { 'Content-Type': 'application/json' };
+    const { data } = await axios.post(url, body, { headers });
+
+    console.log(data);
+
+    return data?.message?.content || data?.response || '';
+  }
+
+  private async chatOllama(messages: Array<{ role: string; content: string }>): Promise<string> {
+    const url = this.cfg.endpoint.replace(/\/$/, '') + '/api/generate';
     const body = JSON.stringify({
       model: this.cfg.model,
       messages,

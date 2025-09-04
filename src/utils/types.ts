@@ -1,4 +1,5 @@
-export type Provider = "openai" | "ollama";
+export type PromptMessages = { role: 'system' | 'user' | 'assistant'; content: string }[];
+export type Provider = 'openai' | 'ollama';
 
 export interface AIConfig {
   provider: Provider;
