@@ -12,84 +12,9 @@
     "Other"
   ],
   "icon": "media/icon.svg",
-  "viewsContainers": {
-    "activitybar": [
-      {
-        "id": "aiInlineChatContainer",
-        "title": "AI",
-        "icon": "media/icon.svg"
-      }
-    ]
-  },
-  "views": {
-    "aiInlineChatContainer": [
-      {
-        "id": "aiInlineChatView",
-        "name": "AI Chat"
-      }
-    ]
-  },
   "activationEvents": [
-    "onStartupFinished",
-    "onCommand:aiInlineChat.openChat",
-    "onCommand:aiInlineChat.clearChat",
-    "onCommand:aiInlineChat.acceptInline",
-    "onCommand:aiInlineChat.sendSelectionToChat"
+    "onStartupFinished"
   ],
-  "contributes": {
-    "commands": [
-      {
-        "command": "aiInlineChat.openChat",
-        "title": "AI: Open Chat Panel"
-      },
-      {
-        "command": "aiInlineChat.clearChat",
-        "title": "AI: Clear Chat History"
-      },
-      {
-        "command": "aiInlineChat.acceptInline",
-        "title": "AI: Accept Inline Suggestion"
-      },
-      {
-        "command": "aiInlineChat.sendSelectionToChat",
-        "title": "AI: Send Selection to Chat"
-      }
-    ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "aiInlineChatContainer",
-          "title": "AI",
-          "icon": "media/icon.svg"
-        }
-      ]
-    },
-    "views": {
-      "aiInlineChatContainer": [
-        {
-          "id": "aiInlineChatView",
-          "name": "AI Chat"
-        }
-      ]
-    },
-    "keybindings": [
-      {
-        "command": "aiInlineChat.sendSelectionToChat",
-        "key": "ctrl+enter",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "aiInlineChat.acceptInline",
-        "key": "ctrl+.",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "aiInlineChat.openChat",
-        "key": "ctrl+alt+i",
-        "when": "editorTextFocus"
-      }
-    ]
-  },
   "scripts": {
     "compile": "tsc -p .",
     "watch": "tsc -w -p .",
@@ -120,5 +45,33 @@
   "dependencies": {
     "@types/vscode": "^1.103.0",
     "axios": "^1.11.0"
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "libreAi",
+          "title": "AI",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "libreAi": [
+        {
+          "id": "libreChatView",
+          "name": "AI Chat",
+          "icon": "media/icon.svg",
+          "type": "webview"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "libreChat.openChat",
+        "title": "Open AI Chat",
+        "icon": "media/icon.svg"
+      }
+    ]
   }
 }

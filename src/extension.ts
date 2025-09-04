@@ -1,29 +1,28 @@
 import * as vscode from 'vscode';
 
-import { ChatViewProvider } from './providers/ChatViewProvider';
-import { InlineCompletionProvider } from './providers/InlineCompletionProvider';
+import { ChatProvider, InlineCompletionProvider } from './providers';
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('AI Extension is now active!');
 
-  // Регистрируем провайдер для inline автодополнений
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },
     new InlineCompletionProvider(),
   );
 
-  // Регистрируем веб-панель с чатом
-  const chatProvider = new ChatViewProvider(context.extensionUri);
+  const chatProvider = new ChatProvider(context.extensionUri);
+
+  const chatView = vscode.window.registerWebviewViewProvider(ChatProvider.viewType, chatProvider);
+  console.log('+++++++++++++++++++++++++++', chatView);
+
   context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider(ChatViewProvider.viewType, chatProvider),
+    vscode.commands.registerCommand('libreChat.openChat', () => {
+      console.log('----------------------------------------', chatProvider);
+      vscode.commands.executeCommand('libreChatView.focus');
+    }),
   );
 
-  // Добавляем кнопку в панель
-  const disposable = vscode.commands.registerCommand('ai-extension.helloWorld', () => {
-    vscode.window.showInformationMessage('AI Extension работает!');
-  });
-
-  context.subscriptions.push(disposable, inlineProvider);
+  context.subscriptions.push(inlineProvider, chatView);
 }
 
 export function deactivate() {}

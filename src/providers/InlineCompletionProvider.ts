@@ -1,7 +1,7 @@
-import { INLINE_SUGGESTION_PROMPT } from '@utils';
 import * as vscode from 'vscode';
 
 import { AIClient } from '../clients';
+import { INLINE_SUGGESTION_PROMPT } from '../utils';
 import { gatherWorkspaceContext } from '../workspaceContext';
 
 export class InlineCompletionProvider implements vscode.InlineCompletionItemProvider {
@@ -22,13 +22,8 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
     position: vscode.Position,
   ): Promise<vscode.InlineCompletionList> {
     return new Promise((resolve) => {
-      // Сбрасываем предыдущий таймер
       if (this.debounceTimer) clearTimeout(this.debounceTimer);
-
-      // Сохраняем последний запрос
       this.lastRequest = { resolve, document, position };
-
-      // Debounce 300ms
       this.debounceTimer = setTimeout(async () => {
         if (!this.lastRequest) return;
 
@@ -57,10 +52,9 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
         resolve({ items: item ? [item] : [] });
 
-        // Сбрасываем
         this.debounceTimer = null;
         this.lastRequest = null;
-      }, 300);
+      }, 3000);
     });
   }
 }

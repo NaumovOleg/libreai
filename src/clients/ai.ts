@@ -1,6 +1,7 @@
-import { AIConfig, PromptMessages } from '@utils';
 import axios from 'axios';
 import * as vscode from 'vscode';
+
+import { AIConfig, PromptMessages } from '../utils';
 
 export class AIClient {
   private cfg: AIConfig;
@@ -11,12 +12,12 @@ export class AIClient {
 
   static fromSettings(): AIClient {
     const s = vscode.workspace.getConfiguration();
-    const provider = s.get<string>('aiInlineChat.provider', 'ollama') as AIConfig['provider'];
-    const endpoint = s.get<string>('aiInlineChat.endpoint', 'http://localhost:11434');
-    const apiKey = s.get<string>('aiInlineChat.apiKey', '');
-    const model = s.get<string>('aiInlineChat.model', 'qwen2.5-coder:3b');
-    const maxTokens = s.get<number>('aiInlineChat.maxTokens', 512);
-    const temperature = s.get<number>('aiInlineChat.temperature', 0.2);
+    const provider = s.get<string>('libreChat.provider', 'ollama') as AIConfig['provider'];
+    const endpoint = s.get<string>('libreChat.endpoint', 'http://localhost:11434');
+    const apiKey = s.get<string>('libreChat.apiKey', '');
+    const model = s.get<string>('libreChat.model', 'qwen2.5-coder:3b');
+    const maxTokens = s.get<number>('libreChat.maxTokens', 512);
+    const temperature = s.get<number>('libreChat.temperature', 0.2);
     return new AIClient({
       provider,
       endpoint,
