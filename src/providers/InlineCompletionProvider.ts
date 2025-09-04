@@ -6,8 +6,12 @@ import { gatherWorkspaceContext } from '../workspaceContext';
 
 export class InlineCompletionProvider implements vscode.InlineCompletionItemProvider {
   private aiClient: AIClient;
-  private lastTimeout: NodeJS.Timeout | null = null;
-  private pendingResolve: ((value: vscode.InlineCompletionList) => void) | null = null;
+  private debounceTimer: NodeJS.Timeout | null = null;
+  private lastRequest: {
+    resolve: (list: vscode.InlineCompletionList) => void;
+    document: vscode.TextDocument;
+    position: vscode.Position;
+  } | null = null;
 
   constructor() {
     this.aiClient = AIClient.fromSettings();
@@ -18,10 +22,19 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
     position: vscode.Position,
   ): Promise<vscode.InlineCompletionList> {
     return new Promise((resolve) => {
-      if (this.lastTimeout) clearTimeout(this.lastTimeout);
-      this.pendingResolve = resolve;
-      this.lastTimeout = setTimeout(async () => {
-        const messages = INLINE_SUGGESTION_PROMPT({
+      // Сбрасываем предыдущий таймер
+      if (this.debounceTimer) clearTimeout(this.debounceTimer);
+
+      // Сохраняем последний запрос
+      this.lastRequest = { resolve, document, position };
+
+      // Debounce 300ms
+      this.debounceTimer = setTimeout(async () => {
+        if (!this.lastRequest) return;
+
+        const { resolve, document, position } = this.lastRequest;
+
+        const prompt = INLINE_SUGGESTION_PROMPT({
           linePrefix: document.lineAt(position).text.slice(0, position.character),
           selection: document.getText(document.getWordRangeAtPosition(position)),
           workspaceContext: await gatherWorkspaceContext(6, 6000),
@@ -30,9 +43,8 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
         let suggestionText = '';
         try {
-          suggestionText = await this.aiClient.triggerSuggestions(messages);
+          suggestionText = await this.aiClient.triggerSuggestions(prompt);
         } catch (e) {
-          suggestionText = '';
           console.error('AI inline completion error:', e);
         }
 
@@ -45,8 +57,9 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
         resolve({ items: item ? [item] : [] });
 
-        this.lastTimeout = null;
-        this.pendingResolve = null;
+        // Сбрасываем
+        this.debounceTimer = null;
+        this.lastRequest = null;
       }, 300);
     });
   }
