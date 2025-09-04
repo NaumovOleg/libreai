@@ -1,4 +1,6 @@
 node_modules
+chat/node_modules
+extension/node_modules
 .vscode
 out
 chat/dist
