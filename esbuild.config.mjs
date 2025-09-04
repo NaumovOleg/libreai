@@ -8,7 +8,7 @@ build({
   platform: 'node',
   sourcemap: false,
   // target: 'node20',
-  outdir: './out',
+  outfile: './out/extension.cjs',
   entryNames: '[name]',
   target: 'esnext',
   format: 'cjs',

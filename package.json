@@ -4,10 +4,11 @@
   "publisher": "olegnaumov",
   "description": "Inline автодополнение кода и чат с ИИ. Стриминг, workspace context, hotkeys.",
   "version": "1.1.0",
-  "main": "./out/extension.js",
+  "main": "./out/extension.cjs",
   "engines": {
     "vscode": "^1.85.0"
   },
+  "type": "module",
   "categories": [
     "Other"
   ],
@@ -21,11 +22,13 @@
     "build2": "npm run compile",
     "package": "vsce package",
     "build": "node ./esbuild.config.mjs",
-    "dev": "nodemon --config ./nodemon.json"
+    "dev": "nodemon --config ./nodemon.json",
+    "build-front": "cd ./frontend tsc -b && vite build"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
     "@types/node": "^20.11.30",
+    "@types/react": "^19.1.12",
     "@typescript-eslint/eslint-plugin": "^8.42.0",
     "esbuild": "^0.25.9",
     "esbuild-plugin-tsc": "^0.5.0",
@@ -38,13 +41,19 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.42.0",
-    "vsce": "^2.15.0",
-    "vscode": "^1.85.0"
+    "typescript-eslint": "^8.42.0"
   },
   "dependencies": {
     "@types/vscode": "^1.103.0",
-    "axios": "^1.11.0"
+    "@vitejs/plugin-react": "^5.0.2",
+    "axios": "^1.11.0",
+    "globals": "^16.3.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "vite": "^7.1.4",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vsce": "^2.15.0",
+    "vscode": "^1.1.37"
   },
   "contributes": {
     "viewsContainers": {
