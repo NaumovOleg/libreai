@@ -1,5 +1,17 @@
 import 'react';
+import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
+import { Chat, Settings } from '@pages';
+import { Header } from '@components';
 
 export default function App() {
-  return <div className="chat-container">xwqxwqxwqxwxqwxqwxqw</div>;
+  return (
+    <Router>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Chat />} />
+        <Route path="/chat" element={<Chat />} />
+        <Route path="/settings" element={<Settings />} />
+      </Routes>
+    </Router>
+  );
 }

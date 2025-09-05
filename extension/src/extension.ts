@@ -13,11 +13,9 @@ export function activate(context: vscode.ExtensionContext) {
   const chatProvider = new ChatProvider(context.extensionUri);
 
   const chatView = vscode.window.registerWebviewViewProvider(ChatProvider.viewType, chatProvider);
-  console.log('+++++++++++++++++++++++++++', chatView);
 
   context.subscriptions.push(
     vscode.commands.registerCommand('libreChat.openChat', () => {
-      console.log('----------------------------------------', chatProvider);
       vscode.commands.executeCommand('libreChatView.focus');
     }),
   );

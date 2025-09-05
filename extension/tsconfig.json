@@ -5,7 +5,7 @@
         "lib": [
             "ES2020"
         ],
-        "rootDir": "extension/src",
+        "rootDir": "src",
         "outDir": "out",
         "strict": true,
         "sourceMap": true,
@@ -15,7 +15,7 @@
         "baseUrl": "./",
         "paths": {
             "@utils": [
-                "extension/src/utils/index.ts"
+                "src/utils/index.ts"
             ],
         },
         "experimentalDecorators": true,

@@ -21,6 +21,7 @@
     "extension"
   ],
   "scripts": {
+    "dev": "nodemon --config ./nodemon.json",
     "build": "yarn workspace chat build && yarn workspace extension build",
     "build:chat": "yarn workspace chat build",
     "build:extension": "yarn workspace extension build"
@@ -39,7 +40,7 @@
       "libreAi": [
         {
           "id": "libreChatView",
-          "name": "AI Chat",
+          "name": "Chat",
           "icon": "media/icon.svg",
           "type": "webview"
         }
@@ -51,6 +52,25 @@
         "title": "Open AI Chat",
         "icon": "media/icon.svg"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "libreChat.openChat",
+          "when": "view == libreAi.view",
+          "group": "navigation",
+          "icon": "media/icon.svg"
+        },
+        {
+          "command": "libreChat.openChat",
+          "when": "view == libreAi.view",
+          "group": "navigation",
+          "icon": "media/icon.svg"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "nodemon": "^3.1.10"
   }
 }

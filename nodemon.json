@@ -1,0 +1,5 @@
+{
+  "watch": ["extension", "chat"],
+  "ext": "ts,tsx",
+  "exec": "yarn build"
+}

@@ -21,6 +21,14 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@pages": [
+        "./src/pages/index.ts"
+      ],
+      "@components": [
+        "./src/components/index.ts"
+      ]
+    }
   },
   "include": [
     "src",
