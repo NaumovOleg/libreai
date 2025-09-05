@@ -1,5 +1,6 @@
 export enum CONFIG_PARAGRAPH {
   'chatConfig' = 'chatConfig',
+  'autoCompleteConfig' = 'autoCompleteConfig',
 }
 
 export enum COMMANDS {
@@ -11,7 +12,7 @@ export type MESSAGE = { command: COMMANDS; key: CONFIG_PARAGRAPH; value: any };
 
 export type ProviderName = 'openai' | 'ollama';
 
-export interface ChatConfig {
+export interface AiConfigT {
   provider: 'openai' | 'ollama' | 'deepseek';
   model: string;
   endpoint: string;

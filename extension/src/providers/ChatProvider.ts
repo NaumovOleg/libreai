@@ -45,17 +45,22 @@ export class ChatProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.html = html;
 
+    this.onStartMessages(webviewView);
+  }
+
+  private onStartMessages(webviewView: vscode.WebviewView) {
+    console.log('00000000000000000000000000', Conf.chatConfig, Conf.autoCompleteConfig);
     webviewView.webview.postMessage({
       type: CONFIG_PARAGRAPH.chatConfig,
       payload: Conf.chatConfig,
+    });
+    webviewView.webview.postMessage({
+      type: CONFIG_PARAGRAPH.autoCompleteConfig,
+      payload: Conf.autoCompleteConfig,
     });
   }
 
   private async onDidReceiveMessage(message: MESSAGE) {
     await Conf.updateConfig(message);
-  }
-
-  resolveVebView() {
-    console.log('qqqqqqqqqqqqqqqqqq');
   }
 }

@@ -73,34 +73,42 @@
       "title": "AI Extension Settings",
       "properties": {
         "chatConfig.provider": {
-          "type": "string",
-          "default": "gpt-4",
-          "description": "The AI model to use for completions"
+          "type": "string"
         },
         "chatConfig.model": {
-          "type": "number",
-          "default": 200,
-          "description": "Maximum tokens for AI responses"
+          "type": "string"
         },
         "chatConfig.endpoint": {
           "type": "string",
-          "default": "gpt-4",
-          "description": "The AI model to use for completions"
+          "default": "http://localhost:11434"
         },
         "chatConfig.apiKey": {
-          "type": "number",
-          "default": 200,
-          "description": "Maximum tokens for AI responses"
+          "type": "string"
         },
         "chatConfig.maxTokens": {
-          "type": "string",
-          "default": "gpt-4",
-          "description": "The AI model to use for completions"
+          "type": "number"
         },
         "chatConfig.temperature": {
-          "type": "number",
-          "default": 200,
-          "description": "Maximum tokens for AI responses"
+          "type": "number"
+        },
+        "autoCompleteConfig.provider": {
+          "type": "string"
+        },
+        "autoCompleteConfig.model": {
+          "type": "string"
+        },
+        "autoCompleteConfig.endpoint": {
+          "type": "string",
+          "default": "http://localhost:11434"
+        },
+        "autoCompleteConfig.apiKey": {
+          "type": "string"
+        },
+        "autoCompleteConfig.maxTokens": {
+          "type": "number"
+        },
+        "autoCompleteConfig.temperature": {
+          "type": "number"
         }
       }
     }

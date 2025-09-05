@@ -1,9 +1,9 @@
 import './style.scss';
 import { Tabs } from '@elements';
-
 import { useState } from 'react';
 import Typography from '@mui/material/Typography';
-import { Chat } from './components';
+import { AiConfig } from './components';
+import { CONFIG_PARAGRAPH } from '@utils';
 
 export const Settings = () => {
   const [tabIndex, setTabIndex] = useState(0);
@@ -13,8 +13,11 @@ export const Settings = () => {
   };
 
   const tabItems = [
-    { label: 'Chat', content: <Chat /> },
-    { label: 'Tab 2', content: <div>Content for Tab 2</div> },
+    { label: 'Chat', content: <AiConfig configType={CONFIG_PARAGRAPH.chatConfig} /> },
+    {
+      label: 'Autocomplete',
+      content: <AiConfig configType={CONFIG_PARAGRAPH.autoCompleteConfig} />,
+    },
     { label: 'Tab 3', content: <div>Content for Tab 3</div> },
   ];
 

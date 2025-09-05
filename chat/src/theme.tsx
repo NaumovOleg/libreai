@@ -166,6 +166,13 @@ const theme = createTheme({
         },
       },
     },
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          width: '100%',
+        },
+      },
+    },
   },
   typography: {
     fontSize: 14,
