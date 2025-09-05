@@ -8,7 +8,7 @@ export default function App() {
     <Router>
       <Header />
       <Routes>
-        <Route path="/" element={<Chat />} />
+        <Route path="/" element={<Settings />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>

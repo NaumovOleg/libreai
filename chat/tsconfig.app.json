@@ -27,6 +27,12 @@
       ],
       "@components": [
         "./src/components/index.ts"
+      ],
+      "@elements": [
+        "./src/elements/index.ts"
+      ],
+      "@utils": [
+        "./src/utils/index.ts"
       ]
     }
   },
