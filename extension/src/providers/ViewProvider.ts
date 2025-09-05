@@ -4,32 +4,31 @@ import * as vscode from 'vscode';
 
 import { COMMANDS, Conf, CONFIG_PARAGRAPH, MESSAGE } from '../utils';
 
-export class ChatProvider implements vscode.WebviewViewProvider {
+export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
-  private mediaFolder = 'out/chat';
+  private mediaFolder = 'out/view';
+  private vebView: vscode.WebviewView;
 
-  constructor(
-    private readonly extensionUri: vscode.Uri,
-    private readonly context: vscode.ExtensionContext,
-  ) {}
+  constructor(private readonly extensionUri: vscode.Uri) {}
 
   resolveWebviewView(
     webviewView: vscode.WebviewView,
     _context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken,
   ) {
-    webviewView.webview.options = {
+    this.vebView = webviewView;
+    this.vebView.webview.options = {
       enableScripts: true,
-      localResourceRoots: [vscode.Uri.file(path.join(this.extensionUri.fsPath, 'out', 'chat'))],
+      localResourceRoots: [vscode.Uri.file(path.join(this.extensionUri.fsPath, 'out', 'view'))],
     };
 
-    webviewView.webview.onDidReceiveMessage(
+    this.vebView.webview.onDidReceiveMessage(
       (message) => this.onDidReceiveMessage(message),
       undefined,
       [],
     );
 
-    const htmlPath = path.join(this.extensionUri.fsPath, 'out', 'chat', 'index.html');
+    const htmlPath = path.join(this.extensionUri.fsPath, 'out', 'view', 'index.html');
     let html = fs.readFileSync(htmlPath, 'utf-8');
 
     html = html
@@ -46,13 +45,11 @@ export class ChatProvider implements vscode.WebviewViewProvider {
         )}"`,
       );
 
-    webviewView.webview.html = html;
-
-    this.onStartMessages(webviewView);
+    this.vebView.webview.html = html;
   }
 
-  private onStartMessages(webviewView: vscode.WebviewView) {
-    webviewView.webview.postMessage({
+  private onStartMessages() {
+    return this.vebView.webview.postMessage({
       type: COMMANDS.changeConfig,
       payload: {
         [CONFIG_PARAGRAPH.chatConfig]: Conf.chatConfig,
@@ -64,6 +61,10 @@ export class ChatProvider implements vscode.WebviewViewProvider {
   private async onDidReceiveMessage(message: MESSAGE) {
     if (message.command === COMMANDS.changeConfig) {
       await Conf.updateConfig(message);
+    }
+
+    if (message.command === COMMANDS.configListenerMounted) {
+      await this.onStartMessages();
     }
   }
 }

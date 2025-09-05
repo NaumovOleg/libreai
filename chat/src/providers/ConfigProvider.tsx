@@ -21,19 +21,23 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handler = (event: MessageEvent<any>) => {
+    if (event.data.type === COMMANDS.changeConfig) {
+      setConfig(
+        CONFIG_PARAGRAPH.chatConfig,
+        event.data.payload[CONFIG_PARAGRAPH.chatConfig] as AiConfigT,
+      );
+      setConfig(
+        CONFIG_PARAGRAPH.autoCompleteConfig,
+        event.data.payload[CONFIG_PARAGRAPH.autoCompleteConfig] as AiConfigT,
+      );
+    }
+  };
+
   useEffect(() => {
-    window.addEventListener('message', (event: MessageEvent<any>) => {
-      if (event.data.type === COMMANDS.changeConfig) {
-        setConfig(
-          CONFIG_PARAGRAPH.chatConfig,
-          event.data.payload[CONFIG_PARAGRAPH.chatConfig] as AiConfigT,
-        );
-        setConfig(
-          CONFIG_PARAGRAPH.autoCompleteConfig,
-          event.data.payload[CONFIG_PARAGRAPH.autoCompleteConfig] as AiConfigT,
-        );
-      }
-    });
+    window.addEventListener('message', handler);
+    vscode.postMessage({ command: COMMANDS.configListenerMounted });
   }, []);
 
   const applyChanges = (key: CONFIG_PARAGRAPH) => {

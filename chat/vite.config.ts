@@ -7,7 +7,7 @@ export default defineConfig({
   envDir: './config',
   plugins: [react(), tsconfigPaths()],
   build: {
-    outDir: path.resolve(__dirname, '../out/chat'),
+    outDir: path.resolve(__dirname, '../out/view'),
     emptyOutDir: true,
     rollupOptions: {
       input: path.resolve(__dirname, 'index.html'),

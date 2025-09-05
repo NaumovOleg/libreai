@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { ChatProvider, InlineCompletionProvider } from './providers';
+import { InlineCompletionProvider, ViewProvider } from './providers';
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('AI Extension is now active!');
@@ -10,9 +10,9 @@ export function activate(context: vscode.ExtensionContext) {
     new InlineCompletionProvider(),
   );
 
-  const chatProvider = new ChatProvider(context.extensionUri, context);
+  const chatProvider = new ViewProvider(context.extensionUri);
 
-  const chatView = vscode.window.registerWebviewViewProvider(ChatProvider.viewType, chatProvider);
+  const chatView = vscode.window.registerWebviewViewProvider(ViewProvider.viewType, chatProvider);
 
   context.subscriptions.push(
     vscode.commands.registerCommand('libreChat.openChat', () => {
