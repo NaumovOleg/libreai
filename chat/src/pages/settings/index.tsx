@@ -3,7 +3,7 @@ import { Tabs } from '@elements';
 
 import { useState } from 'react';
 import Typography from '@mui/material/Typography';
-import { Provider } from './components';
+import { Chat } from './components';
 
 export const Settings = () => {
   const [tabIndex, setTabIndex] = useState(0);
@@ -13,7 +13,7 @@ export const Settings = () => {
   };
 
   const tabItems = [
-    { label: 'Tab 1', content: <Provider /> },
+    { label: 'Chat', content: <Chat /> },
     { label: 'Tab 2', content: <div>Content for Tab 2</div> },
     { label: 'Tab 3', content: <div>Content for Tab 3</div> },
   ];

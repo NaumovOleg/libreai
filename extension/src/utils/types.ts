@@ -1,11 +1,3 @@
-export type PromptMessages = { role: 'system' | 'user' | 'assistant'; content: string }[];
-export type Provider = 'openai' | 'ollama';
+export * from '../../../global.types';
 
-export interface AIConfig {
-  provider: Provider;
-  endpoint: string;
-  apiKey?: string;
-  model: string;
-  maxTokens: number;
-  temperature: number;
-}
+export type PromptMessages = { role: 'system' | 'user' | 'assistant'; content: string }[];

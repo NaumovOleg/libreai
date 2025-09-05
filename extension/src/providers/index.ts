@@ -1,2 +1,2 @@
+export * from './ChatProvider';
 export * from './InlineCompletionProvider';
-export * from './СhatProvider';

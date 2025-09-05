@@ -21,6 +21,10 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
     },
+    "include": [
+        "../global.d.ts",
+        "../global.types.ts",
+    ],
     "exclude": [
         "node_modules",
         ".vscode-test"

@@ -33,11 +33,19 @@
       ],
       "@utils": [
         "./src/utils/index.ts"
+      ],
+      "@providers": [
+        "./src/providers/index.ts"
+      ],
+      "@hooks": [
+        "./src/hooks/index.ts"
       ]
     }
   },
   "include": [
     "src",
-    "config"
+    "config",
+    "../global.d.ts",
+    "../global.types.ts"
   ]
 }

@@ -68,6 +68,41 @@
           "icon": "media/icon.svg"
         }
       ]
+    },
+    "configuration": {
+      "title": "AI Extension Settings",
+      "properties": {
+        "chatConfig.provider": {
+          "type": "string",
+          "default": "gpt-4",
+          "description": "The AI model to use for completions"
+        },
+        "chatConfig.model": {
+          "type": "number",
+          "default": 200,
+          "description": "Maximum tokens for AI responses"
+        },
+        "chatConfig.endpoint": {
+          "type": "string",
+          "default": "gpt-4",
+          "description": "The AI model to use for completions"
+        },
+        "chatConfig.apiKey": {
+          "type": "number",
+          "default": 200,
+          "description": "Maximum tokens for AI responses"
+        },
+        "chatConfig.maxTokens": {
+          "type": "string",
+          "default": "gpt-4",
+          "description": "The AI model to use for completions"
+        },
+        "chatConfig.temperature": {
+          "type": "number",
+          "default": 200,
+          "description": "Maximum tokens for AI responses"
+        }
+      }
     }
   },
   "dependencies": {

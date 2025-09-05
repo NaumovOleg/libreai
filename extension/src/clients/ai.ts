@@ -1,31 +1,16 @@
 import axios from 'axios';
-import * as vscode from 'vscode';
 
-import { AIConfig, PromptMessages } from '../utils';
+import { Conf, PromptMessages } from '../utils';
 
 export class AIClient {
-  private cfg: AIConfig;
+  private cfg: typeof Conf.ai;
 
-  constructor(cfg: AIConfig) {
+  constructor(cfg: typeof Conf.ai) {
     this.cfg = cfg;
   }
 
   static fromSettings(): AIClient {
-    const s = vscode.workspace.getConfiguration();
-    const provider = s.get<string>('libreChat.provider', 'ollama') as AIConfig['provider'];
-    const endpoint = s.get<string>('libreChat.endpoint', 'http://localhost:11434');
-    const apiKey = s.get<string>('libreChat.apiKey', '');
-    const model = s.get<string>('libreChat.model', 'qwen2.5-coder:3b');
-    const maxTokens = s.get<number>('libreChat.maxTokens', 512);
-    const temperature = s.get<number>('libreChat.temperature', 0.2);
-    return new AIClient({
-      provider,
-      endpoint,
-      apiKey,
-      model,
-      maxTokens,
-      temperature,
-    });
+    return new AIClient(Conf.ai);
   }
 
   async chat(
