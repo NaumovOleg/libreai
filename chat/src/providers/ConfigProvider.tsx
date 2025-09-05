@@ -1,8 +1,6 @@
 import { useState, useEffect, type FC, type ReactElement } from 'react';
 import { ConfigContext } from './context';
-import { AiConfigT, CONFIG_PARAGRAPH, COMMANDS } from '@utils';
-
-const vscode = acquireVsCodeApi();
+import { AiConfigT, CONFIG_PARAGRAPH, COMMANDS, vscode } from '@utils';
 
 const defaultData = {
   endpoint: 'http://localhost:11434',
@@ -15,8 +13,6 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
   const [autocompleteSettings, setAutocompleteSettings] = useState<AiConfigT>({ ...defaultData });
 
   const setConfig = (type: CONFIG_PARAGRAPH, conf: Partial<AiConfigT>) => {
-    console.log('__________________', type, conf);
-
     if (type === CONFIG_PARAGRAPH.chatConfig) {
       setChatSettings((prev) => prev && { ...prev, ...conf });
     }
@@ -26,11 +22,16 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
   };
 
   useEffect(() => {
-    window.addEventListener('message', (event) => {
-      if (
-        [CONFIG_PARAGRAPH.autoCompleteConfig, CONFIG_PARAGRAPH.chatConfig].includes(event.data.type)
-      ) {
-        setConfig(event.data.type, event.data.payload as AiConfigT);
+    window.addEventListener('message', (event: MessageEvent<any>) => {
+      if (event.data.type === COMMANDS.changeConfig) {
+        setConfig(
+          CONFIG_PARAGRAPH.chatConfig,
+          event.data.payload[CONFIG_PARAGRAPH.chatConfig] as AiConfigT,
+        );
+        setConfig(
+          CONFIG_PARAGRAPH.autoCompleteConfig,
+          event.data.payload[CONFIG_PARAGRAPH.autoCompleteConfig] as AiConfigT,
+        );
       }
     });
   }, []);

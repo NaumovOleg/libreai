@@ -20,3 +20,15 @@ export interface AiConfigT {
   maxTokens?: number;
   temperature?: number;
 }
+
+export type ChatMessage = {
+  from: 'user' | 'ai';
+  text: string;
+  time?: Date;
+};
+
+export type ChatSession = { [key: string]: ChatMessage[] };
+
+export type State = {
+  chatSession: ChatSession;
+};

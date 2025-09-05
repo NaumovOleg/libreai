@@ -10,7 +10,7 @@ export function activate(context: vscode.ExtensionContext) {
     new InlineCompletionProvider(),
   );
 
-  const chatProvider = new ChatProvider(context.extensionUri);
+  const chatProvider = new ChatProvider(context.extensionUri, context);
 
   const chatView = vscode.window.registerWebviewViewProvider(ChatProvider.viewType, chatProvider);
 

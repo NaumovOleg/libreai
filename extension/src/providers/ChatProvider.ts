@@ -2,13 +2,16 @@ import fs from 'fs';
 import path from 'path';
 import * as vscode from 'vscode';
 
-import { Conf, CONFIG_PARAGRAPH, MESSAGE } from '../utils';
+import { COMMANDS, Conf, CONFIG_PARAGRAPH, MESSAGE } from '../utils';
 
 export class ChatProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
   private mediaFolder = 'out/chat';
 
-  constructor(private readonly extensionUri: vscode.Uri) {}
+  constructor(
+    private readonly extensionUri: vscode.Uri,
+    private readonly context: vscode.ExtensionContext,
+  ) {}
 
   resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -49,18 +52,18 @@ export class ChatProvider implements vscode.WebviewViewProvider {
   }
 
   private onStartMessages(webviewView: vscode.WebviewView) {
-    console.log('00000000000000000000000000', Conf.chatConfig, Conf.autoCompleteConfig);
     webviewView.webview.postMessage({
-      type: CONFIG_PARAGRAPH.chatConfig,
-      payload: Conf.chatConfig,
-    });
-    webviewView.webview.postMessage({
-      type: CONFIG_PARAGRAPH.autoCompleteConfig,
-      payload: Conf.autoCompleteConfig,
+      type: COMMANDS.changeConfig,
+      payload: {
+        [CONFIG_PARAGRAPH.chatConfig]: Conf.chatConfig,
+        [CONFIG_PARAGRAPH.autoCompleteConfig]: Conf.autoCompleteConfig,
+      },
     });
   }
 
   private async onDidReceiveMessage(message: MESSAGE) {
-    await Conf.updateConfig(message);
+    if (message.command === COMMANDS.changeConfig) {
+      await Conf.updateConfig(message);
+    }
   }
 }
