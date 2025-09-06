@@ -7,11 +7,15 @@ import { BottomNavigation, TopNavigation, TextArea } from './components';
 
 export const Chat = () => {
   const [input, setInput] = useState('');
-  const { sendMessage } = useChat();
+  const { sendMessage, messages } = useChat();
 
   return (
     <section className="chat-section">
-      <Box className="messages-container"></Box>
+      <Box className="messages-container">
+        {messages.map((el) => {
+          return <Box>{el.text}</Box>;
+        })}
+      </Box>
 
       <Box className="send-container">
         <TopNavigation />
