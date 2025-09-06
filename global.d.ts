@@ -21,6 +21,7 @@ type ChatSession = { [key: string]: ChatMessage[] };
 
 type State = {
   chatSession: ChatSession;
+  lastSession?: string;
 };
 
 declare const acquireVsCodeApi: () => {

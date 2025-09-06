@@ -12,5 +12,7 @@ export type ChatContextType = {
   messages: ChatMessage[];
   sendMessage: (message: ChatMessage) => void;
   setSession: (session: string) => void;
+  removeSession: (session: string) => void;
+  addSession: () => void;
   session: string;
 };

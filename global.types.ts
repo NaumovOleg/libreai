@@ -33,4 +33,5 @@ export type ChatSession = { [key: string]: ChatMessage[] };
 
 export type State = {
   chatSession: ChatSession;
+  lastSession?: string;
 };
