@@ -14,7 +14,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
   } | null = null;
 
   constructor() {
-    this.aiClient = AIClient.fromSettings();
+    this.aiClient = new AIClient();
   }
 
   async provideInlineCompletionItems(
@@ -36,12 +36,15 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
           language: document.languageId,
         });
 
+        console.log('=========vvvvvvvvv=========', prompt);
+
         let suggestionText = '';
         try {
-          suggestionText = await this.aiClient.triggerSuggestions(prompt);
+          suggestionText = await this.aiClient.autocomplete(prompt);
         } catch (e) {
           console.error('AI inline completion error:', e);
         }
+        console.log('=====rrrrrrrrr=============', suggestionText);
 
         const item = suggestionText
           ? new vscode.InlineCompletionItem(

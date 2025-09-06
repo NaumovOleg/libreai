@@ -10,7 +10,8 @@ export type ConfigContextType = {
 export type ChatContextType = {
   sessions: string[];
   messages: ChatMessage[];
-  sendMessage: (message: ChatMessage) => void;
+  tmpMessage?: ChatMessage;
+  sendMessage: (message: Omit<ChatMessage, 'id' | 'from' | 'time'>) => void;
   setSession: (session: string) => void;
   removeSession: (session: string) => void;
   addSession: () => void;

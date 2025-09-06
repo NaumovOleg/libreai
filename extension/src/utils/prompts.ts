@@ -21,3 +21,14 @@ export const INLINE_SUGGESTION_PROMPT = (data: SuggestionPromptParams): PromptMe
     content: `Complete the following code snippet: ${data.selection?.trim() || data.linePrefix?.trim()}`,
   },
 ];
+
+export const CHAT_PROMPT = (message: string): PromptMessages => [
+  {
+    role: 'system',
+    content: `You are a highly skilled coding assistant.`,
+  },
+  {
+    role: 'user',
+    content: message,
+  },
+];

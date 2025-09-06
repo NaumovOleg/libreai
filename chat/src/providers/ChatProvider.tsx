@@ -1,6 +1,6 @@
 import { useState, type FC, type ReactElement, useEffect } from 'react';
 import { ChatContext } from './context';
-import { State, ChatMessage, vscode, uuid } from '@utils';
+import { State, ChatMessage, vscode, uuid, COMMANDS } from '@utils';
 
 export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [sessions, setSessions] = useState(() => {
@@ -11,6 +11,8 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     return newSession;
   });
 
+  const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [session, setSessionId] = useState<string>(() => {
     const { lastSession } = vscode.getState() as State;
@@ -18,13 +20,41 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   });
 
   useEffect(() => {
-    if (sessions[session]?.length) {
-      setMessages(sessions[session]);
+    const handler = (event: MessageEvent) => {
+      if (event.data.type === COMMANDS['chat-stream']) {
+        seTemporaryMessage((prev) => {
+          if (!prev) {
+            return { id: uuid(7), from: 'ai', time: new Date(), text: event.data.payload };
+          }
+          return { ...prev, text: prev.text + event.data.payload };
+        });
+      }
+      if (event.data.type === COMMANDS['chat-stream-end']) {
+        seTemporaryMessage((prevMsg) => {
+          if (!prevMsg) return undefined;
+          setSessions((prevSession) => {
+            return {
+              ...prevSession,
+              [session]: prevSession[session].concat(prevMsg),
+            };
+          });
+          setMessages((prev) => [...prev, prevMsg]);
+          return undefined;
+        });
+      }
+    };
+    window.addEventListener('message', handler);
+  }, [session]);
+
+  useEffect(() => {
+    if (!messages.length) {
+      setMessages(sessions[session] ?? []);
     }
-  }, [sessions]);
+  }, [sessions, session]);
 
   const setSession = (sessionId: string) => {
     setSessionId(sessionId);
+    setMessages(sessions[session] ?? []);
     vscode.setState({ ...vscode.getState(), lastSession: sessionId });
   };
 
@@ -37,6 +67,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
       return data;
     });
     setSession(newSession);
+    setMessages([]);
   };
 
   const removeSession = (sessionId: string) => {
@@ -47,7 +78,13 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     });
   };
 
-  const sendMessage = (message: ChatMessage) => {
+  const sendMessage = (data: Omit<ChatMessage, 'id' | 'time' | 'from'>) => {
+    const message: ChatMessage = {
+      ...data,
+      id: uuid(7),
+      from: 'user',
+      time: new Date(),
+    };
     setSessions((s) => {
       const data = {
         ...s,
@@ -55,6 +92,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
       };
 
       vscode.setState({ ...vscode.getState(), chatSession: data });
+      vscode.postMessage({ command: COMMANDS.sendMessage, value: message });
       return data;
     });
   };
@@ -69,6 +107,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     sessions: sessionList.reverse(),
     sendMessage,
     removeSession,
+    tmpMessage,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

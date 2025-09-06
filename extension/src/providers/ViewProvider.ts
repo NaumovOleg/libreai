@@ -2,12 +2,14 @@ import fs from 'fs';
 import path from 'path';
 import * as vscode from 'vscode';
 
-import { COMMANDS, Conf, CONFIG_PARAGRAPH, MESSAGE } from '../utils';
+import { AIClient } from '../clients';
+import { ChatMessage, COMMANDS, Conf, CONFIG_PARAGRAPH, MESSAGE } from '../utils';
 
 export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
   private mediaFolder = 'out/view';
   private vebView: vscode.WebviewView;
+  private aiClient = new AIClient();
 
   constructor(private readonly extensionUri: vscode.Uri) {}
 
@@ -58,6 +60,25 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     });
   }
 
+  private async onReceivedUserChatMessage(message: ChatMessage) {
+    console.log('onReceivedUserChatMessage', message);
+    try {
+      for await (const chunk of this.aiClient.chat([{ role: 'user', content: message.text }])) {
+        this.vebView.webview.postMessage({
+          type: 'chat-stream',
+          payload: chunk,
+        });
+      }
+
+      this.vebView.webview.postMessage({ type: 'chat-stream-end' });
+    } catch (err: any) {
+      this.vebView.webview.postMessage({
+        type: 'chat-stream-error',
+        payload: err.message,
+      });
+    }
+  }
+
   private async onDidReceiveMessage(message: MESSAGE) {
     if (message.command === COMMANDS.changeConfig) {
       await Conf.updateConfig(message);
@@ -65,6 +86,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     if (message.command === COMMANDS.configListenerMounted) {
       await this.onStartMessages();
+    }
+
+    if (message.command === COMMANDS.sendMessage) {
+      await this.onReceivedUserChatMessage(message.value);
     }
   }
 }

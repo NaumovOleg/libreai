@@ -6,6 +6,9 @@ declare enum CONFIG_PARAGRAPH {
 declare enum COMMANDS {
   'changeConfig' = 'changeConfig',
   'configListenerMounted' = 'configListenerMounted',
+  'sendMessage' = 'sendMessage',
+  'chat-stream' = 'chat-stream',
+  'chat-stream-end' = 'chat-stream-end',
 }
 
 declare type MESSAGE = { command: COMMANDS; key?: CONFIG_PARAGRAPH; value?: unknown };
