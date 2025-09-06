@@ -14,6 +14,7 @@ type ChatMessage = {
   from: 'user' | 'ai';
   text: string;
   time?: Date;
+  id: string;
 };
 
 type ChatSession = { [key: string]: ChatMessage[] };

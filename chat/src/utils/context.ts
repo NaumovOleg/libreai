@@ -1,4 +1,4 @@
-import { AiConfigT, ChatMessage, ChatSession, CONFIG_PARAGRAPH } from './types';
+import { AiConfigT, ChatMessage, CONFIG_PARAGRAPH } from './types';
 
 export type ConfigContextType = {
   [CONFIG_PARAGRAPH.chatConfig]: AiConfigT;
@@ -8,6 +8,9 @@ export type ConfigContextType = {
 };
 
 export type ChatContextType = {
-  sessions: ChatSession;
-  sendMessage: (session: string, message: ChatMessage) => void;
+  sessions: string[];
+  messages: ChatMessage[];
+  sendMessage: (message: ChatMessage) => void;
+  setSession: (session: string) => void;
+  session: string;
 };

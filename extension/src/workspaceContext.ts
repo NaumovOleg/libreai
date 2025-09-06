@@ -20,6 +20,7 @@ export async function gatherWorkspaceContext(
   ];
 
   const uris: vscode.Uri[] = [];
+  console.log('------------------------', uris);
   for (const pattern of patterns) {
     const found = await vscode.workspace.findFiles(pattern, '**/node_modules/**', maxFiles * 3);
     for (const f of found) {
