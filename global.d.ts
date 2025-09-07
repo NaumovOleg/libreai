@@ -13,10 +13,21 @@ declare enum COMMANDS {
   agent = 'agent',
 }
 
-declare type MESSAGE = { command: COMMANDS; key?: CONFIG_PARAGRAPH; value?: unknown };
+declare type MESSAGE = {
+  command: COMMANDS;
+  key?: CONFIG_PARAGRAPH;
+  value?: AiConfigT | ChatMessage;
+};
 
-type ChatMessage = {
-  from: 'user' | 'ai';
+declare enum Providers {
+  user = 'user',
+  ai = 'ai',
+  agent = 'agent',
+}
+
+declare type ChatMessage = {
+  from: Providers;
+  to: Providers;
   text: string;
   time?: Date;
   id: string;

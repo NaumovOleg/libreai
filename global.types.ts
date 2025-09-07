@@ -13,8 +13,11 @@ export enum COMMANDS {
   agent = 'agent',
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type MESSAGE = { command: COMMANDS; key: CONFIG_PARAGRAPH; value: any };
+export type MESSAGE = {
+  command: COMMANDS;
+  key?: CONFIG_PARAGRAPH;
+  value?: AiConfigT | ChatMessage;
+};
 
 export type ProviderName = 'openai' | 'ollama';
 
@@ -27,11 +30,19 @@ export interface AiConfigT {
   temperature?: number;
 }
 
+export enum Providers {
+  user = 'user',
+  ai = 'ai',
+  agent = 'agent',
+}
+
 export type ChatMessage = {
-  from: 'user' | 'ai';
+  from: Providers;
+  to: Providers;
   text: string;
   time?: Date;
   id: string;
+  session: string;
 };
 
 export type ChatSession = { [key: string]: ChatMessage[] };

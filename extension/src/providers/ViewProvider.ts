@@ -4,7 +4,16 @@ import * as vscode from 'vscode';
 
 import { AIAgent } from '../agents';
 import { AIClient } from '../clients';
-import { CHAT_PROMPT, ChatMessage, COMMANDS, Conf, CONFIG_PARAGRAPH, MESSAGE } from '../utils';
+import {
+  CHAT_PROMPT,
+  ChatMessage,
+  COMMANDS,
+  Conf,
+  CONFIG_PARAGRAPH,
+  MESSAGE,
+  Providers,
+  uuid,
+} from '../utils';
 
 export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
@@ -69,7 +78,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       for await (const chunk of this.aiClient.chat(CHAT_PROMPT(message.text))) {
         this.vebView.webview.postMessage({
           type: COMMANDS.chatStream,
-          payload: chunk,
+          payload: {
+            from: Providers.ai,
+            to: Providers.user,
+            time: new Date(),
+            text: chunk,
+            id: uuid(7),
+            session: message.session,
+          },
         });
       }
 
@@ -81,7 +97,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async onDidReceiveMessage(message: MESSAGE) {
-    console.log(message);
     if (message.command === COMMANDS.changeConfig) {
       await Conf.updateConfig(message);
     }
@@ -90,12 +105,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       await this.onStartMessages();
     }
 
+    const value = message.value as ChatMessage;
+
     if (message.command === COMMANDS.sendMessage) {
-      await this.useAgent(message.value.text);
-      // await this.onReceivedUserChatMessage(message.value);
+      // await this.useAgent(message.value.text);
+      await this.onReceivedUserChatMessage(value);
     }
     if (message.command === COMMANDS.agent) {
-      await this.useAgent(message.value);
+      await this.useAgent(value.text);
     }
   }
 
@@ -106,10 +123,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   public updateContext(payload: unknown) {
     if (!this.vebView) return;
 
-    this.vebView.webview.postMessage({
-      type: COMMANDS.changeConfig,
-      payload,
-    });
+    this.vebView.webview.postMessage({ type: COMMANDS.changeConfig, payload });
   }
 
   // private askFrontendForConfirmation(instr: AgentInstruction): Promise<boolean> {

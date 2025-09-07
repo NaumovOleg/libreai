@@ -1,4 +1,4 @@
-import { AiConfigT, ChatMessage, CONFIG_PARAGRAPH } from './types';
+import { AiConfigT, ChatMessage, CONFIG_PARAGRAPH, Providers } from './types';
 
 export type ConfigContextType = {
   [CONFIG_PARAGRAPH.chatConfig]: AiConfigT;
@@ -11,10 +11,12 @@ export type ChatContextType = {
   sessions: string[];
   messages: ChatMessage[];
   tmpMessage?: ChatMessage;
-  sendMessage: (message: Omit<ChatMessage, 'id' | 'from' | 'time'>) => void;
+  session: string;
+  isStreaming: boolean;
+  provider: Providers;
+  setProvider: (provider: Providers) => void;
+  sendMessage: (message: Omit<ChatMessage, 'id' | 'session' | 'from' | 'time' | 'to'>) => void;
   setSession: (session: string) => void;
   removeSession: (session: string) => void;
   addSession: () => void;
-  session: string;
-  isStreaming: boolean;
 };

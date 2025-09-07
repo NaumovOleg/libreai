@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { AiConfigT, COMMANDS, CONFIG_PARAGRAPH, MESSAGE } from './types';
+import { AiConfigT, CONFIG_PARAGRAPH, MESSAGE } from './types';
 
 const DEFAULT_AI_CONFIG = {
   endpoint: 'http://localhost:11434',
@@ -44,15 +44,13 @@ class Configuration {
   }
 
   async updateConfig(message: MESSAGE) {
-    if (message.command === COMMANDS.changeConfig) {
-      const { key, value } = message;
-      if (key === CONFIG_PARAGRAPH.chatConfig) {
-        return this.updateChatConfig(value);
-      }
+    const { key, value } = message;
+    if (key === CONFIG_PARAGRAPH.chatConfig) {
+      return this.updateChatConfig(value as AiConfigT);
+    }
 
-      if (key === CONFIG_PARAGRAPH.autoCompleteConfig) {
-        return this.updateAutoCompleteConfig(value);
-      }
+    if (key === CONFIG_PARAGRAPH.autoCompleteConfig) {
+      return this.updateAutoCompleteConfig(value as AiConfigT);
     }
   }
 }
