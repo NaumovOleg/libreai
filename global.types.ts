@@ -40,3 +40,10 @@ export type State = {
   chatSession: ChatSession;
   lastSession?: string;
 };
+
+export enum FILE_ACTIONS {
+  createFile = 'createFile',
+  updateFile = 'updateFile',
+  deleteFile = 'deleteFile',
+  renameFile = 'renameFile',
+}

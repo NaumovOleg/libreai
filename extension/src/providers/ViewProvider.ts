@@ -111,4 +111,28 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       payload,
     });
   }
+
+  // private askFrontendForConfirmation(instr: AgentInstruction): Promise<boolean> {
+  //   return new Promise((resolve) => {
+  //     const requestId = Date.now().toString();
+
+  //     const listener = (event: vscode.WebviewMessageEvent) => {
+  //       const message = event.data;
+  //       if (message.type === 'confirmationResponse' && message.requestId === requestId) {
+  //         vscode.window.onDidReceiveMessage?.dispose?.();
+  //         resolve(message.confirmed);
+  //       }
+  //     };
+
+  //     // Подписываемся на ответ
+  //     vscode.window.onDidReceiveMessage?.(listener);
+
+  //     // Отправляем сообщение на фронт
+  //     this.sendToFrontend({
+  //       type: 'confirmInstruction',
+  //       requestId,
+  //       instruction: instr,
+  //     });
+  //   });
+  // }
 }

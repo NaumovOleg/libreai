@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { PromptMessages } from './types';
+import { FILE_ACTIONS, PromptMessages } from './types';
 type SuggestionPromptParams = {
   selection?: string;
   workspaceContext?: string;
@@ -46,12 +46,13 @@ export const AGENT_PROMPT = (data: AgentPromptProps): PromptMessages => {
     {
       role: 'system',
       content:
-        'You are a highly skilled coding assistant. Create and modify files in the project based on user prompt',
+        'You are a highly skilled coding assistant. Create, modify, rename or delete files in the project based on user prompt',
     },
     {
       role: 'user',
-      content: `Project context: ${data.workspaceContext}
-Currnt file: ${data.currentFilePath || 'none'}
+      content: `
+Project context: ${data.workspaceContext}
+Current file: ${data.currentFilePath || 'none'}
 Selection: ${data.selection}
 Instructions: ${data.userPrompt}
 IMPORTANT!!! always return valid json and nothing else.
@@ -59,7 +60,7 @@ IMPORTANT!!! Escape all special characters in string values so the entire output
 Response example:
 [
   {
-    "action": "createFile|updateFile|deleteFile|renameFile",
+    "action": "${FILE_ACTIONS.createFile}|${FILE_ACTIONS.updateFile}|${FILE_ACTIONS.renameFile}|${FILE_ACTIONS.deleteFile}",
     "file": "path/to/file",
     "content": "file content"
   }

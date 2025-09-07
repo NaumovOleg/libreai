@@ -2,10 +2,10 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { AIClient } from '../clients';
-import { AGENT_PROMPT, gatherWorkspaceContext } from '../utils';
+import { AGENT_PROMPT, FILE_ACTIONS, gatherWorkspaceContext } from '../utils';
 
 interface AgentInstruction {
-  action: 'updateFile' | 'createFile' | 'renameFile' | 'deleteFile';
+  action: FILE_ACTIONS;
   file: string;
   content?: string;
   newName?: string;
@@ -53,7 +53,7 @@ export class AIAgent {
       const instructions = this.parseAIResponse(aiResponse);
 
       for (const instr of instructions) {
-        if (instr.action === 'renameFile' && instr.newName) {
+        if (instr.action === FILE_ACTIONS.renameFile && instr.newName) {
           await this.renameFile(instr.file, instr.newName, root);
         } else {
           await this.createOrUpdateFile(instr, root);
