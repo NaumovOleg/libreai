@@ -5,26 +5,26 @@ import { AIClient } from '../clients';
 import { AGENT_PROMPT, gatherWorkspaceContext } from '../utils';
 
 interface AgentInstruction {
-  action: 'updateFile' | 'createFile';
+  action: 'updateFile' | 'createFile' | 'renameFile' | 'deleteFile';
   file: string;
-  content: string;
+  content?: string;
+  newName?: string;
 }
 
 export class AIAgent {
   constructor(private aiClient: AIClient) {}
 
   private parseAIResponse(raw: string): AgentInstruction[] {
-    // Strip all code fences like ```json ... ```
     const cleaned = raw
       .replace(/```(?:json)?/g, '')
       .replace(/```/g, '')
       .trim();
+
     console.log('Cleaned AI Response:', cleaned);
     return JSON.parse(cleaned);
   }
 
   private resolveFilePath(filePath: string, root: string): vscode.Uri {
-    // Normalize AI-provided path
     const absolutePath = path.isAbsolute(filePath) ? filePath : path.join(root, filePath);
     return vscode.Uri.file(absolutePath);
   }
@@ -51,31 +51,35 @@ export class AIAgent {
 
     try {
       const instructions = this.parseAIResponse(aiResponse);
-      console.log('Parsed Instructions:', instructions);
 
-      // Markdown preview
-      const markdown = instructions
-        .map(
-          (instr) =>
-            `**${instr.action.toUpperCase()}**: ${instr.file}\n\n\`\`\`ts\n${instr.content}\n\`\`\``,
-        )
-        .join('\n\n');
-      console.log('Markdown Preview:\n', markdown);
-
-      // Write all files
       for (const instr of instructions) {
-        const uri = this.resolveFilePath(instr.file, root);
-        await this.ensureDirectory(uri);
-        await vscode.workspace.fs.writeFile(uri, Buffer.from(instr.content, 'utf-8'));
+        if (instr.action === 'renameFile' && instr.newName) {
+          await this.renameFile(instr.file, instr.newName, root);
+        } else {
+          await this.createOrUpdateFile(instr, root);
+        }
       }
 
       vscode.window.showInformationMessage(
-        `AI Agent created/updated ${instructions.length} files.`,
+        `AI Agent processed ${instructions.length} instructions.`,
       );
     } catch (err) {
       vscode.window.showErrorMessage('AI Agent failed to parse AI response');
       console.error('Parsing Error:', err, '\nRaw Response:', aiResponse);
     }
+  }
+
+  private async createOrUpdateFile(instr: AgentInstruction, root: string) {
+    const uri = this.resolveFilePath(instr.file, root);
+    await this.ensureDirectory(uri);
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(instr.content || '', 'utf-8'));
+  }
+
+  private async renameFile(oldPath: string, newPath: string, root: string) {
+    const oldUri = this.resolveFilePath(oldPath, root);
+    const newUri = this.resolveFilePath(newPath, root);
+    await this.ensureDirectory(newUri);
+    await vscode.workspace.fs.rename(oldUri, newUri, { overwrite: true });
   }
 
   private async ensureDirectory(fileUri: vscode.Uri) {

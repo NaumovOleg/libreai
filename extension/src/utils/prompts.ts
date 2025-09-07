@@ -59,7 +59,7 @@ IMPORTANT!!! Escape all special characters in string values so the entire output
 Response example:
 [
   {
-    "action": "createFile|updateFile|deleteFile",
+    "action": "createFile|updateFile|deleteFile|renameFile",
     "file": "path/to/file",
     "content": "file content"
   }

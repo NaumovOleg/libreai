@@ -91,7 +91,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
 
     if (message.command === COMMANDS.sendMessage) {
-      await this.useAgent(message.value);
+      await this.useAgent(message.value.text);
       // await this.onReceivedUserChatMessage(message.value);
     }
     if (message.command === COMMANDS.agent) {
