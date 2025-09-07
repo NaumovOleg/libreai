@@ -20,7 +20,7 @@ export async function gatherWorkspaceContext(
   ];
 
   const uris: vscode.Uri[] = [];
-  console.log('------------------------', uris);
+
   for (const pattern of patterns) {
     const found = await vscode.workspace.findFiles(pattern, '**/node_modules/**', maxFiles * 3);
     for (const f of found) {
@@ -29,16 +29,18 @@ export async function gatherWorkspaceContext(
     }
     if (uris.length >= maxFiles * 3) break;
   }
-
-  // Ранжирование по совпадению имени и размеру
   const ranked = await Promise.all(
     uris.map(async (u) => {
-      const stat = await vscode.workspace.fs.stat(u);
-      const name = u.path.split('/').pop() || '';
-      const score =
-        (query && name.toLowerCase().includes(query.toLowerCase()) ? 10 : 0) -
-        Math.log(stat.size + 1);
-      return { uri: u, score };
+      try {
+        const stat = await vscode.workspace.fs.stat(u);
+        const name = u.path.split('/').pop() || '';
+        const score =
+          (query && name.toLowerCase().includes(query.toLowerCase()) ? 10 : 0) -
+          Math.log(stat.size + 1);
+        return { uri: u, score };
+      } catch {
+        return { uri: u, score: -Infinity };
+      }
     }),
   );
 
@@ -55,7 +57,7 @@ export async function gatherWorkspaceContext(
         text.substring(0, Math.floor(maxChars / selected.length));
       if (combined.length >= maxChars) break;
     } catch {
-      // игнорируем ошибки чтения
+      continue;
     }
   }
 

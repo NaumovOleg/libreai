@@ -32,3 +32,39 @@ export const CHAT_PROMPT = (message: string): PromptMessages => [
     content: message,
   },
 ];
+
+type AgentPromptProps = {
+  workspaceContext: string;
+  selection: string;
+  userPrompt: string;
+  currentFilePath?: string;
+};
+
+export const AGENT_PROMPT = (data: AgentPromptProps): PromptMessages => {
+  // editor?.document.uri.fsPath;
+  return [
+    {
+      role: 'system',
+      content:
+        'You are a highly skilled coding assistant. Create and modify files in the project based on user prompt',
+    },
+    {
+      role: 'user',
+      content: `Project context: ${data.workspaceContext}
+Currnt file: ${data.currentFilePath || 'none'}
+Selection: ${data.selection}
+Instructions: ${data.userPrompt}
+IMPORTANT!!! always return valid json and nothing else.
+IMPORTANT!!! Escape all special characters in string values so the entire output is valid JSON. Replace newlines with \n and escape all quotes inside strings. Return only valid JSON, without comments or explanations.
+Response example:
+[
+  {
+    "action": "createFile|updateFile|deleteFile",
+    "file": "path/to/file",
+    "content": "file content"
+  }
+]
+`,
+    },
+  ];
+};

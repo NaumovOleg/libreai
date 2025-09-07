@@ -3,28 +3,36 @@ import { useState } from 'react';
 import Box from '@mui/material/Box';
 import { useChat } from '@hooks';
 
-import { BottomNavigation, TopNavigation, TextArea } from './components';
+import { BottomNavigation, TopNavigation, TextArea, Message } from './components';
 
 export const Chat = () => {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState<string | undefined>();
   const { sendMessage, messages } = useChat();
 
   return (
     <section className="chat-section">
+      <TopNavigation />
       <Box className="messages-container">
-        {messages.map((el) => {
-          return <Box>{el.text}</Box>;
-        })}
+        {messages.map((el) => (
+          <Message key={el.id} message={el} isLoading={false} onDelete={() => {}} />
+        ))}
       </Box>
 
       <Box className="send-container">
-        <TopNavigation />
         <TextArea
+          onPressEnter={() => {
+            setInput('');
+            sendMessage({ text: input ?? '' });
+          }}
           value={input}
           onChange={(val) => setInput(val)}
-          // onKeyDown={}
         />
-        <BottomNavigation sendMessage={() => sendMessage({ text: input })} />
+        <BottomNavigation
+          sendMessage={() => {
+            setInput('');
+            sendMessage({ text: input ?? '' });
+          }}
+        />
       </Box>
     </section>
   );

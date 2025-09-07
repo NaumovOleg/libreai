@@ -1,16 +1,21 @@
 import * as vscode from 'vscode';
 
+import { AIAgent } from './agents';
+import { AIClient } from './clients';
 import { InlineCompletionProvider, ViewProvider } from './providers';
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('AI Extension is now active!');
+  const client = new AIClient();
 
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },
-    new InlineCompletionProvider(),
+    new InlineCompletionProvider(client),
   );
 
-  const chatProvider = new ViewProvider(context.extensionUri);
+  const agent = new AIAgent(client);
+
+  const chatProvider = new ViewProvider(context.extensionUri, client, agent);
 
   const chatView = vscode.window.registerWebviewViewProvider(ViewProvider.viewType, chatProvider);
 
@@ -19,6 +24,12 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.commands.executeCommand('libreChatView.focus');
     }),
   );
+
+  vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+    if (!editor) return;
+
+    chatProvider.updateContext({ editor });
+  });
 
   context.subscriptions.push(inlineProvider, chatView);
 }

@@ -4,12 +4,13 @@ import { State, ChatMessage, vscode, uuid, COMMANDS } from '@utils';
 
 export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [sessions, setSessions] = useState(() => {
-    const { chatSession } = vscode.getState() as State;
-    if (chatSession) return chatSession;
+    const state = vscode.getState() as State;
+    if (state?.chatSession) return state?.chatSession;
     const newSession = { [uuid()]: [] };
     vscode.setState({ chatSession: newSession });
     return newSession;
   });
+  const [isStreaming, setIsStreaming] = useState(false);
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
 
@@ -23,7 +24,8 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
-      if (event.data.type === COMMANDS['chat-stream']) {
+      if (event.data.type === COMMANDS.chatStream) {
+        setIsStreaming(true);
         seTemporaryMessage((prev) => {
           if (!prev) {
             return { id: uuid(7), from: 'ai', time: new Date(), text: event.data.payload };
@@ -31,7 +33,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
           return { ...prev, text: prev.text + event.data.payload };
         });
       }
-      if (event.data.type === COMMANDS['chat-stream-end']) {
+      if (event.data.type === COMMANDS.chatStreamEnd) {
         seTemporaryMessage((prevMsg) => {
           if (!prevMsg) return undefined;
           setSessions((chatSession) => {
@@ -45,6 +47,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
           setMessages((prev) => [...prev, prevMsg]);
           return undefined;
         });
+        setIsStreaming(true);
       }
     };
     window.addEventListener('message', handler);
@@ -56,11 +59,13 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   }, [session]);
 
   const setSession = (sessionId: string) => {
+    if (isStreaming) return;
     setSessionId(sessionId);
     vscode.setState({ ...vscode.getState(), lastSession: sessionId });
   };
 
   const addSession = () => {
+    if (isStreaming) return;
     const newSession = uuid();
     setSessions((prev) => {
       const data = { ...prev, [newSession]: [] };
@@ -73,6 +78,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   };
 
   const removeSession = (sessionId: string) => {
+    if (isStreaming) return;
     setSessions((prev) => {
       delete prev[sessionId];
       vscode.setState({ ...vscode.getState(), chatSession: prev });
@@ -113,6 +119,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     sendMessage,
     removeSession,
     tmpMessage,
+    isStreaming,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

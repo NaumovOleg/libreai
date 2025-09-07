@@ -7,6 +7,11 @@ export const TopNavigation = () => {
 
   return (
     <div className="top-navigation navigation">
+      <div className="buttons">
+        <IconButton onClick={addSession} color="secondary">
+          <Add />
+        </IconButton>
+      </div>
       <div className="sessions">
         {sessions.map((s) => (
           <div
@@ -30,11 +35,6 @@ export const TopNavigation = () => {
             {s}
           </div>
         ))}
-      </div>
-      <div className="buttons">
-        <IconButton onClick={addSession} color="secondary">
-          <Add />
-        </IconButton>
       </div>
     </div>
   );

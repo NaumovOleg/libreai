@@ -2,11 +2,12 @@ import { FC } from 'react';
 import TextareaAutosize from '@mui/material/TextareaAutosize';
 
 type Props = {
-  value: string;
+  value?: string;
   onChange: (message: string) => void;
+  onPressEnter?: () => void;
 };
 
-export const TextArea: FC<Props> = ({ value, onChange }) => {
+export const TextArea: FC<Props> = ({ value, onChange, onPressEnter }) => {
   return (
     <TextareaAutosize
       maxRows={6}
@@ -15,7 +16,11 @@ export const TextArea: FC<Props> = ({ value, onChange }) => {
       placeholder="Ask ai copilot"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      // onKeyDown={}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          onPressEnter?.();
+        }
+      }}
     />
   );
 };

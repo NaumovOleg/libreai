@@ -4,11 +4,13 @@ export enum CONFIG_PARAGRAPH {
 }
 
 export enum COMMANDS {
-  'changeConfig' = 'changeConfig',
-  'configListenerMounted' = 'configListenerMounted',
-  'sendMessage' = 'sendMessage',
-  'chat-stream' = 'chat-stream',
-  'chat-stream-end' = 'chat-stream-end',
+  changeConfig = 'changeConfig',
+  configListenerMounted = 'configListenerMounted',
+  sendMessage = 'sendMessage',
+  chatStream = 'chatStream',
+  chatStreamEnd = 'chatStreamEnd',
+  updatedContext = 'updatedContext',
+  agent = 'agent',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

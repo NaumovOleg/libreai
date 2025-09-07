@@ -2,16 +2,20 @@ import fs from 'fs';
 import path from 'path';
 import * as vscode from 'vscode';
 
+import { AIAgent } from '../agents';
 import { AIClient } from '../clients';
-import { ChatMessage, COMMANDS, Conf, CONFIG_PARAGRAPH, MESSAGE } from '../utils';
+import { CHAT_PROMPT, ChatMessage, COMMANDS, Conf, CONFIG_PARAGRAPH, MESSAGE } from '../utils';
 
 export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
   private mediaFolder = 'out/view';
   private vebView: vscode.WebviewView;
-  private aiClient = new AIClient();
 
-  constructor(private readonly extensionUri: vscode.Uri) {}
+  constructor(
+    private readonly extensionUri: vscode.Uri,
+    private aiClient: AIClient,
+    private agent: AIAgent,
+  ) {}
 
   resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -61,25 +65,23 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async onReceivedUserChatMessage(message: ChatMessage) {
-    console.log('onReceivedUserChatMessage', message);
     try {
-      for await (const chunk of this.aiClient.chat([{ role: 'user', content: message.text }])) {
+      for await (const chunk of this.aiClient.chat(CHAT_PROMPT(message.text))) {
         this.vebView.webview.postMessage({
-          type: 'chat-stream',
+          type: COMMANDS.chatStream,
           payload: chunk,
         });
       }
 
-      this.vebView.webview.postMessage({ type: 'chat-stream-end' });
+      this.vebView.webview.postMessage({ type: COMMANDS.chatStreamEnd });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      this.vebView.webview.postMessage({
-        type: 'chat-stream-error',
-        payload: err.message,
-      });
+      console.log(err);
     }
   }
 
   private async onDidReceiveMessage(message: MESSAGE) {
+    console.log(message);
     if (message.command === COMMANDS.changeConfig) {
       await Conf.updateConfig(message);
     }
@@ -89,7 +91,24 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
 
     if (message.command === COMMANDS.sendMessage) {
-      await this.onReceivedUserChatMessage(message.value);
+      await this.useAgent(message.value);
+      // await this.onReceivedUserChatMessage(message.value);
     }
+    if (message.command === COMMANDS.agent) {
+      await this.useAgent(message.value);
+    }
+  }
+
+  public async useAgent(prompt: string) {
+    await this.agent.run(prompt);
+  }
+
+  public updateContext(payload: unknown) {
+    if (!this.vebView) return;
+
+    this.vebView.webview.postMessage({
+      type: COMMANDS.changeConfig,
+      payload,
+    });
   }
 }

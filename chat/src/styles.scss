@@ -28,7 +28,26 @@ section {
   justify-content: flex-start;
   align-items: flex-start;
   padding: 0 10px;
-  height: calc(100vh - 35px);
+  height: calc(100vh - 50px);
+}
+::-webkit-scrollbar {
+  width: 8px; /* ширина скроллбара */
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* трек прозрачный */
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 150, 0.5); /* цвет ползунка */
+  border-radius: 4px;
+}
+
+/* Для Firefox */
+* {
+  scrollbar-width: thin; /* тонкий скролл */
+  scrollbar-color: rgba(150, 150, 150, 0.5) transparent;
 }
 
 // --vscode-editor-background

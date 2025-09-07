@@ -16,4 +16,5 @@ export type ChatContextType = {
   removeSession: (session: string) => void;
   addSession: () => void;
   session: string;
+  isStreaming: boolean;
 };
