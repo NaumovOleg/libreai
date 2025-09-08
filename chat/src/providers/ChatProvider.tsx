@@ -11,7 +11,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     return newSession;
   });
   const [isStreaming, setIsStreaming] = useState(false);
-  const [provider, setProvider] = useState<Providers>(Providers.ai);
+  const [provider, setProvider] = useState<Providers>(Providers.agent);
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
 
@@ -78,11 +78,10 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   };
 
   const removeSession = (sessionId: string) => {
-    console.log('++++++++++++', sessionId, sessions);
     if (isStreaming) return;
+    vscode.postMessage({ command: COMMANDS.removeChatSession, value: sessionId });
     setSessions((prev) => {
       delete prev[sessionId];
-      console.log('------', prev);
       vscode.setState({ ...vscode.getState(), chatSession: prev });
       return { ...prev };
     });

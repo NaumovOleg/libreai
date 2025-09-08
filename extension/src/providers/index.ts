@@ -1,2 +1,2 @@
 export * from './InlineCompletionProvider';
-export * from './ViewProvider';
+export * from './view';

@@ -2,18 +2,19 @@ import fs from 'fs';
 import path from 'path';
 import * as vscode from 'vscode';
 
-import { AIAgent } from '../agents';
-import { AIClient } from '../clients';
+import { AIAgent } from '../../agents';
+import { AIClient, SessionStorage } from '../../clients';
 import {
   CHAT_PROMPT,
   ChatMessage,
   COMMANDS,
   Conf,
   CONFIG_PARAGRAPH,
+  getContext,
   MESSAGE,
   Providers,
   uuid,
-} from '../utils';
+} from '../../utils';
 
 export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
@@ -24,6 +25,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     private readonly extensionUri: vscode.Uri,
     private aiClient: AIClient,
     private agent: AIAgent,
+    private storage: SessionStorage,
   ) {}
 
   resolveWebviewView(
@@ -73,23 +75,32 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     });
   }
 
-  private async onReceivedUserChatMessage(message: ChatMessage) {
+  private onReceiveUserMessage(message: ChatMessage) {
+    if (message.to == Providers.ai) {
+      return this.useChat(message);
+    }
+    if (message.to == Providers.agent) {
+      return this.useAgent(message);
+    }
+  }
+
+  private async useChat(message: ChatMessage) {
     try {
+      const payload = {
+        from: Providers.ai,
+        to: Providers.user,
+        time: new Date(),
+        text: '',
+        id: uuid(7),
+        session: message.session,
+      };
       for await (const chunk of this.aiClient.chat(CHAT_PROMPT(message.text))) {
-        this.vebView.webview.postMessage({
-          type: COMMANDS.chatStream,
-          payload: {
-            from: Providers.ai,
-            to: Providers.user,
-            time: new Date(),
-            text: chunk,
-            id: uuid(7),
-            session: message.session,
-          },
-        });
+        payload.text += chunk;
+        this.vebView.webview.postMessage({ type: COMMANDS.chatStream, payload });
       }
 
       this.vebView.webview.postMessage({ type: COMMANDS.chatStreamEnd });
+      await this.storage.addChatHistory([message, payload]);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.log(err);
@@ -100,6 +111,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     if (message.command === COMMANDS.changeConfig) {
       await Conf.updateConfig(message);
     }
+    if (message.command === COMMANDS.removeChatSession) {
+      await this.storage.removeSession(message.value as string);
+    }
 
     if (message.command === COMMANDS.configListenerMounted) {
       await this.onStartMessages();
@@ -108,16 +122,31 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     const value = message.value as ChatMessage;
 
     if (message.command === COMMANDS.sendMessage) {
-      // await this.useAgent(message.value.text);
-      await this.onReceivedUserChatMessage(value);
-    }
-    if (message.command === COMMANDS.agent) {
-      await this.useAgent(value.text);
+      await this.onReceiveUserMessage(value);
     }
   }
 
-  public async useAgent(prompt: string) {
-    await this.agent.run(prompt);
+  public async useAgent(message: ChatMessage) {
+    const context = await getContext();
+    const history = this.storage.getSessionChatHistory(message.session);
+    const data = { ...context, userPrompt: message.text, history };
+    if (message.instruction && message.text === 'next') {
+      await this.agent.processInstruction(message.instruction);
+    }
+    const instruction = await this.agent.run(data);
+
+    const responseMessage: ChatMessage = {
+      from: Providers.agent,
+      to: Providers.user,
+      text: '<instruction>',
+      time: new Date(),
+      id: uuid(),
+      session: message.session,
+      type: 'instruction',
+      instruction,
+    };
+
+    this.storage.addChatHistoryItems([message, responseMessage]);
   }
 
   public updateContext(payload: unknown) {
@@ -125,28 +154,4 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     this.vebView.webview.postMessage({ type: COMMANDS.changeConfig, payload });
   }
-
-  // private askFrontendForConfirmation(instr: AgentInstruction): Promise<boolean> {
-  //   return new Promise((resolve) => {
-  //     const requestId = Date.now().toString();
-
-  //     const listener = (event: vscode.WebviewMessageEvent) => {
-  //       const message = event.data;
-  //       if (message.type === 'confirmationResponse' && message.requestId === requestId) {
-  //         vscode.window.onDidReceiveMessage?.dispose?.();
-  //         resolve(message.confirmed);
-  //       }
-  //     };
-
-  //     // Подписываемся на ответ
-  //     vscode.window.onDidReceiveMessage?.(listener);
-
-  //     // Отправляем сообщение на фронт
-  //     this.sendToFrontend({
-  //       type: 'confirmInstruction',
-  //       requestId,
-  //       instruction: instr,
-  //     });
-  //   });
-  // }
 }

@@ -2,25 +2,17 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { AIClient } from '../clients';
-import { AGENT_PROMPT, FILE_ACTIONS, gatherWorkspaceContext } from '../utils';
-
-interface AgentInstruction {
-  action: FILE_ACTIONS;
-  file: string;
-  content?: string;
-  newName?: string;
-}
+import { AGENT_PROMPT, AgentInstruction, FILE_ACTIONS } from '../utils';
 
 export class AIAgent {
   constructor(private aiClient: AIClient) {}
 
-  private parseAIResponse(raw: string): AgentInstruction[] {
+  private parseAIResponse(raw: string): AgentInstruction {
     const cleaned = raw
       .replace(/```(?:json)?/g, '')
       .replace(/```/g, '')
       .trim();
 
-    console.log('Cleaned AI Response:', cleaned);
     return JSON.parse(cleaned);
   }
 
@@ -29,40 +21,29 @@ export class AIAgent {
     return vscode.Uri.file(absolutePath);
   }
 
-  async run(userPrompt: string) {
+  async run(data: {
+    userPrompt: string;
+    history: string[];
+    selection: string;
+    currentFilePath: string;
+    workspaceContext: string;
+  }) {
     if (!vscode.workspace.workspaceFolders?.length) return;
-    const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const editor = vscode.window.activeTextEditor;
-
-    const selection = editor?.document.getText(editor.selection) || '';
-    const workspaceContext = await gatherWorkspaceContext(6, 6000);
 
     const messages = AGENT_PROMPT({
-      workspaceContext,
-      selection,
-      currentFilePath: editor?.document.uri.fsPath || 'none',
-      userPrompt,
+      workspaceContext: data.workspaceContext,
+      selection: data.selection,
+      currentFilePath: data.currentFilePath,
+      userPrompt: data.userPrompt,
+      history: data.history,
     });
-
     let aiResponse = '';
     for await (const chunk of this.aiClient.chat(messages)) {
       aiResponse += chunk;
     }
-
     try {
-      const instructions = this.parseAIResponse(aiResponse);
-
-      for (const instr of instructions) {
-        if (instr.action === FILE_ACTIONS.renameFile && instr.newName) {
-          await this.renameFile(instr.file, instr.newName, root);
-        } else {
-          await this.createOrUpdateFile(instr, root);
-        }
-      }
-
-      vscode.window.showInformationMessage(
-        `AI Agent processed ${instructions.length} instructions.`,
-      );
+      const instruction = this.parseAIResponse(aiResponse);
+      return instruction;
     } catch (err) {
       vscode.window.showErrorMessage('AI Agent failed to parse AI response');
       console.error('Parsing Error:', err, '\nRaw Response:', aiResponse);
@@ -88,6 +69,16 @@ export class AIAgent {
       await vscode.workspace.fs.stat(dirUri);
     } catch {
       await vscode.workspace.fs.createDirectory(dirUri);
+    }
+  }
+
+  async processInstruction(instruction: AgentInstruction) {
+    if (!vscode.workspace.workspaceFolders?.length) return;
+    const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
+    if (instruction.action === FILE_ACTIONS.renameFile && instruction.newName) {
+      await this.renameFile(instruction.file, instruction.newName, root);
+    } else {
+      await this.createOrUpdateFile(instruction, root);
     }
   }
 }

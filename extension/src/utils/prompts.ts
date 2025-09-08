@@ -38,34 +38,36 @@ type AgentPromptProps = {
   selection: string;
   userPrompt: string;
   currentFilePath?: string;
+  history: string[];
 };
 
 export const AGENT_PROMPT = (data: AgentPromptProps): PromptMessages => {
-  // editor?.document.uri.fsPath;
   return [
     {
       role: 'system',
-      content:
-        'You are a highly skilled coding assistant. Create, modify, rename or delete files in the project based on user prompt',
-    },
-    {
-      role: 'user',
-      content: `
-Project context: ${data.workspaceContext}
-Current file: ${data.currentFilePath || 'none'}
-Selection: ${data.selection}
-Instructions: ${data.userPrompt}
+      content: `You are an AI coding assistant. You provide instructions to the user for editing, creating, renaming and deleting code files step by step.
+Rules:
+1. Respond with **one instruction at a time** in JSON format:
+{
+  "action": "${FILE_ACTIONS.createFile}|${FILE_ACTIONS.updateFile}|${FILE_ACTIONS.renameFile}|${FILE_ACTIONS.deleteFile}",
+  "file": "path/to/file",
+  "content": "file content",
+  "newName": "new file name",
+  "hasNext": true|false
+}
+2. After sending an instruction, **wait for the user to respond** with one of these commands:
+- "next" → Apply instruction and provide the next one.
+- "cancel" → Finish the current task.
+3. Only send the next instruction after receiving a "next" command. Never send multiple instructions at once.
+4. Use this information to generate instructions accurately:
+- Project context: ${data.workspaceContext}.
+- History: ${data.history.join('\n')}. 
+- Current file: ${data.currentFilePath || 'none'}.
+- Selection: ${data.selection}.
+5. Keep responses strictly in JSON format, no explanations, markdown, or extra text.' }]
 IMPORTANT!!! always return valid json and nothing else.
-IMPORTANT!!! Escape all special characters in string values so the entire output is valid JSON. Replace newlines with \n and escape all quotes inside strings. Return only valid JSON, without comments or explanations.
-Response example:
-[
-  {
-    "action": "${FILE_ACTIONS.createFile}|${FILE_ACTIONS.updateFile}|${FILE_ACTIONS.renameFile}|${FILE_ACTIONS.deleteFile}",
-    "file": "path/to/file",
-    "content": "file content"
-  }
-]
-`,
+IMPORTANT!!! Escape all special characters in string values so the entire output is valid JSON. Replace newlines with \n and escape all quotes inside strings. Return only valid JSON, without comments or explanations.`,
     },
+    { role: 'user', content: data.userPrompt },
   ];
 };

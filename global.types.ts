@@ -10,13 +10,13 @@ export enum COMMANDS {
   chatStream = 'chatStream',
   chatStreamEnd = 'chatStreamEnd',
   updatedContext = 'updatedContext',
-  agent = 'agent',
+  removeChatSession = 'removeChatSession',
 }
 
 export type MESSAGE = {
   command: COMMANDS;
   key?: CONFIG_PARAGRAPH;
-  value?: AiConfigT | ChatMessage;
+  value?: AiConfigT | ChatMessage | string;
 };
 
 export type ProviderName = 'openai' | 'ollama';
@@ -36,6 +36,21 @@ export enum Providers {
   agent = 'agent',
 }
 
+export type ChatSession = { [key: string]: ChatMessage[] };
+
+export type State = {
+  chatSession: ChatSession;
+  lastSession?: string;
+};
+
+export type AgentInstruction = {
+  action: FILE_ACTIONS;
+  file: string;
+  content: string;
+  newName: string;
+  hasNext: true | false;
+};
+
 export type ChatMessage = {
   from: Providers;
   to: Providers;
@@ -43,13 +58,8 @@ export type ChatMessage = {
   time?: Date;
   id: string;
   session: string;
-};
-
-export type ChatSession = { [key: string]: ChatMessage[] };
-
-export type State = {
-  chatSession: ChatSession;
-  lastSession?: string;
+  type?: 'message' | 'instruction';
+  instruction?: AgentInstruction;
 };
 
 export enum FILE_ACTIONS {

@@ -63,3 +63,12 @@ export async function gatherWorkspaceContext(
 
   return combined.substring(0, maxChars);
 }
+
+export const getContext = async (maxChars = 60000) => {
+  const editor = vscode.window.activeTextEditor;
+  const selection = editor?.document.getText(editor.selection) || '';
+  const workspaceContext = await gatherWorkspaceContext(6, maxChars);
+  const currentFilePath = editor?.document.uri.fsPath || 'none';
+
+  return { editor, selection, workspaceContext, currentFilePath };
+};

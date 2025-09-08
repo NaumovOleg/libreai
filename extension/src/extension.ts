@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
 
 import { AIAgent } from './agents';
-import { AIClient } from './clients';
+import { AIClient, SessionStorage } from './clients';
 import { InlineCompletionProvider, ViewProvider } from './providers';
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('AI Extension is now active!');
   const client = new AIClient();
+  const storage = new SessionStorage(context);
 
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },
@@ -15,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const agent = new AIAgent(client);
 
-  const chatProvider = new ViewProvider(context.extensionUri, client, agent);
+  const chatProvider = new ViewProvider(context.extensionUri, client, agent, storage);
 
   const chatView = vscode.window.registerWebviewViewProvider(ViewProvider.viewType, chatProvider);
 

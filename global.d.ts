@@ -10,7 +10,7 @@ declare enum COMMANDS {
   chatStream = 'chatStream',
   chatStreamEnd = 'chatStreamEnd',
   updatedContext = 'updatedContext',
-  agent = 'agent',
+  removeChatSession = 'removeChatSession',
 }
 
 declare type MESSAGE = {
@@ -31,6 +31,7 @@ declare type ChatMessage = {
   text: string;
   time?: Date;
   id: string;
+  session: string;
 };
 
 type ChatSession = { [key: string]: ChatMessage[] };
