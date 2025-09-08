@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { FILE_ACTIONS, PromptMessages, PromptProps } from './types';
+import { AGENT_ACTIONS, PromptMessages, PromptProps } from './types';
 type SuggestionPromptParams = {
   selection?: string;
   workspaceContext?: string;
@@ -43,13 +43,13 @@ export const AGENT_PROMPT = (data: PromptProps): PromptMessages => {
   return [
     {
       role: 'system',
-      content: `You are an AI coding assistant. You provide instructions to the user for editing, creating, renaming and deleting code files step by step.
+      content: `You are an AI coding assistant. You provide instructions to the user for editing, creating, renaming and deleting code files or executing terminal commands step by step.
 Rules:
 1. Respond with **one instruction at a time** in JSON format:
 {
-  "action": "${FILE_ACTIONS.createFile}|${FILE_ACTIONS.updateFile}|${FILE_ACTIONS.renameFile}|${FILE_ACTIONS.deleteFile}",
+  "action": "${AGENT_ACTIONS.createFile}|${AGENT_ACTIONS.updateFile}|${AGENT_ACTIONS.renameFile}|${AGENT_ACTIONS.deleteFile}|${AGENT_ACTIONS.executeCommand}",
   "file": "path/to/file",
-  "content": "file content",
+  "content": "file content or bash command",
   "newName": "new file name",
   "hasNext": true|false
   "language": programming language of code snippet in lowercase

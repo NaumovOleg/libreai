@@ -45,7 +45,7 @@ export type State = {
 };
 
 export type AgentInstruction = {
-  action: FILE_ACTIONS;
+  action: AGENT_ACTIONS;
   file: string;
   content: string;
   newName: string;
@@ -64,9 +64,10 @@ export type ChatMessage = {
   instruction?: AgentInstruction;
 };
 
-export enum FILE_ACTIONS {
+export enum AGENT_ACTIONS {
   createFile = 'createFile',
   updateFile = 'updateFile',
   deleteFile = 'deleteFile',
   renameFile = 'renameFile',
+  executeCommand = 'executeCommand',
 }

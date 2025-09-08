@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { AIClient } from '../clients';
-import { AGENT_PROMPT, AgentInstruction, FILE_ACTIONS } from '../utils';
+import { AGENT_ACTIONS, AGENT_PROMPT, AgentInstruction } from '../utils';
 
 export class AIAgent {
   constructor(private aiClient: AIClient) {}
@@ -65,6 +65,12 @@ export class AIAgent {
     await vscode.workspace.fs.rename(oldUri, newUri, { overwrite: true });
   }
 
+  private async deleteFile(path: string, root: string) {
+    const uri = this.resolveFilePath(path, root);
+
+    await vscode.workspace.fs.delete(uri);
+  }
+
   private async ensureDirectory(fileUri: vscode.Uri) {
     const dirUri = vscode.Uri.file(path.dirname(fileUri.fsPath));
     try {
@@ -74,13 +80,37 @@ export class AIAgent {
     }
   }
 
+  async executeCommand(command: string, root: string) {
+    try {
+      if (!vscode.workspace.workspaceFolders?.length) {
+        vscode.window.showErrorMessage('No workspace folder is open.');
+        return;
+      }
+
+      const terminal = vscode.window.createTerminal({ name: 'AI Agent', cwd: root });
+      terminal.show(true);
+
+      terminal.sendText(command, true);
+    } catch (err) {
+      vscode.window.showErrorMessage(`Failed to execute command: ${command}`);
+      console.error(err);
+    }
+  }
+
   async processInstruction(instruction: AgentInstruction) {
     if (!vscode.workspace.workspaceFolders?.length) return;
     const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    if (instruction.action === FILE_ACTIONS.renameFile && instruction.newName) {
+    if (instruction.action === AGENT_ACTIONS.renameFile && instruction.newName) {
       await this.renameFile(instruction.file, instruction.newName, root);
-    } else {
+    }
+    if (instruction.action === AGENT_ACTIONS.deleteFile) {
+      await this.deleteFile(instruction.file, root);
+    }
+    if ([AGENT_ACTIONS.createFile, AGENT_ACTIONS.updateFile].includes(instruction.action)) {
       await this.createOrUpdateFile(instruction, root);
+    }
+    if (instruction.action === AGENT_ACTIONS.executeCommand) {
+      await this.executeCommand(instruction.content, root);
     }
   }
 }
