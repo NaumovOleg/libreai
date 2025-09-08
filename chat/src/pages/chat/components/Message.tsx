@@ -1,4 +1,4 @@
-import { ChatMessage, Providers } from '@utils';
+import { ChatMessage, Providers, extractTextFromNode } from '@utils';
 import { FC, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
@@ -58,7 +58,27 @@ export const Message: FC<Props> = ({ message }) => {
             </div>
           )}
         </div>
-        <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
+        <ReactMarkdown
+          rehypePlugins={[rehypeHighlight]}
+          components={{
+            code({ className, children, ...props }) {
+              const isCodeBlock = className?.includes('language-');
+              console.log(className);
+
+              const codeText = extractTextFromNode(children).trim();
+              return (
+                <div className="code-block">
+                  {isCodeBlock && (
+                    <button onClick={() => navigator.clipboard.writeText(codeText)}>Copy</button>
+                  )}
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                </div>
+              );
+            },
+          }}
+        >
           {getMessageContent(message)}
         </ReactMarkdown>
       </div>

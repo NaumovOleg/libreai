@@ -1,3 +1,4 @@
+import { isValidElement, ReactNode } from 'react';
 export const uuid = (length: number = 4): string => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   let result = '';
@@ -6,4 +7,12 @@ export const uuid = (length: number = 4): string => {
     result += chars[randomIndex];
   }
   return result;
+};
+
+export const extractTextFromNode = (node: ReactNode): string => {
+  if (typeof node === 'string') return node;
+  if (Array.isArray(node)) return node.map(extractTextFromNode).join('');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (isValidElement(node)) return extractTextFromNode((node.props as any).children);
+  return '';
 };

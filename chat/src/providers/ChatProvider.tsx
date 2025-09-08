@@ -11,7 +11,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     return newSession;
   });
   const [isStreaming, setIsStreaming] = useState(false);
-  const [provider, setProvider] = useState<Providers>(Providers.agent);
+  const [provider, setProvider] = useState<Providers>(Providers.ai);
   const [isAgentThinking, setIsAgentThinking] = useState(false);
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
