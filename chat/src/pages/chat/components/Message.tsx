@@ -12,6 +12,18 @@ type Props = {
   isLoading?: boolean;
 };
 
+const getMessageContent = (message: ChatMessage) => {
+  if (message.instruction?.content) {
+    return `
+\`\`\`${message.instruction?.language}
+${message.instruction.content}
+\`\`\`
+
+###`;
+  }
+  return message.text;
+};
+
 export const Message: FC<Props> = ({ message }) => {
   useEffect(() => {
     const blocks = document.querySelectorAll('pre > code');
@@ -47,7 +59,7 @@ export const Message: FC<Props> = ({ message }) => {
           )}
         </div>
         <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
-          {message.instruction?.content ?? message.text}
+          {getMessageContent(message)}
         </ReactMarkdown>
       </div>
     </div>

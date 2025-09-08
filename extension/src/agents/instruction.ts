@@ -27,6 +27,7 @@ export class AIAgent {
     selection: string;
     currentFilePath: string;
     workspaceContext: string;
+    language?: string;
   }) {
     if (!vscode.workspace.workspaceFolders?.length) return;
 
@@ -36,6 +37,7 @@ export class AIAgent {
       currentFilePath: data.currentFilePath,
       userPrompt: data.userPrompt,
       history: data.history,
+      language: data.language,
     });
     let aiResponse = '';
     for await (const chunk of this.aiClient.chat(messages)) {

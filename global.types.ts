@@ -50,6 +50,7 @@ export type AgentInstruction = {
   content: string;
   newName: string;
   hasNext: true | false;
+  language?: string;
 };
 
 export type ChatMessage = {

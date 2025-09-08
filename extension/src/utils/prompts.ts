@@ -52,6 +52,7 @@ Rules:
   "content": "file content",
   "newName": "new file name",
   "hasNext": true|false
+  "language": programming language of code snippet in lowercase
 }
 2. After sending an instruction, **wait for the user to respond** with one of these commands:
 - "next" → Apply instruction and provide the next one.
@@ -63,8 +64,9 @@ Rules:
 - Current file: ${data.currentFilePath || 'none'}.
 - Selection: ${data.selection}.
 - Programming language: ${data.language}.
-5. Keep responses strictly in JSON format, no explanations, markdown, or extra text.' }]
-IMPORTANT!!! always return valid json and nothing else.
+5. Keep responses strictly in JSON format, no explanations, markdown, or extra text.
+IMPORTANT!!! Always return valid json and nothing else.
+IMPORTANT!!! Code snippet should be formatted, a single string, with all special characters escaped.
 IMPORTANT!!! Escape all special characters in string values so the entire output is valid JSON. Replace newlines with \n and escape all quotes inside strings. Return only valid JSON, without comments or explanations.`,
     },
     { role: 'user', content: data.userPrompt },
