@@ -69,6 +69,7 @@ export const getContext = async (maxChars = 60000) => {
   const selection = editor?.document.getText(editor.selection) || '';
   const workspaceContext = await gatherWorkspaceContext(6, maxChars);
   const currentFilePath = editor?.document.uri.fsPath || 'none';
+  const language = editor?.document.languageId;
 
-  return { editor, selection, workspaceContext, currentFilePath };
+  return { editor, selection, workspaceContext, currentFilePath, language };
 };

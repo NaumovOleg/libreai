@@ -13,6 +13,7 @@ export type ChatContextType = {
   tmpMessage?: ChatMessage;
   session: string;
   isStreaming: boolean;
+  isAgentThinking: boolean;
   provider: Providers;
   setProvider: (provider: Providers) => void;
   sendMessage: (message: Omit<ChatMessage, 'id' | 'session' | 'from' | 'time' | 'to'>) => void;

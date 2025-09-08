@@ -11,12 +11,13 @@ declare enum COMMANDS {
   chatStreamEnd = 'chatStreamEnd',
   updatedContext = 'updatedContext',
   removeChatSession = 'removeChatSession',
+  agentResponse = 'agentResponse',
 }
 
 declare type MESSAGE = {
   command: COMMANDS;
   key?: CONFIG_PARAGRAPH;
-  value?: AiConfigT | ChatMessage;
+  value?: AiConfigT | ChatMessage | string;
 };
 
 declare enum Providers {

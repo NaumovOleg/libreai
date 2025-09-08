@@ -94,13 +94,16 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         id: uuid(7),
         session: message.session,
       };
-      for await (const chunk of this.aiClient.chat(CHAT_PROMPT(message.text))) {
+      const ctx = await getContext();
+      const history = this.storage.getSessionChatHistory(message.session);
+      const messages = CHAT_PROMPT({ ...ctx, userPrompt: message.text, history });
+      for await (const chunk of this.aiClient.chat(messages)) {
         payload.text += chunk;
         this.vebView.webview.postMessage({ type: COMMANDS.chatStream, payload });
       }
 
       this.vebView.webview.postMessage({ type: COMMANDS.chatStreamEnd });
-      await this.storage.addChatHistory([message, payload]);
+      await this.storage.addChatHistoryItems([message, payload]);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.log(err);
@@ -135,7 +138,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
     const instruction = await this.agent.run(data);
 
-    const responseMessage: ChatMessage = {
+    const payload: ChatMessage = {
       from: Providers.agent,
       to: Providers.user,
       text: '<instruction>',
@@ -146,7 +149,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       instruction,
     };
 
-    this.storage.addChatHistoryItems([message, responseMessage]);
+    this.storage.addChatHistoryItems([message, payload]);
+    this.vebView.webview.postMessage({ type: COMMANDS.agentResponse, payload });
   }
 
   public updateContext(payload: unknown) {

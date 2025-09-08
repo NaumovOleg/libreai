@@ -1,7 +1,9 @@
-import { ChatMessage } from '@utils';
+import { ChatMessage, Providers } from '@utils';
 import { FC, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
+import { RiRobot3Line } from 'react-icons/ri';
+import Icon from '@mui/material/Icon';
 import 'highlight.js/styles/github-dark.css';
 
 type Props = {
@@ -34,7 +36,20 @@ export const Message: FC<Props> = ({ message }) => {
 
   return (
     <div className={`message prose prose-invert ${message.from}`}>
-      <ReactMarkdown rehypePlugins={[rehypeHighlight]}>{message.text}</ReactMarkdown>
+      <div className="message-markdown">
+        <div className="message-header">
+          {message.from === Providers.agent && (
+            <div>
+              <Icon>
+                <RiRobot3Line />
+              </Icon>
+            </div>
+          )}
+        </div>
+        <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
+          {message.instruction?.content ?? message.text}
+        </ReactMarkdown>
+      </div>
     </div>
   );
 };

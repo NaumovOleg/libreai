@@ -11,7 +11,8 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     return newSession;
   });
   const [isStreaming, setIsStreaming] = useState(false);
-  const [provider, setProvider] = useState<Providers>(Providers.agent);
+  const [provider, setProvider] = useState<Providers>(Providers.ai);
+  const [isAgentThinking, setIsAgentThinking] = useState(false);
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
 
@@ -23,31 +24,36 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
   const sessionRef = useRef(session);
 
+  const updateLastMessage = (message: ChatMessage) => {
+    setSessions((chatSession) => {
+      const data = {
+        ...chatSession,
+        [sessionRef.current]: chatSession[sessionRef.current].concat(message),
+      };
+      vscode.setState({ ...vscode.getState(), chatSession: data });
+      return data;
+    });
+    setIsStreaming(false);
+    setMessages((prev) => [...prev, message]);
+  };
+
   useEffect(() => {
     const handler = (event: MessageEvent) => {
       if (event.data.type === COMMANDS.chatStream) {
         setIsStreaming(true);
-        seTemporaryMessage((prev) => ({
-          ...event.data.payload,
-          text: `${prev?.text ?? ''}${event.data.payload.text}`,
-        }));
+        seTemporaryMessage(event.data.payload);
       }
       if (event.data.type === COMMANDS.chatStreamEnd) {
         seTemporaryMessage((prevMsg) => {
           if (!prevMsg) return undefined;
-          setSessions((chatSession) => {
-            const data = {
-              ...chatSession,
-              [sessionRef.current]: chatSession[sessionRef.current].concat(prevMsg),
-            };
-            vscode.setState({ ...vscode.getState(), chatSession: data });
-            return data;
-          });
-          setIsStreaming(false);
-          setMessages((prev) => [...prev, prevMsg]);
+          updateLastMessage(prevMsg);
           return undefined;
         });
         setIsStreaming(true);
+      }
+      if (event.data.type === COMMANDS.agentResponse) {
+        updateLastMessage(event.data.payload);
+        setIsAgentThinking(false);
       }
     };
     window.addEventListener('message', handler);
@@ -109,6 +115,9 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
       return data;
     });
+    if (provider === Providers.agent) {
+      setIsAgentThinking(true);
+    }
   };
 
   const sessionList = Object.keys(sessions)?.length ? Object.keys(sessions) : [session];
@@ -125,6 +134,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     isStreaming,
     setProvider,
     provider,
+    isAgentThinking,
   };
 
   console.log('messages=========================', sessions);

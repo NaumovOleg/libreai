@@ -11,6 +11,7 @@ export enum COMMANDS {
   chatStreamEnd = 'chatStreamEnd',
   updatedContext = 'updatedContext',
   removeChatSession = 'removeChatSession',
+  agentResponse = 'agentResponse',
 }
 
 export type MESSAGE = {

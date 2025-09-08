@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { FILE_ACTIONS, PromptMessages } from './types';
+import { FILE_ACTIONS, PromptMessages, PromptProps } from './types';
 type SuggestionPromptParams = {
   selection?: string;
   workspaceContext?: string;
@@ -22,26 +22,24 @@ export const INLINE_SUGGESTION_PROMPT = (data: SuggestionPromptParams): PromptMe
   },
 ];
 
-export const CHAT_PROMPT = (message: string): PromptMessages => [
+export const CHAT_PROMPT = (data: PromptProps): PromptMessages => [
   {
     role: 'system',
-    content: `You are a highly skilled coding assistant.`,
+    content: `You are a highly skilled coding assistant.
+     Use this information to generate instructions accurately:
+- Project context: ${data.workspaceContext}.
+- History: ${data.history.join('\n')}. 
+- Current file: ${data.currentFilePath || 'none'}.
+- Selection: ${data.selection}.
+- Programming language: ${data.language}.`,
   },
   {
     role: 'user',
-    content: message,
+    content: data.userPrompt,
   },
 ];
 
-type AgentPromptProps = {
-  workspaceContext: string;
-  selection: string;
-  userPrompt: string;
-  currentFilePath?: string;
-  history: string[];
-};
-
-export const AGENT_PROMPT = (data: AgentPromptProps): PromptMessages => {
+export const AGENT_PROMPT = (data: PromptProps): PromptMessages => {
   return [
     {
       role: 'system',
@@ -64,6 +62,7 @@ Rules:
 - History: ${data.history.join('\n')}. 
 - Current file: ${data.currentFilePath || 'none'}.
 - Selection: ${data.selection}.
+- Programming language: ${data.language}.
 5. Keep responses strictly in JSON format, no explanations, markdown, or extra text.' }]
 IMPORTANT!!! always return valid json and nothing else.
 IMPORTANT!!! Escape all special characters in string values so the entire output is valid JSON. Replace newlines with \n and escape all quotes inside strings. Return only valid JSON, without comments or explanations.`,

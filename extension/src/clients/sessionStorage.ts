@@ -7,7 +7,8 @@ export class SessionStorage {
   private historyLimit = 10;
 
   constructor(private context: vscode.ExtensionContext) {
-    this.chatHistory = context.globalState.get<CHAT_HISTORY>(CHAT_HISTORY_PROP, []);
+    const history = context.globalState.get<CHAT_HISTORY>(CHAT_HISTORY_PROP, {});
+    this.chatHistory = history;
   }
 
   async addChatHistoryItems(message: ChatMessage[]) {
