@@ -1,10 +1,22 @@
-import { AiConfigT, ChatMessage, CONFIG_PARAGRAPH, INSTRUCTION_STATE, Providers } from './types';
+import {
+  AiConfigT,
+  ChatMessage,
+  COMMANDS,
+  CONFIG_PARAGRAPH,
+  INSTRUCTION_STATE,
+  Providers,
+} from './types';
 
 export type ConfigContextType = {
   [CONFIG_PARAGRAPH.chatConfig]: AiConfigT;
   [CONFIG_PARAGRAPH.autoCompleteConfig]: AiConfigT;
   setConfig: (type: CONFIG_PARAGRAPH, conf: Partial<AiConfigT>) => void;
   applyChanges: (type: CONFIG_PARAGRAPH) => void;
+};
+export type ListenerContextType = {
+  command: COMMANDS;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
 };
 
 export type ChatContextType = {

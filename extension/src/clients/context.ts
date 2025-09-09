@@ -9,7 +9,23 @@ export class ContextHandler {
     this.maxChars = maxChars;
   }
 
-  async gatherWorkspaceContext(query?: string): Promise<string> {
+  private cleanContent(text: string, lang: string): string {
+    let withoutComments = text;
+
+    // Простейшие regex для популярных языков
+    if (['ts', 'tsx', 'js', 'jsx', 'java', 'go', 'rs', 'cs'].includes(lang)) {
+      withoutComments = withoutComments
+        .replace(/\/\/.*$/gm, '') // однострочные
+        .replace(/\/\*[\s\S]*?\*\//gm, ''); // многострочные
+    } else if (lang === 'py') {
+      withoutComments = withoutComments.replace(/#.*$/gm, '');
+    }
+
+    // Убираем лишние пустые строки
+    return withoutComments.replace(/^\s*$(?:\r\n?|\n)/gm, '');
+  }
+
+  private async getCandidateUris(query?: string): Promise<vscode.Uri[]> {
     const patterns = [
       '**/*.ts',
       '**/*.tsx',
@@ -25,17 +41,13 @@ export class ContextHandler {
     ];
 
     const uris: vscode.Uri[] = [];
-
     for (const pattern of patterns) {
       const found = await vscode.workspace.findFiles(
         pattern,
-        '**/node_modules/**',
+        '**/{node_modules,dist,build,out}/**',
         this.maxFiles * 3,
       );
-      for (const f of found) {
-        uris.push(f);
-        if (uris.length >= this.maxFiles * 3) break;
-      }
+      uris.push(...found);
       if (uris.length >= this.maxFiles * 3) break;
     }
 
@@ -55,25 +67,47 @@ export class ContextHandler {
     );
 
     ranked.sort((a, b) => b.score - a.score);
-    const selected = ranked.slice(0, Math.max(1, this.maxFiles)).map((r) => r.uri);
+    return ranked.slice(0, this.maxFiles).map((r) => r.uri);
+  }
 
+  private async getFileContent(uri: vscode.Uri, sliceSize: number): Promise<string> {
+    try {
+      const bytes = await vscode.workspace.fs.readFile(uri);
+      const text = new TextDecoder('utf-8').decode(bytes);
+      const ext = uri.path.split('.').pop() || '';
+      const cleaned = this.cleanContent(text, ext);
+      return cleaned.substring(0, sliceSize);
+    } catch {
+      return '';
+    }
+  }
+
+  async gatherWorkspaceContext(query?: string): Promise<string> {
     let combined = '';
-    for (const u of selected) {
-      try {
-        const bytes = await vscode.workspace.fs.readFile(u);
-        const text = new TextDecoder('utf-8').decode(bytes);
-        combined +=
-          `\n===== FILE: ${u.path.split('/').pop()} =====\n` +
-          text.substring(0, Math.floor(this.maxChars / selected.length));
-        if (combined.length >= this.maxChars) break;
-      } catch {
-        continue;
-      }
+
+    const openEditors = vscode.window.visibleTextEditors.map((e) => e.document.uri);
+    const uris = new Set(openEditors);
+
+    const candidates = await this.getCandidateUris(query);
+    for (const uri of candidates) uris.add(uri);
+
+    const allUris = Array.from(uris);
+    const sliceSize = Math.floor(this.maxChars / allUris.length);
+
+    for (const u of allUris) {
+      const content = await this.getFileContent(u, sliceSize);
+      if (!content) continue;
+
+      combined += `\n===== FILE: ${u.path.split('/').pop()} =====\n${content}`;
+      if (combined.length >= this.maxChars) break;
     }
 
     return combined.substring(0, this.maxChars);
   }
 
+  /**
+   * Вернуть контекст для текущего редактора
+   */
   async getContext(): Promise<{
     editor?: vscode.TextEditor;
     selection: string;

@@ -38,6 +38,9 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
   useEffect(() => {
     window.addEventListener('message', handler);
     vscode.postMessage({ command: COMMANDS.configListenerMounted });
+    return () => {
+      window.addEventListener('message', handler);
+    };
   }, []);
 
   const applyChanges = (key: CONFIG_PARAGRAPH) => {

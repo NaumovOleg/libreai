@@ -28,8 +28,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.window.onDidChangeActiveTextEditor(async (editor) => {
     if (!editor) return;
-
-    chatProvider.updateContext({ editor });
+    console.log(await 'aaaaaaaaaaaaaaaaaaaaaaaaa', ctx.getContext());
+    // chatProvider.updateContext({ editor });
   });
 
   context.subscriptions.push(inlineProvider, chatView);
