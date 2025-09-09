@@ -1,6 +1,6 @@
 import { useState, type FC, type ReactElement, useEffect, useRef } from 'react';
 import { ChatContext } from './context';
-import { State, ChatMessage, vscode, uuid, COMMANDS, Providers } from '@utils';
+import { State, ChatMessage, vscode, uuid, COMMANDS, Providers, INSTRUCTION_STATE } from '@utils';
 
 export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [sessions, setSessions] = useState(() => {
@@ -39,6 +39,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
+      console.log('RECEIVED _FRONTEND MESSAGE--------------------------', event.data.payload);
       if (event.data.type === COMMANDS.chatStream) {
         setIsStreaming(true);
         seTemporaryMessage(event.data.payload);
@@ -120,6 +121,54 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     }
   };
 
+  const interactInstruction = (
+    data: ChatMessage,
+    state: INSTRUCTION_STATE.accepted | INSTRUCTION_STATE.declined,
+  ) => {
+    const texts = {
+      [INSTRUCTION_STATE.accepted]: 'next',
+      [INSTRUCTION_STATE.declined]: 'cancel',
+    };
+    const message: ChatMessage = {
+      id: uuid(7),
+      from: Providers.user,
+      to: provider,
+      time: new Date(),
+      session,
+      text: texts[state],
+      instruction: data.instruction,
+    };
+
+    setSessions((s) => {
+      s[session].map((msg) => {
+        if (msg.id === data.id) {
+          return { ...msg, instruction: { ...msg.instruction, state } };
+        }
+        return msg;
+      });
+
+      console.log(s);
+
+      vscode.setState({ ...vscode.getState(), chatSession: s });
+
+      return s;
+    });
+    setMessages((prev) => {
+      return prev.map((msg) => {
+        if (msg.id === data.id) {
+          const data = { ...msg };
+          if (msg.instruction) {
+            data.instruction = { ...msg.instruction, state };
+          }
+          return data;
+        }
+        return msg;
+      });
+    });
+
+    vscode.postMessage({ command: COMMANDS.sendMessage, value: message });
+  };
+
   const sessionList = Object.keys(sessions)?.length ? Object.keys(sessions) : [session];
 
   const value = {
@@ -135,9 +184,10 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     setProvider,
     provider,
     isAgentThinking,
+    interactInstruction,
   };
 
-  console.log('messages=========================', sessions);
+  console.log('messages=========================', messages);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

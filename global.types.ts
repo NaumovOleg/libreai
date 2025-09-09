@@ -43,6 +43,11 @@ export type State = {
   chatSession: ChatSession;
   lastSession?: string;
 };
+export enum INSTRUCTION_STATE {
+  pending = 'pending',
+  declined = 'declined',
+  accepted = 'accepted',
+}
 
 export type AgentInstruction = {
   action: AGENT_ACTIONS;
@@ -51,6 +56,8 @@ export type AgentInstruction = {
   newName: string;
   hasNext: true | false;
   language?: string;
+  executedResponse?: string;
+  state: INSTRUCTION_STATE;
 };
 
 export type ChatMessage = {

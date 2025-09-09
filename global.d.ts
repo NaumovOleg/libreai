@@ -26,6 +26,31 @@ declare enum Providers {
   agent = 'agent',
 }
 
+declare enum AGENT_ACTIONS {
+  createFile = 'createFile',
+  updateFile = 'updateFile',
+  deleteFile = 'deleteFile',
+  renameFile = 'renameFile',
+  executeCommand = 'executeCommand',
+}
+
+declare enum INSTRUCTION_STATE {
+  pending = 'pending',
+  declined = 'declined',
+  accepted = 'accepted',
+}
+
+declare type AgentInstruction = {
+  action: AGENT_ACTIONS;
+  file: string;
+  content: string;
+  newName: string;
+  hasNext: true | false;
+  language?: string;
+  executedResponse?: string;
+  state: INSTRUCTION_STATE;
+};
+
 declare type ChatMessage = {
   from: Providers;
   to: Providers;
@@ -33,6 +58,8 @@ declare type ChatMessage = {
   time?: Date;
   id: string;
   session: string;
+  type?: 'message' | 'instruction';
+  instruction?: AgentInstruction;
 };
 
 type ChatSession = { [key: string]: ChatMessage[] };

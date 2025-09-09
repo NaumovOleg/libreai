@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
@@ -87,10 +88,7 @@ export class AIAgent {
         return;
       }
 
-      const terminal = vscode.window.createTerminal({ name: 'AI Agent', cwd: root });
-      terminal.show(true);
-
-      terminal.sendText(command, true);
+      return execSync(command, { cwd: root, encoding: 'utf-8' });
     } catch (err) {
       vscode.window.showErrorMessage(`Failed to execute command: ${command}`);
       console.error(err);
@@ -101,16 +99,16 @@ export class AIAgent {
     if (!vscode.workspace.workspaceFolders?.length) return;
     const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
     if (instruction.action === AGENT_ACTIONS.renameFile && instruction.newName) {
-      await this.renameFile(instruction.file, instruction.newName, root);
+      return this.renameFile(instruction.file, instruction.newName, root);
     }
     if (instruction.action === AGENT_ACTIONS.deleteFile) {
-      await this.deleteFile(instruction.file, root);
+      return this.deleteFile(instruction.file, root);
     }
     if ([AGENT_ACTIONS.createFile, AGENT_ACTIONS.updateFile].includes(instruction.action)) {
-      await this.createOrUpdateFile(instruction, root);
+      return this.createOrUpdateFile(instruction, root);
     }
     if (instruction.action === AGENT_ACTIONS.executeCommand) {
-      await this.executeCommand(instruction.content, root);
+      return this.executeCommand(instruction.content, root);
     }
   }
 }

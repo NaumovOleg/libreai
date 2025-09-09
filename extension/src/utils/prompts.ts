@@ -48,11 +48,11 @@ Rules:
 1. Respond with **one instruction at a time** in JSON format:
 {
   "action": "${AGENT_ACTIONS.createFile}|${AGENT_ACTIONS.updateFile}|${AGENT_ACTIONS.renameFile}|${AGENT_ACTIONS.deleteFile}|${AGENT_ACTIONS.executeCommand}",
-  "file": "path/to/file",
+  "file": "relative path/to/file",
   "content": "file content or bash command",
   "newName": "new file name",
   "hasNext": true|false
-  "language": programming language of code snippet in lowercase
+  "language": programming language of code snippet in lowercase or bas in case of execute command
 }
 2. After sending an instruction, **wait for the user to respond** with one of these commands:
 - "next" → Apply instruction and provide the next one.
