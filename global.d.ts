@@ -67,6 +67,7 @@ type ChatSession = { [key: string]: ChatMessage[] };
 type State = {
   chatSession: ChatSession;
   lastSession?: string;
+  provider?: Providers;
 };
 
 declare const acquireVsCodeApi: () => {

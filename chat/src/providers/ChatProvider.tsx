@@ -1,17 +1,29 @@
 import { useState, type FC, type ReactElement, useEffect, useRef } from 'react';
 import { ChatContext } from './context';
-import { State, ChatMessage, vscode, uuid, COMMANDS, Providers, INSTRUCTION_STATE } from '@utils';
+import {
+  State,
+  ChatMessage,
+  vscode,
+  uuid,
+  COMMANDS,
+  Providers,
+  INSTRUCTION_STATE,
+  globalListener,
+} from '@utils';
 
 export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
+  const vsCodeState = vscode.getState() as State;
+
   const [sessions, setSessions] = useState(() => {
-    const state = vscode.getState() as State;
-    if (state?.chatSession) return state?.chatSession;
+    if (vsCodeState?.chatSession) return vsCodeState?.chatSession;
     const newSession = { [uuid()]: [] };
     vscode.setState({ chatSession: newSession });
     return newSession;
   });
   const [isStreaming, setIsStreaming] = useState(false);
-  const [provider, setProvider] = useState<Providers>(Providers.agent);
+  const [provider, setCatProvider] = useState<Providers>(
+    () => vsCodeState.provider ?? Providers.ai,
+  );
   const [isAgentThinking, setIsAgentThinking] = useState(false);
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
@@ -57,9 +69,11 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
         setIsAgentThinking(false);
       }
     };
-    window.addEventListener('message', handler);
+
+    const commands = [COMMANDS.agentResponse, COMMANDS.chatStreamEnd, COMMANDS.chatStream];
+    globalListener.subscribe(commands, handler);
     return () => {
-      window.removeEventListener('message', handler);
+      globalListener.unsubscribe(commands, handler);
     };
   }, [session]);
 
@@ -108,16 +122,16 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     };
 
     setSessions((s) => {
-      const data = {
+      const sessionData = {
         ...s,
         [session]: [...s[session], message],
       };
 
       setMessages((prev) => [...prev, message]);
       vscode.postMessage({ command: COMMANDS.sendMessage, value: message });
-      vscode.setState({ ...vscode.getState(), chatSession: data });
+      vscode.setState({ ...vscode.getState(), chatSession: sessionData });
 
-      return data;
+      return sessionData;
     });
     if (provider === Providers.agent) {
       setIsAgentThinking(true);
@@ -143,12 +157,18 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     };
 
     setSessions((s) => {
-      s[session].map((msg) => {
+      const chatSession = s[session].map((msg) => {
         if (msg.id === data.id) {
-          return { ...msg, instruction: { ...msg.instruction, state } };
+          const msData = { ...msg };
+          if (msg.instruction) {
+            msData.instruction = { ...msg.instruction, state };
+          }
+          return msData;
         }
-        return msg;
+
+        return { ...msg };
       });
+      s[session] = [...chatSession];
 
       vscode.setState({ ...vscode.getState(), chatSession: s });
 
@@ -168,6 +188,11 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     });
 
     vscode.postMessage({ command: COMMANDS.sendMessage, value: message });
+  };
+
+  const setProvider = (provider: Providers) => {
+    setCatProvider(provider);
+    vscode.setState({ ...vscode.getState(), provider });
   };
 
   const sessionList = Object.keys(sessions)?.length ? Object.keys(sessions) : [session];

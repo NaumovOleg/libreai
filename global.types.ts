@@ -42,6 +42,7 @@ export type ChatSession = { [key: string]: ChatMessage[] };
 export type State = {
   chatSession: ChatSession;
   lastSession?: string;
+  provider?: Providers;
 };
 export enum INSTRUCTION_STATE {
   pending = 'pending',

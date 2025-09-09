@@ -1,6 +1,6 @@
 import { useState, useEffect, type FC, type ReactElement } from 'react';
 import { ConfigContext } from './context';
-import { AiConfigT, CONFIG_PARAGRAPH, COMMANDS, vscode } from '@utils';
+import { AiConfigT, CONFIG_PARAGRAPH, COMMANDS, vscode, globalListener } from '@utils';
 
 const defaultData = {
   endpoint: 'http://localhost:11434',
@@ -36,10 +36,11 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
   };
 
   useEffect(() => {
-    window.addEventListener('message', handler);
     vscode.postMessage({ command: COMMANDS.configListenerMounted });
+
+    globalListener.subscribe([COMMANDS.changeConfig], handler);
     return () => {
-      window.addEventListener('message', handler);
+      globalListener.unsubscribe([COMMANDS.changeConfig], handler);
     };
   }, []);
 
