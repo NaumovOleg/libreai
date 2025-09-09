@@ -130,15 +130,21 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   public async useAgent(message: ChatMessage) {
-    console.log('RECEIVED_MESSAGE--------------', message);
+    console.log('RECEIVED_MESSAGE BACKEND--------------', message);
     const context = await getContext();
     const history = this.storage.getSessionChatHistory(message.session);
-
-    const data = { ...context, userPrompt: message.text, history };
     const historyToUpdate: ChatMessage[] = [{ ...message, instruction: undefined }];
     if (message.instruction && message.text === 'next') {
       await this.agent.processInstruction(message.instruction);
     }
+    if (
+      (message.instruction?.action && !message.instruction?.hasNext) ||
+      message.text === 'cancel'
+    ) {
+      return this.storage.addChatHistoryItems(historyToUpdate);
+    }
+
+    const data = { ...context, userPrompt: message.text, history };
     const instruction = await this.agent.run(data);
 
     const payload: ChatMessage = {
@@ -154,15 +160,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     historyToUpdate.push(payload);
 
-    console.log('HITORYOOOOOOOOOOOOOOOOOO', instruction, payload);
-
     this.storage.addChatHistoryItems(historyToUpdate);
     this.vebView.webview.postMessage({ type: COMMANDS.agentResponse, payload });
-
-    console.log(
-      'BACKEND HISTORY========================',
-      this.storage.getSessionChatHistory(message.session),
-    );
   }
 
   public updateContext(payload: unknown) {

@@ -58,6 +58,9 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
       }
     };
     window.addEventListener('message', handler);
+    return () => {
+      window.removeEventListener('message', handler);
+    };
   }, [session]);
 
   useEffect(() => {
@@ -146,8 +149,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
         }
         return msg;
       });
-
-      console.log(s);
 
       vscode.setState({ ...vscode.getState(), chatSession: s });
 

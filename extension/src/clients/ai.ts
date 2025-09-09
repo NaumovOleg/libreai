@@ -56,7 +56,7 @@ export class AIClient {
     const body = JSON.stringify({
       model: this.cfg.model,
       messages,
-      options: { temperature: this.cfg.temperature, num_predict: this.cfg.maxTokens },
+      options: { temperature: this.cfg.temperature },
     });
 
     const res = await fetch(url, {

@@ -2,6 +2,7 @@ import { FC } from 'react';
 import TextareaAutosize from '@mui/material/TextareaAutosize';
 import { Switch } from '@elements';
 import { useChat } from '@hooks';
+import { Providers } from '@utils';
 
 type Props = {
   value?: string;
@@ -11,7 +12,6 @@ type Props = {
 
 export const TextArea: FC<Props> = ({ value, onChange, onPressEnter }) => {
   const { provider, setProvider } = useChat();
-  console.log(provider, setProvider);
   return (
     <div className="ai-input">
       <TextareaAutosize
@@ -27,7 +27,13 @@ export const TextArea: FC<Props> = ({ value, onChange, onPressEnter }) => {
           }
         }}
       />
-      <Switch />
+      <Switch
+        onChange={(checked) => {
+          setProvider(checked ? Providers.agent : Providers.ai);
+        }}
+        checked={provider === Providers.agent}
+        label={provider === Providers.agent ? 'Agent' : 'Chat'}
+      />
     </div>
   );
 };
