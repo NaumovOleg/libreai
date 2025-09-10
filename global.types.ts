@@ -84,3 +84,9 @@ export enum AGENT_ACTIONS {
 export enum USER_ACTIONS_ON_MESSAGE {
   runInstructions = 'runInstructions',
 }
+
+export type FileChunk = {
+  filePath: string;
+  text: string;
+  embedding: number[];
+};

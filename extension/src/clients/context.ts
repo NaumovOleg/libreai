@@ -1,126 +1,96 @@
+import { pipeline } from '@xenova/transformers';
 import * as vscode from 'vscode';
 
-export class ContextHandler {
-  maxFiles: number;
-  maxChars: number;
+import { FileChunk, filePatterns, foldersPattern, getWorkspaceName } from '../utils';
 
-  constructor(maxFiles = 6, maxChars = 60000) {
-    this.maxFiles = maxFiles;
-    this.maxChars = maxChars;
+export class Context {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private embedder: any;
+  private modelName = 'Xenova/all-MiniLM-L6-v2';
+  private _embeddings: { [key: string]: FileChunk[] } = {};
+
+  get embeddings() {
+    return this._embeddings[getWorkspaceName()] ?? [];
   }
 
-  private cleanContent(text: string, lang: string): string {
-    let withoutComments = text;
-
-    // Простейшие regex для популярных языков
-    if (['ts', 'tsx', 'js', 'jsx', 'java', 'go', 'rs', 'cs'].includes(lang)) {
-      withoutComments = withoutComments
-        .replace(/\/\/.*$/gm, '') // однострочные
-        .replace(/\/\*[\s\S]*?\*\//gm, ''); // многострочные
-    } else if (lang === 'py') {
-      withoutComments = withoutComments.replace(/#.*$/gm, '');
-    }
-
-    // Убираем лишние пустые строки
-    return withoutComments.replace(/^\s*$(?:\r\n?|\n)/gm, '');
+  set embeddings(embeddings: FileChunk[]) {
+    this._embeddings[getWorkspaceName()] = embeddings;
   }
 
-  private async getCandidateUris(query?: string): Promise<vscode.Uri[]> {
-    const patterns = [
-      '**/*.ts',
-      '**/*.tsx',
-      '**/*.js',
-      '**/*.jsx',
-      '**/*.py',
-      '**/*.go',
-      '**/*.java',
-      '**/*.rs',
-      '**/*.cs',
-      '**/*.json',
-      '**/*.md',
-    ];
+  constructor(
+    private maxFiles = 50,
+    private maxChars = 5000,
+  ) {}
 
-    const uris: vscode.Uri[] = [];
-    for (const pattern of patterns) {
-      const found = await vscode.workspace.findFiles(
-        pattern,
-        '**/{node_modules,dist,build,out}/**',
-        this.maxFiles * 3,
-      );
-      uris.push(...found);
-      if (uris.length >= this.maxFiles * 3) break;
-    }
-
-    const ranked = await Promise.all(
-      uris.map(async (u) => {
-        try {
-          const stat = await vscode.workspace.fs.stat(u);
-          const name = u.path.split('/').pop() || '';
-          const score =
-            (query && name.toLowerCase().includes(query.toLowerCase()) ? 10 : 0) -
-            Math.log(stat.size + 1);
-          return { uri: u, score };
-        } catch {
-          return { uri: u, score: -Infinity };
-        }
-      }),
-    );
-
-    ranked.sort((a, b) => b.score - a.score);
-    return ranked.slice(0, this.maxFiles).map((r) => r.uri);
-  }
-
-  private async getFileContent(uri: vscode.Uri, sliceSize: number): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async init(progress_callback: (chunk: any) => void) {
     try {
-      const bytes = await vscode.workspace.fs.readFile(uri);
-      const text = new TextDecoder('utf-8').decode(bytes);
-      const ext = uri.path.split('.').pop() || '';
-      const cleaned = this.cleanContent(text, ext);
-      return cleaned.substring(0, sliceSize);
-    } catch {
-      return '';
+      const opts = { quantized: true, progress_callback };
+      this.embedder = await pipeline('feature-extraction', this.modelName, opts);
+    } catch (err) {
+      console.error('Failed to initialize model:', err);
     }
   }
 
-  async gatherWorkspaceContext(query?: string): Promise<string> {
-    let combined = '';
+  async indexFile(uri: vscode.Uri) {
+    if (!vscode.workspace.workspaceFolders?.length || !this.embedder) return [];
+    const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
 
-    const openEditors = vscode.window.visibleTextEditors.map((e) => e.document.uri);
-    const uris = new Set(openEditors);
-
-    const candidates = await this.getCandidateUris(query);
-    for (const uri of candidates) uris.add(uri);
-
-    const allUris = Array.from(uris);
-    const sliceSize = Math.floor(this.maxChars / allUris.length);
-
-    for (const u of allUris) {
-      const content = await this.getFileContent(u, sliceSize);
-      if (!content) continue;
-
-      combined += `\n===== FILE: ${u.path.split('/').pop()} =====\n${content}`;
-      if (combined.length >= this.maxChars) break;
+    const bytes = await vscode.workspace.fs.readFile(uri);
+    const content = new TextDecoder().decode(bytes).slice(0, this.maxChars);
+    const texts = content.match(/[\s\S]{1,500}/g) || [];
+    const filePath = uri.fsPath.replace(root + '/', '');
+    const chunks: FileChunk[] = [];
+    for (const text of texts) {
+      const embedding = await this.createEmbedding(text).catch(() => []);
+      chunks.push({ filePath, text, embedding });
     }
-
-    return combined.substring(0, this.maxChars);
+    return chunks;
   }
 
-  /**
-   * Вернуть контекст для текущего редактора
-   */
-  async getContext(): Promise<{
-    editor?: vscode.TextEditor;
-    selection: string;
-    workspaceContext: string;
-    currentFilePath: string;
-    language?: string;
-  }> {
-    const editor = vscode.window.activeTextEditor;
-    const selection = editor?.document.getText(editor.selection) || '';
-    const workspaceContext = await this.gatherWorkspaceContext();
-    const currentFilePath = editor?.document.uri.fsPath || 'none';
-    const language = editor?.document.languageId;
+  async indexWorkspace() {
+    let uris: vscode.Uri[] = [];
 
-    return { editor, selection, workspaceContext, currentFilePath, language };
+    for (const pattern of filePatterns) {
+      const found = await vscode.workspace.findFiles(pattern, foldersPattern, this.maxFiles * 3);
+      uris.push(...found);
+      if (uris.length >= this.maxFiles) break;
+    }
+
+    uris = uris.slice(0, this.maxFiles);
+    const chunks: FileChunk[] = [];
+
+    for (const uri of uris) {
+      const fileChunks = await this.indexFile(uri);
+      chunks.concat(fileChunks);
+    }
+
+    this.embeddings = chunks;
+  }
+
+  async createEmbedding(text: string): Promise<number[]> {
+    const result = await this.embedder(text);
+    return Array.isArray(result) ? result : Array.from(result.data);
+  }
+
+  async searchRelevant(query: string, topN = 5): Promise<FileChunk[]> {
+    if (!this.embeddings.length) return [];
+
+    const queryEmb = await this.createEmbedding(query);
+
+    const cosine = (a: number[], b: number[]) => {
+      const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
+      const magA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
+      const magB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));
+      return dot / (magA * magB);
+    };
+
+    const scored = this.embeddings.map((chunk) => ({
+      chunk,
+      score: cosine(queryEmb, chunk.embedding),
+    }));
+
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, topN).map((s) => s.chunk);
   }
 }
