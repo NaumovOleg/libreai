@@ -65,7 +65,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
-      console.log('RECEIVED _FRONTEND MESSAGE--------------------------', event.data.payload);
       if (event.data.type === COMMANDS.chatStream) {
         setIsStreaming(true);
         seTemporaryMessage(event.data.payload);
@@ -222,8 +221,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     isAgentThinking,
     interactInstruction,
   };
-
-  console.log('messages=========================', messages);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

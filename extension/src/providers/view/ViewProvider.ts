@@ -96,6 +96,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         session: message.session,
       };
       const ctx = await getContext();
+      console.log('CONTEXT++++++++++++++++++++++++', ctx);
       const history = this.storage.getSessionChatHistory(message.session);
       const messages = CHAT_PROMPT({ ...ctx, userPrompt: message.text, history });
       for await (const chunk of this.aiClient.chat(messages)) {
@@ -147,6 +148,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         },
       ]);
     }
+
+    console.log('CONTEXT--------------', context);
 
     const data = { ...context, userPrompt: message.text, history };
     const instructions = await this.agent.run(data);

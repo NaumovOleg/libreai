@@ -1,13 +1,15 @@
 import * as vscode from 'vscode';
 
 import { AIAgent } from './agents';
-import { AIClient, SessionStorage } from './clients';
+import { AIClient, SessionStorage, WorkspaceContext } from './clients';
 import { InlineCompletionProvider, ViewProvider } from './providers';
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('AI Extension is now active!');
   const client = new AIClient();
   const storage = new SessionStorage(context);
+
+  const workspaceContext = new WorkspaceContext(context);
+  workspaceContext.indexWorkspace();
 
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },
@@ -26,11 +28,11 @@ export function activate(context: vscode.ExtensionContext) {
     }),
   );
 
-  vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-    if (!editor) return;
-    console.log(await 'aaaaaaaaaaaaaaaaaaaaaaaaa', ctx.getContext());
-    // chatProvider.updateContext({ editor });
-  });
+  // vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+  //   if (!editor) return;
+  //   console.log(await 'aaaaaaaaaaaaaaaaaaaaaaaaa', ctx.getContext());
+  //   // chatProvider.updateContext({ editor });
+  // });
 
   context.subscriptions.push(inlineProvider, chatView);
 }

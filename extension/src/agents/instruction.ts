@@ -42,13 +42,13 @@ export class AIAgent {
       history: data.history,
       language: data.language,
     });
-    console.log('++++++++++++++', messages);
+    console.log('PROMPT_MESSAGES++++++++++++++++++', messages);
     let aiResponse = '';
     for await (const chunk of this.aiClient.chat(messages)) {
       aiResponse += chunk;
     }
 
-    console.log('aiResponseaiResponseaiResponseaiResponseaiResponseaiResponse', aiResponse);
+    console.log('AI RESPONSE++++++++++++++', aiResponse);
     try {
       const instruction = this.parseAIResponse(aiResponse);
       return instruction;

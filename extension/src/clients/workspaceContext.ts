@@ -7,7 +7,7 @@ export interface FileChunk {
   embedding: number[];
 }
 
-export class WorkspaceIndexer {
+export class WorkspaceContext {
   private embeddings: FileChunk[] = [];
   private embedder: any;
 
@@ -29,6 +29,10 @@ export class WorkspaceIndexer {
       '**/*.py',
       '**/*.md',
       '**/*.json',
+      '**/*.html',
+      '**/*.scss',
+      '**/*.css',
+      '**/*.cpp',
     ];
     let uris: vscode.Uri[] = [];
 
@@ -41,6 +45,8 @@ export class WorkspaceIndexer {
     uris = uris.slice(0, maxFiles);
 
     const chunks: FileChunk[] = [];
+
+    console.log('++++++++++++++++++MMMMMMMMMMMM', uris);
 
     for (const uri of uris) {
       try {

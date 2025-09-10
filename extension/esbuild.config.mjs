@@ -14,7 +14,7 @@ build({
   format: 'cjs',
   loader: { '.ts': 'ts' },
   plugins: [esbuildPluginTsc()],
-  external: ['vscode'],
+  external: ['vscode', 'onnxruntime-node', 'sharp'],
 }).catch((_err) => {
   process.exit(1);
 });
