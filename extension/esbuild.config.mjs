@@ -4,17 +4,19 @@ import esbuildPluginTsc from 'esbuild-plugin-tsc';
 build({
   entryPoints: ['./src/extension.ts'],
   bundle: true,
-  minify: true,
   platform: 'node',
-  sourcemap: false,
-  // target: 'node20',
   outfile: '../out/extension.js',
-  entryNames: '[name]',
   target: 'esnext',
-  format: 'cjs',
+  format: 'cjs', // VSCode expects CJS
   loader: { '.ts': 'ts' },
   plugins: [esbuildPluginTsc()],
-  external: ['vscode', 'onnxruntime-node', 'sharp'],
-}).catch((_err) => {
-  process.exit(1);
+  external: [
+    'vscode',
+    '@xenova/transformers', // external to avoid dynamic require issues
+    'onnxruntime-node',
+    'sharp',
+  ],
+  sourcemap: true,
+}).catch((err) => {
+  console.error(err);
 });

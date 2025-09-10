@@ -5,6 +5,7 @@
   "description": "Inline автодополнение кода и чат с ИИ. Стриминг, workspace context, hotkeys.",
   "version": "1.1.0",
   "main": "./out/extension.mjs",
+  "type": "module",
   "engines": {
     "vscode": "^1.85.0"
   },

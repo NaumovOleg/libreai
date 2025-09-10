@@ -14,7 +14,13 @@ export class WorkspaceContext {
   constructor(private context: vscode.ExtensionContext) {}
 
   async init() {
-    this.embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+    try {
+      this.embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', {
+        quantized: true,
+      });
+    } catch (err) {
+      console.error('Failed to initialize model:', err);
+    }
   }
 
   async indexWorkspace(maxFiles = 50, maxChars = 5000) {
@@ -46,8 +52,6 @@ export class WorkspaceContext {
 
     const chunks: FileChunk[] = [];
 
-    console.log('++++++++++++++++++MMMMMMMMMMMM', uris);
-
     for (const uri of uris) {
       try {
         const bytes = await vscode.workspace.fs.readFile(uri);
@@ -67,16 +71,12 @@ export class WorkspaceContext {
     }
 
     this.embeddings = chunks;
-    console.log('Workspace embeddings created:', this.embeddings.length);
+    console.log('Workspace embeddings created:', this.embeddings);
   }
 
-  private async createEmbedding(text: string): Promise<number[]> {
+  async createEmbedding(text: string): Promise<number[]> {
     const result = await this.embedder(text);
-    const avg = result[0].map(
-      (_: any, i: number) =>
-        result[0].reduce((sum: number, row: number[]) => sum + row[i], 0) / result[0].length,
-    );
-    return avg;
+    return Array.isArray(result) ? result : Array.from(result.data);
   }
 
   async searchRelevant(query: string, topN = 5): Promise<FileChunk[]> {

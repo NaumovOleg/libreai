@@ -4,12 +4,12 @@ import { AIAgent } from './agents';
 import { AIClient, SessionStorage, WorkspaceContext } from './clients';
 import { InlineCompletionProvider, ViewProvider } from './providers';
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   const client = new AIClient();
   const storage = new SessionStorage(context);
 
   const workspaceContext = new WorkspaceContext(context);
-  workspaceContext.indexWorkspace();
+  await workspaceContext.init();
 
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },

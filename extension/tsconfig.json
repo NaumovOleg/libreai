@@ -1,25 +1,17 @@
 {
     "compilerOptions": {
         "target": "ES2020",
-        "module": "commonjs",
+        "module": "ESNext", // compile TS modules to ESM, works with dynamic import
         "lib": [
             "ES2020"
         ],
-        "rootDir": "src",
         "outDir": "out",
-        "strict": true,
-        "sourceMap": true,
+        "rootDir": "src",
+        "moduleResolution": "node",
         "esModuleInterop": true,
-        "resolveJsonModule": true,
-        "skipLibCheck": true,
-        "baseUrl": "./",
-        "paths": {
-            "@utils": [
-                "src/utils/index.ts"
-            ],
-        },
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "skipLibCheck": true
     },
     "include": [
         "../global.d.ts",
@@ -27,6 +19,7 @@
     ],
     "exclude": [
         "node_modules",
-        ".vscode-test"
+        ".vscode-test",
+        "out"
     ]
 }
