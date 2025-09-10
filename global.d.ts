@@ -49,6 +49,7 @@ declare type AgentInstruction = {
   language?: string;
   executedResponse?: string;
   state: INSTRUCTION_STATE;
+  id: string;
 };
 
 declare type ChatMessage = {
@@ -59,7 +60,7 @@ declare type ChatMessage = {
   id: string;
   session: string;
   type?: 'message' | 'instruction';
-  instruction?: AgentInstruction;
+  instructions?: AgentInstruction[];
 };
 
 type ChatSession = { [key: string]: ChatMessage[] };

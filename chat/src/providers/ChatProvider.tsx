@@ -11,6 +11,19 @@ import {
   globalListener,
 } from '@utils';
 
+const updateInstructionsState = (
+  instructions: AgentInstruction[],
+  state: INSTRUCTION_STATE,
+  id?: string,
+) => {
+  return instructions.map((instruction) => {
+    if (!id || id === instruction.id) {
+      return { ...instruction, state };
+    }
+    return { ...instruction };
+  });
+};
+
 export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const vsCodeState = vscode.getState() as State;
 
@@ -141,6 +154,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const interactInstruction = (
     data: ChatMessage,
     state: INSTRUCTION_STATE.accepted | INSTRUCTION_STATE.declined,
+    id?: string,
   ) => {
     const texts = {
       [INSTRUCTION_STATE.accepted]: 'next',
@@ -153,20 +167,18 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
       time: new Date(),
       session,
       text: texts[state],
-      instruction: data.instruction,
+      instructions: data.instructions,
     };
 
     setSessions((s) => {
       const chatSession = s[session].map((msg) => {
-        if (msg.id === data.id) {
-          const msData = { ...msg };
-          if (msg.instruction) {
-            msData.instruction = { ...msg.instruction, state };
-          }
-          return msData;
-        }
+        if (msg.id !== data.id) return { ...msg };
 
-        return { ...msg };
+        const msData = { ...msg };
+        if (msData.instructions) {
+          msData.instructions = updateInstructionsState(msData.instructions, state, id);
+        }
+        return msData;
       });
       s[session] = [...chatSession];
 
@@ -176,14 +188,11 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     });
     setMessages((prev) => {
       return prev.map((msg) => {
-        if (msg.id === data.id) {
-          const data = { ...msg };
-          if (msg.instruction) {
-            data.instruction = { ...msg.instruction, state };
-          }
-          return data;
-        }
-        return msg;
+        if (msg.id !== data.id || !msg.instructions?.length) return msg;
+        return {
+          ...msg,
+          instructions: updateInstructionsState(msg.instructions, state, id),
+        };
       });
     });
 

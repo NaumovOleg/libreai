@@ -44,6 +44,7 @@ export type State = {
   lastSession?: string;
   provider?: Providers;
 };
+
 export enum INSTRUCTION_STATE {
   pending = 'pending',
   declined = 'declined',
@@ -59,6 +60,7 @@ export type AgentInstruction = {
   language?: string;
   executedResponse?: string;
   state: INSTRUCTION_STATE;
+  id: string;
 };
 
 export type ChatMessage = {
@@ -69,7 +71,7 @@ export type ChatMessage = {
   id: string;
   session: string;
   type?: 'message' | 'instruction';
-  instruction?: AgentInstruction;
+  instructions?: AgentInstruction[];
 };
 
 export enum AGENT_ACTIONS {

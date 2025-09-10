@@ -32,39 +32,40 @@ export const MessageNavigation: FC<Props> = ({ message, onCopy, onInteractInstru
   ];
 
   const getAgentTab = () => {
-    if (!message.instruction) return null;
+    if (!message.instructions?.length) return null;
 
-    const ActionIcon = fileButtons[message.instruction.action];
+    const renderInstruction = (instruction: AgentInstruction) => {
+      const ActionIcon = fileButtons[instruction.action];
+      return (
+        <Fragment>
+          <div>
+            <FaRobot />
+          </div>
+          <div className="actions">
+            <ActionIcon />
+            {fileActions.includes(instruction.action) && <div>file: {instruction.file}</div>}
+            {!instruction.state && (
+              <Fragment>
+                <IconButton
+                  onClick={() => onInteractInstruction(INSTRUCTION_STATE.accepted)}
+                  className="interaction-button"
+                >
+                  <FaPlay />
+                </IconButton>
+                <IconButton
+                  onClick={() => onInteractInstruction(INSTRUCTION_STATE.declined)}
+                  className="interaction-button"
+                >
+                  <MdCancel />
+                </IconButton>
+              </Fragment>
+            )}
+          </div>
+        </Fragment>
+      );
+    };
 
-    return (
-      <Fragment>
-        <div>
-          <FaRobot />
-        </div>
-        <div className="actions">
-          <ActionIcon />
-          {fileActions.includes(message.instruction.action) && (
-            <div>file: {message.instruction.file}</div>
-          )}
-          {!message.instruction.state && (
-            <Fragment>
-              <IconButton
-                onClick={() => onInteractInstruction(INSTRUCTION_STATE.accepted)}
-                className="interaction-button"
-              >
-                <FaPlay />
-              </IconButton>
-              <IconButton
-                onClick={() => onInteractInstruction(INSTRUCTION_STATE.declined)}
-                className="interaction-button"
-              >
-                <MdCancel />
-              </IconButton>
-            </Fragment>
-          )}
-        </div>
-      </Fragment>
-    );
+    return message.instructions.map(renderInstruction);
   };
 
   return (
