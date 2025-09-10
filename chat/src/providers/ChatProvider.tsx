@@ -9,6 +9,7 @@ import {
   Providers,
   INSTRUCTION_STATE,
   globalListener,
+  USER_ACTIONS_ON_MESSAGE,
 } from '@utils';
 
 const updateInstructionsState = (
@@ -156,20 +157,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     state: INSTRUCTION_STATE.accepted | INSTRUCTION_STATE.declined,
     id?: string,
   ) => {
-    const texts = {
-      [INSTRUCTION_STATE.accepted]: 'next',
-      [INSTRUCTION_STATE.declined]: 'cancel',
-    };
-    const message: ChatMessage = {
-      id: uuid(7),
-      from: Providers.user,
-      to: provider,
-      time: new Date(),
-      session,
-      text: texts[state],
-      instructions: data.instructions,
-    };
-
     setSessions((s) => {
       const chatSession = s[session].map((msg) => {
         if (msg.id !== data.id) return { ...msg };
@@ -195,6 +182,20 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
         };
       });
     });
+
+    if (state !== INSTRUCTION_STATE.accepted) return;
+
+    const instructions = updateInstructionsState(data.instructions ?? [], state, id);
+
+    const message: ChatMessage = {
+      id: uuid(7),
+      from: Providers.user,
+      to: provider,
+      time: new Date(),
+      session,
+      text: USER_ACTIONS_ON_MESSAGE.runInstructions,
+      instructions: id ? instructions.filter((el) => el.id === id) : instructions,
+    };
 
     vscode.postMessage({ command: COMMANDS.sendMessage, value: message });
   };

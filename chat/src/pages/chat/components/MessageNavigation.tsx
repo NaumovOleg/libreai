@@ -13,7 +13,10 @@ import { MdCancel } from 'react-icons/md';
 type Props = {
   message: ChatMessage;
   onCopy: () => void;
-  onInteractInstruction: (state: INSTRUCTION_STATE.accepted | INSTRUCTION_STATE.declined) => void;
+  onInteractInstruction: (
+    state: INSTRUCTION_STATE.accepted | INSTRUCTION_STATE.declined,
+    id?: string,
+  ) => void;
 };
 export const MessageNavigation: FC<Props> = ({ message, onCopy, onInteractInstruction }) => {
   const fileButtons = {
@@ -47,13 +50,13 @@ export const MessageNavigation: FC<Props> = ({ message, onCopy, onInteractInstru
             {!instruction.state && (
               <Fragment>
                 <IconButton
-                  onClick={() => onInteractInstruction(INSTRUCTION_STATE.accepted)}
+                  onClick={() => onInteractInstruction(INSTRUCTION_STATE.accepted, instruction.id)}
                   className="interaction-button"
                 >
                   <FaPlay />
                 </IconButton>
                 <IconButton
-                  onClick={() => onInteractInstruction(INSTRUCTION_STATE.declined)}
+                  onClick={() => onInteractInstruction(INSTRUCTION_STATE.declined, instruction.id)}
                   className="interaction-button"
                 >
                   <MdCancel />

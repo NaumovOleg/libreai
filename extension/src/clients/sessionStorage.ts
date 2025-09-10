@@ -11,7 +11,7 @@ export class SessionStorage {
     this.chatHistory = history;
   }
 
-  async addChatHistoryItems(message: (ChatMessage & { executeCommandResponse?: string })[]) {
+  async addChatHistoryItems(message: ChatMessage[]) {
     message.forEach((message) => {
       if (!this.chatHistory[message.session]) {
         this.chatHistory[message.session] = [];
@@ -19,15 +19,21 @@ export class SessionStorage {
       if (this.chatHistory[message.session].length > this.historyLimit) {
         this.chatHistory[message.session].shift();
       }
-      let content = '';
-      if (message.executeCommandResponse) {
-        content = `execution command response = ${message.executeCommandResponse}`;
-      } else {
-        content = message.instruction ? JSON.stringify(message.instruction) : message.text;
+
+      let content = message.text;
+      if (message.instructions?.length) {
+        content = '';
+        message.instructions.forEach((instruction, index) => {
+          const paragraph = `${index}. Instruction id: ${instruction.id}.`;
+          if (instruction.executedResponse) {
+            content += paragraph + ` Execution response: ${instruction.executedResponse} \n`;
+          } else {
+            content += paragraph + ` Content: ${instruction.content} \n`;
+          }
+        });
       }
 
-      const text = `From: ${message.from}. Content: ${content}`;
-      this.chatHistory[message.session].push(text);
+      this.chatHistory[message.session].push(`From: ${message.from}. Content: ${content}`);
     }, this.chatHistory);
 
     return this.context.globalState.update(CHAT_HISTORY_PROP, this.chatHistory);

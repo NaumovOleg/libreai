@@ -1,4 +1,5 @@
 import { isValidElement, ReactNode } from 'react';
+import { visit } from 'unist-util-visit';
 export const uuid = (length: number = 4): string => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   let result = '';
@@ -15,4 +16,18 @@ export const extractTextFromNode = (node: ReactNode): string => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (isValidElement(node)) return extractTextFromNode((node.props as any).children);
   return '';
+};
+
+export const rehypeCodeIndexPlugin = () => {
+  return (tree: unknown) => {
+    let index = 0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    visit(tree, 'element', (node: any) => {
+      if (node.tagName === 'code') {
+        node.properties = node.properties || {};
+        node.properties['dataCodeIndex'] = index;
+        index++;
+      }
+    });
+  };
 };

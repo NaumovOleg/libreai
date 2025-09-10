@@ -13,6 +13,7 @@ import {
   getContext,
   MESSAGE,
   Providers,
+  USER_ACTIONS_ON_MESSAGE,
   uuid,
 } from '../../utils';
 
@@ -133,19 +134,22 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     console.log('RECEIVED_MESSAGE BACKEND--------------', message);
     const context = await getContext();
     const history = this.storage.getSessionChatHistory(message.session);
-    const historyToUpdate: ChatMessage[] = [{ ...message, instruction: undefined }];
-    if (message.instruction && message.text === 'next') {
-      await this.agent.processInstruction(message.instruction);
-    }
-    if (
-      (message.instruction?.action && !message.instruction?.hasNext) ||
-      message.text === 'cancel'
-    ) {
-      return this.storage.addChatHistoryItems(historyToUpdate);
+    console.log('HISTORY--------------', history);
+    const historyToUpdate: ChatMessage[] = [{ ...message, instructions: undefined }];
+    if (message.text === USER_ACTIONS_ON_MESSAGE.runInstructions && message.instructions?.length) {
+      const instructions = await this.agent.processInstruction(message.instructions);
+      return this.storage.addChatHistoryItems([
+        {
+          ...message,
+          from: Providers.agent,
+          text: '<instruction>',
+          instructions,
+        },
+      ]);
     }
 
     const data = { ...context, userPrompt: message.text, history };
-    const instruction = await this.agent.run(data);
+    const instructions = await this.agent.run(data);
 
     const payload: ChatMessage = {
       from: Providers.agent,
@@ -155,7 +159,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       id: uuid(),
       session: message.session,
       type: 'instruction',
-      instruction,
+      instructions: instructions?.map((el) => {
+        el.id = uuid(5);
+        return el;
+      }),
     };
 
     historyToUpdate.push(payload);

@@ -45,7 +45,6 @@ declare type AgentInstruction = {
   file: string;
   content: string;
   newName: string;
-  hasNext: true | false;
   language?: string;
   executedResponse?: string;
   state: INSTRUCTION_STATE;

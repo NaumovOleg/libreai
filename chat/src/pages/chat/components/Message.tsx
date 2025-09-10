@@ -1,4 +1,4 @@
-import { ChatMessage, extractTextFromNode } from '@utils';
+import { ChatMessage, extractTextFromNode, rehypeCodeIndexPlugin } from '@utils';
 import { FC } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
@@ -15,16 +15,20 @@ type Props = {
 
 export const Message: FC<Props> = ({ message }) => {
   const { interactInstruction } = useChat();
+
   return (
     <div className={`message prose prose-invert ${message.from}`}>
       <div className="message-markdown">
         <ReactMarkdown
-          rehypePlugins={[rehypeHighlight]}
+          rehypePlugins={[rehypeHighlight, rehypeCodeIndexPlugin]}
           components={{
-            code({ className, children, ...props }) {
+            code({ className, node, children, ...props }) {
               const isCodeBlock = className?.includes('language-');
+              const activeInstruction =
+                message?.instructions?.[(node?.properties.dataCodeIndex as number) ?? 0];
 
               const codeText = extractTextFromNode(children).trim();
+
               return (
                 <div className="code-block">
                   {isCodeBlock && (
@@ -32,8 +36,11 @@ export const Message: FC<Props> = ({ message }) => {
                       onCopy={() => navigator.clipboard.writeText(codeText)}
                       onInteractInstruction={(
                         state: INSTRUCTION_STATE.accepted | INSTRUCTION_STATE.declined,
-                      ) => interactInstruction(message, state)}
-                      message={message}
+                      ) => interactInstruction(message, state, activeInstruction?.id)}
+                      message={{
+                        ...message,
+                        instructions: activeInstruction ? [activeInstruction] : [],
+                      }}
                     />
                   )}
 

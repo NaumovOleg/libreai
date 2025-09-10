@@ -35,5 +35,6 @@ export type ChatContextType = {
   interactInstruction: (
     data: ChatMessage,
     state: INSTRUCTION_STATE.accepted | INSTRUCTION_STATE.declined,
+    id?: string,
   ) => void;
 };

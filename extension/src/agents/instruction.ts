@@ -8,13 +8,15 @@ import { AGENT_ACTIONS, AGENT_PROMPT, AgentInstruction } from '../utils';
 export class AIAgent {
   constructor(private aiClient: AIClient) {}
 
-  private parseAIResponse(raw: string): AgentInstruction {
+  private parseAIResponse(raw: string): AgentInstruction[] {
     const cleaned = raw
       .replace(/```(?:json)?/g, '')
       .replace(/```/g, '')
       .trim();
 
-    return JSON.parse(cleaned);
+    const parsed = JSON.parse(cleaned);
+
+    return Array.isArray(parsed) ? parsed : [parsed];
   }
 
   private resolveFilePath(filePath: string, root: string): vscode.Uri {
@@ -94,24 +96,33 @@ export class AIAgent {
       return execSync(command, { cwd: root, encoding: 'utf-8' });
     } catch (err) {
       vscode.window.showErrorMessage(`Failed to execute command: ${command}`);
-      console.error(err);
+      return err.message;
     }
   }
 
-  async processInstruction(instruction: AgentInstruction) {
-    if (!vscode.workspace.workspaceFolders?.length) return;
+  async processInstruction(instructions: AgentInstruction[]) {
+    if (!vscode.workspace.workspaceFolders?.length) return instructions;
     const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    if (instruction.action === AGENT_ACTIONS.renameFile && instruction.newName) {
-      return this.renameFile(instruction.file, instruction.newName, root);
+    const results: AgentInstruction[] = [];
+
+    for (const instruction of instructions) {
+      let result = instruction;
+
+      if (instruction.action === AGENT_ACTIONS.renameFile && instruction.newName) {
+        await this.renameFile(instruction.file, instruction.newName, root);
+      } else if (instruction.action === AGENT_ACTIONS.deleteFile) {
+        await this.deleteFile(instruction.file, root);
+      } else if (
+        [AGENT_ACTIONS.createFile, AGENT_ACTIONS.updateFile].includes(instruction.action)
+      ) {
+        await this.createOrUpdateFile(instruction, root);
+      } else if (instruction.action === AGENT_ACTIONS.executeCommand) {
+        const executedResponse = await this.executeCommand(instruction.content, root);
+        result = { ...instruction, executedResponse };
+      }
+
+      results.push(result);
     }
-    if (instruction.action === AGENT_ACTIONS.deleteFile) {
-      return this.deleteFile(instruction.file, root);
-    }
-    if ([AGENT_ACTIONS.createFile, AGENT_ACTIONS.updateFile].includes(instruction.action)) {
-      return this.createOrUpdateFile(instruction, root);
-    }
-    if (instruction.action === AGENT_ACTIONS.executeCommand) {
-      return this.executeCommand(instruction.content, root);
-    }
+    return results;
   }
 }

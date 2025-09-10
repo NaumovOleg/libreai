@@ -56,7 +56,6 @@ export type AgentInstruction = {
   file: string;
   content: string;
   newName: string;
-  hasNext: true | false;
   language?: string;
   executedResponse?: string;
   state: INSTRUCTION_STATE;
@@ -80,4 +79,8 @@ export enum AGENT_ACTIONS {
   deleteFile = 'deleteFile',
   renameFile = 'renameFile',
   executeCommand = 'executeCommand',
+}
+
+export enum USER_ACTIONS_ON_MESSAGE {
+  runInstructions = 'runInstructions',
 }
