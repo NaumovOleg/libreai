@@ -15,6 +15,7 @@ build({
     '@xenova/transformers', // external to avoid dynamic require issues
     'onnxruntime-node',
     'sharp',
+    '@lancedb/lancedb',
   ],
   sourcemap: true,
 }).catch((err) => {

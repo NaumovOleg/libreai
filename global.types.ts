@@ -89,4 +89,5 @@ export type FileChunk = {
   filePath: string;
   text: string;
   embedding: number[];
+  workspace: string;
 };

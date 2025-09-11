@@ -3,10 +3,25 @@ import * as vscode from 'vscode';
 import { AIAgent } from './agents';
 import { AIClient, SessionStorage } from './clients';
 import { InlineCompletionProvider, ViewProvider } from './providers';
+import { EmbeddingsDBClient } from './services/context';
 
 export async function activate(context: vscode.ExtensionContext) {
   const client = new AIClient();
   const storage = new SessionStorage(context);
+
+  const db = new EmbeddingsDBClient(context);
+  await db.activate();
+  await db.init();
+
+  await db.addFiles([
+    { filePath: 'test', text: 'hello world', workspace: 'test' },
+    { filePath: 'test', text: 'bubble sort', workspace: 'test' },
+    { filePath: 'test', text: 'not hello world', workspace: 'test' },
+    { filePath: 'test', text: 'hello world merge', workspace: 'test' },
+  ]);
+
+  const response = await db.searchFiles('merge', { workspace: 'test' }, 2);
+  console.log(')))LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL', response);
 
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },

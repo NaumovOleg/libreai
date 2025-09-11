@@ -14,6 +14,15 @@ declare enum COMMANDS {
   agentResponse = 'agentResponse',
 }
 
+interface AiConfigT {
+  provider: 'openai' | 'ollama' | 'deepseek';
+  model: string;
+  endpoint: string;
+  apiKey?: string;
+  maxTokens?: number;
+  temperature?: number;
+}
+
 declare type MESSAGE = {
   command: COMMANDS;
   key?: CONFIG_PARAGRAPH;
