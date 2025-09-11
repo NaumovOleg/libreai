@@ -17,6 +17,27 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
     private ctx: Context,
   ) {}
 
+  getContextBeforeCursor(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+    linesBefore = 3,
+  ) {
+    const startLine = Math.max(0, position.line - linesBefore);
+    const range = new vscode.Range(startLine, 0, position.line, position.character);
+    return document.getText(range);
+  }
+
+  getContextAfterCursor(document: vscode.TextDocument, position: vscode.Position, linesAfter = 3) {
+    const endLine = Math.min(document.lineCount - 1, position.line + linesAfter);
+    const range = new vscode.Range(
+      position.line,
+      position.character,
+      endLine,
+      document.lineAt(endLine).text.length,
+    );
+    return document.getText(range);
+  }
+
   async provideInlineCompletionItems(
     document: vscode.TextDocument,
     position: vscode.Position,
@@ -29,14 +50,12 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
         const { resolve, document, position } = this.lastRequest;
 
-        const editor = vscode.window.activeTextEditor;
-        const selection = editor?.document.getText(editor.selection);
-        const linePrefix = document.lineAt(position).text.slice(0, position.character);
-        const snippet = selection?.trim() || linePrefix?.trim();
+        const before = this.getContextBeforeCursor(document, position);
+        const after = this.getContextAfterCursor(document, position);
 
-        const ctx = await this.ctx.getContext(snippet);
+        const ctx = await this.ctx.getContext(before + after);
 
-        const prompt = INLINE_SUGGESTION_PROMPT({ ...ctx, snippet });
+        const prompt = INLINE_SUGGESTION_PROMPT({ ...ctx, before, after });
 
         console.log('=========USER PROMPT=========', prompt);
 
@@ -46,7 +65,6 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
         } catch (e) {
           console.error('AI inline completion error:', e);
         }
-        console.log('=======================AI-suggestion==============', suggestionText);
 
         const item = suggestionText
           ? new vscode.InlineCompletionItem(
@@ -56,6 +74,8 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
           : null;
 
         resolve({ items: item ? [item] : [] });
+
+        console.log('=======================AI-suggestion==============', suggestionText);
 
         this.debounceTimer = null;
         this.lastRequest = null;

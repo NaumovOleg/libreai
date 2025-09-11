@@ -12,12 +12,12 @@ export async function activate(context: vscode.ExtensionContext) {
   await db.init();
 
   const ctx = new Context(db);
-  await ctx.indexWorkspace();
-  console.log('------------------------------------', await ctx.getContext('test'));
+
+  ctx.indexWorkspace();
 
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },
-    new InlineCompletionProvider(client),
+    new InlineCompletionProvider(client, ctx),
   );
 
   const agent = new AIAgent(client);
@@ -31,6 +31,10 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.commands.executeCommand('libreChatView.focus');
     }),
   );
+
+  vscode.workspace.onDidChangeWorkspaceFolders(() => {
+    ctx.indexWorkspace();
+  });
 
   vscode.workspace.onDidSaveTextDocument((ev) => {
     ctx.indexFile(ev.uri);

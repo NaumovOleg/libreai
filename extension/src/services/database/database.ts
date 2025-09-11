@@ -56,7 +56,9 @@ export class DatabaseClient {
 
   async indexFiles(chunks: DbFile[]) {
     if (!this.fileTable) throw new Error('Table not initialized. Call init().');
-
+    if (!chunks.length) {
+      return [];
+    }
     const filePaths = chunks.map((c) => c.path);
     const existingRows = (await this.fileTable
       .search('*')

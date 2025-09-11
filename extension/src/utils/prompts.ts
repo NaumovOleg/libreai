@@ -6,17 +6,14 @@ type SuggestionPromptParams = {
   linePrefix?: string;
   language?: string;
   currentFilePath: string;
-  snippet: string;
+  before: string;
+  after: string;
 };
 
 export const INLINE_SUGGESTION_PROMPT = (data: SuggestionPromptParams): PromptMessages => [
   {
     role: 'system',
-    content: `You are a highly skilled ${data.language ?? ''} coding assistant. Always respond only with working code. Do not include comments, explanations, or Markdown formatting. Do not repeat the user's code or prompt. Return only the code snippet that completes or fixes the code.`,
-  },
-  {
-    role: 'system',
-    content: `Focus on correctness, readability, and modern ${data.language ?? ''} practices. Make completions concise and minimal, suitable for inline suggestions.`,
+    content: `You are a highly skilled ${data.language ?? ''} coding assistant. Focus on correctness, readability, and modern ${data.language ?? ''} practices. Make completions concise and minimal, suitable for inline suggestions. Always respond only with working code. Do not include comments, explanations, or Markdown formatting. Return only the code snippet. Code snippet should replace <<<code suggestion>>>.`,
   },
   {
     role: 'system',
@@ -28,7 +25,11 @@ export const INLINE_SUGGESTION_PROMPT = (data: SuggestionPromptParams): PromptMe
   },
   {
     role: 'user',
-    content: `Complete the following code snippet: ${data.snippet}`,
+    content: `Context before cursor:
+${data.before}
+<<<code suggestion>>>
+Context after cursor:
+${data.after}`,
   },
 ];
 

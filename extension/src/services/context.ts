@@ -21,7 +21,8 @@ export class Context {
 
     const bytes = await vscode.workspace.fs.readFile(uri);
     const content = new TextDecoder().decode(bytes).slice(0, this.maxChars);
-    const texts = content.match(/[\s\S]{1,500}/g) || [];
+    const texts = content.match(/[\s\S]{1,500}/g);
+    if (!texts) return [];
     const path = Context.getStringUri(uri);
     const chunks: DbFile[] = [];
     for (const text of texts) {
@@ -29,6 +30,7 @@ export class Context {
     }
 
     await this.database.indexFiles(chunks);
+    console.log('ddddddsssss', chunks);
     return chunks;
   }
 
