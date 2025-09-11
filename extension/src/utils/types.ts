@@ -15,3 +15,11 @@ export type PromptProps = {
   history: string[];
   language?: string;
 };
+
+export type FileChunk = {
+  path: string;
+  text: string;
+  workspace: string;
+};
+
+export type DbFile = FileChunk & { id: string };

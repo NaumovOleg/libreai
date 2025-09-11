@@ -3,8 +3,9 @@ import { pipeline } from '@xenova/transformers';
 import { Float32 } from 'apache-arrow';
 
 export class FileEmbedder extends EmbeddingFunction<string, FunctionOptions> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private model: any;
-  name: 'fileEmbedder';
+  name = 'fileEmbedder';
   ndims = () => 384;
   sourceColumn = () => 'text';
   vectorColumn = () => 'vector';

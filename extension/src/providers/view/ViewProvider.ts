@@ -4,13 +4,13 @@ import * as vscode from 'vscode';
 
 import { AIAgent } from '../../agents';
 import { AIClient, SessionStorage } from '../../clients';
+import { Context } from '../../services';
 import {
   CHAT_PROMPT,
   ChatMessage,
   COMMANDS,
   Conf,
   CONFIG_PARAGRAPH,
-  getContext,
   MESSAGE,
   Providers,
   USER_ACTIONS_ON_MESSAGE,
@@ -20,13 +20,14 @@ import {
 export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
   private mediaFolder = 'out/view';
-  private vebView: vscode.WebviewView;
+  private vebView!: vscode.WebviewView;
 
   constructor(
     private readonly extensionUri: vscode.Uri,
     private aiClient: AIClient,
     private agent: AIAgent,
     private storage: SessionStorage,
+    private ctx: Context,
   ) {}
 
   resolveWebviewView(
@@ -95,7 +96,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         id: uuid(7),
         session: message.session,
       };
-      const ctx = await getContext();
+      const ctx = await this.ctx.getContext(message.text);
       console.log('CONTEXT++++++++++++++++++++++++', ctx);
       const history = this.storage.getSessionChatHistory(message.session);
       const messages = CHAT_PROMPT({ ...ctx, userPrompt: message.text, history });
@@ -133,9 +134,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
   public async useAgent(message: ChatMessage) {
     console.log('RECEIVED_MESSAGE BACKEND--------------', message);
-    const context = await getContext();
-    const history = this.storage.getSessionChatHistory(message.session);
-    console.log('HISTORY--------------', history);
+
     const historyToUpdate: ChatMessage[] = [{ ...message, instructions: undefined }];
     if (message.text === USER_ACTIONS_ON_MESSAGE.runInstructions && message.instructions?.length) {
       const instructions = await this.agent.processInstruction(message.instructions);
@@ -149,6 +148,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       ]);
     }
 
+    const context = await this.ctx.getContext(message.text);
+    const history = this.storage.getSessionChatHistory(message.session);
+
+    console.log('HISTORY--------------', history);
     console.log('CONTEXT--------------', context);
 
     const data = { ...context, userPrompt: message.text, history };

@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 
 import { AIClient } from '../clients';
-import { gatherWorkspaceContext, INLINE_SUGGESTION_PROMPT } from '../utils';
+import { Context } from '../services';
+import { INLINE_SUGGESTION_PROMPT } from '../utils';
 
 export class InlineCompletionProvider implements vscode.InlineCompletionItemProvider {
   private debounceTimer: NodeJS.Timeout | null = null;
@@ -11,7 +12,10 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
     position: vscode.Position;
   } | null = null;
 
-  constructor(private aiClient: AIClient) {}
+  constructor(
+    private aiClient: AIClient,
+    private ctx: Context,
+  ) {}
 
   async provideInlineCompletionItems(
     document: vscode.TextDocument,
@@ -25,12 +29,14 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
         const { resolve, document, position } = this.lastRequest;
 
-        const prompt = INLINE_SUGGESTION_PROMPT({
-          linePrefix: document.lineAt(position).text.slice(0, position.character),
-          selection: document.getText(document.getWordRangeAtPosition(position)),
-          workspaceContext: await gatherWorkspaceContext(6, 6000),
-          language: document.languageId,
-        });
+        const editor = vscode.window.activeTextEditor;
+        const selection = editor?.document.getText(editor.selection);
+        const linePrefix = document.lineAt(position).text.slice(0, position.character);
+        const snippet = selection?.trim() || linePrefix?.trim();
+
+        const ctx = await this.ctx.getContext(snippet);
+
+        const prompt = INLINE_SUGGESTION_PROMPT({ ...ctx, snippet });
 
         console.log('=========USER PROMPT=========', prompt);
 

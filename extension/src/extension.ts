@@ -3,25 +3,17 @@ import * as vscode from 'vscode';
 import { AIAgent } from './agents';
 import { AIClient, SessionStorage } from './clients';
 import { InlineCompletionProvider, ViewProvider } from './providers';
-import { EmbeddingsDBClient } from './services/context';
+import { Context, DatabaseClient } from './services';
 
 export async function activate(context: vscode.ExtensionContext) {
   const client = new AIClient();
   const storage = new SessionStorage(context);
-
-  const db = new EmbeddingsDBClient(context);
-  await db.activate();
+  const db = new DatabaseClient(context);
   await db.init();
 
-  await db.addFiles([
-    { filePath: 'test', text: 'hello world', workspace: 'test' },
-    { filePath: 'test', text: 'bubble sort', workspace: 'test' },
-    { filePath: 'test', text: 'not hello world', workspace: 'test' },
-    { filePath: 'test', text: 'hello world merge', workspace: 'test' },
-  ]);
-
-  const response = await db.searchFiles('merge', { workspace: 'test' }, 2);
-  console.log(')))LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL', response);
+  const ctx = new Context(db);
+  await ctx.indexWorkspace();
+  console.log('------------------------------------', await ctx.getContext('test'));
 
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },
@@ -30,7 +22,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   const agent = new AIAgent(client);
 
-  const chatProvider = new ViewProvider(context.extensionUri, client, agent, storage);
+  const chatProvider = new ViewProvider(context.extensionUri, client, agent, storage, ctx);
 
   const chatView = vscode.window.registerWebviewViewProvider(ViewProvider.viewType, chatProvider);
 
@@ -40,6 +32,13 @@ export async function activate(context: vscode.ExtensionContext) {
     }),
   );
 
+  vscode.workspace.onDidSaveTextDocument((ev) => {
+    ctx.indexFile(ev.uri);
+  });
+
+  vscode.workspace.onDidDeleteFiles((ev) => {
+    console.log(ev.files);
+  });
   //    vscode.workspace.onDidChangeWorkspaceFolders((event) => {
   //     console.log('Workspace folders changed!');
   //     if (event.added.length > 0) {
