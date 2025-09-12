@@ -17,3 +17,7 @@ export const getWorkspaceName = () => {
   }
   return folders[0].name;
 };
+
+export const stripCodeFences = (code: string) => {
+  return code.replace(/^```[a-zA-Z0-9]*\s*/, '').replace(/```$/, '');
+};

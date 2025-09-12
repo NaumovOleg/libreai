@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { AIClient } from '../clients';
 import { Context } from '../services';
-import { INLINE_SUGGESTION_PROMPT } from '../utils';
+import { INLINE_SUGGESTION_PROMPT, stripCodeFences } from '../utils';
 
 export class InlineCompletionProvider implements vscode.InlineCompletionItemProvider {
   private debounceTimer: NodeJS.Timeout | null = null;
@@ -68,7 +68,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
         const item = suggestionText
           ? new vscode.InlineCompletionItem(
-              new vscode.SnippetString(suggestionText),
+              new vscode.SnippetString(stripCodeFences(suggestionText)),
               new vscode.Range(position, position),
             )
           : null;
