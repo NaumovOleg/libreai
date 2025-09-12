@@ -167,6 +167,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     const data = { ...context, userPrompt: message.text, history };
     const instructions = await this.agent.run(data);
 
+    console.log('instructionsinstructionsinstructions--------------', instructions);
+
     const payload: ChatMessage = {
       from: Providers.agent,
       to: Providers.user,

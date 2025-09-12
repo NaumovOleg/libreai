@@ -82,7 +82,8 @@ export class Context {
     }, '');
 
     const editor = vscode.window.activeTextEditor;
-    const selection = editor?.document.getText(editor.selection) || '';
+    const selection =
+      (editor?.document.getText(editor.selection) || editor?.document.getText()) ?? '';
     const currentFilePath = editor?.document.uri.fsPath || 'none';
     const language = editor?.document.languageId;
 
