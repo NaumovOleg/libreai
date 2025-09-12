@@ -30,7 +30,6 @@ export class Context {
     }
 
     await this.database.indexFiles(chunks);
-    console.log('ddddddsssss', chunks);
     return chunks;
   }
 

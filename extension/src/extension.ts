@@ -2,16 +2,16 @@ import * as vscode from 'vscode';
 
 import { AIAgent } from './agents';
 import { AIClient, SessionStorage } from './clients';
-import { InlineCompletionProvider, ViewProvider } from './providers';
+import { Icons, InlineCompletionProvider, ViewProvider } from './providers';
 import { Context, DatabaseClient } from './services';
 
 export async function activate(context: vscode.ExtensionContext) {
   const client = new AIClient();
   const storage = new SessionStorage(context);
   const db = new DatabaseClient(context);
-  await db.init();
-
   const ctx = new Context(db);
+  const icons = new Icons();
+  await Promise.all([icons.initIcons(), db.init()]);
 
   ctx.indexWorkspace();
 
@@ -22,7 +22,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   const agent = new AIAgent(client);
 
-  const chatProvider = new ViewProvider(context.extensionUri, client, agent, storage, ctx);
+  const chatProvider = new ViewProvider(context.extensionUri, client, agent, storage, ctx, icons);
 
   const chatView = vscode.window.registerWebviewViewProvider(ViewProvider.viewType, chatProvider);
 

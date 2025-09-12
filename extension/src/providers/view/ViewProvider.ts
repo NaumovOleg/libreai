@@ -16,6 +16,7 @@ import {
   USER_ACTIONS_ON_MESSAGE,
   uuid,
 } from '../../utils';
+import { Icons } from '../Icons';
 
 export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
@@ -28,6 +29,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     private agent: AIAgent,
     private storage: SessionStorage,
     private ctx: Context,
+    private icons: Icons,
   ) {}
 
   resolveWebviewView(
@@ -38,7 +40,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     this.vebView = webviewView;
     this.vebView.webview.options = {
       enableScripts: true,
-      localResourceRoots: [vscode.Uri.file(path.join(this.extensionUri.fsPath, 'out', 'view'))],
+      localResourceRoots: [
+        vscode.Uri.file(path.join(this.extensionUri.fsPath, 'out', 'view')),
+        vscode.Uri.file(path.join(this.icons.extensionPath, 'icons')),
+      ],
     };
 
     this.vebView.webview.onDidReceiveMessage(
@@ -50,6 +55,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     const htmlPath = path.join(this.extensionUri.fsPath, 'out', 'view', 'index.html');
     let html = fs.readFileSync(htmlPath, 'utf-8');
 
+    const iconsMap = this.icons.getIcons(this.vebView);
     html = html
       .replace(
         /href="\/index\.css"/,
@@ -62,6 +68,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         `src="${webviewView.webview.asWebviewUri(
           vscode.Uri.file(path.join(this.extensionUri.fsPath, this.mediaFolder, 'index.js')),
         )}"`,
+      )
+      .replace(
+        '</head>',
+        `<script>window.ICONS_PATHS = ${JSON.stringify(iconsMap)};</script></head>`,
       );
 
     this.vebView.webview.html = html;

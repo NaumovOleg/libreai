@@ -1,0 +1,11 @@
+.file-icon {
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-self: flex-start;
+  margin-left: 10px;
+  .name {
+    margin-left: 5px;
+    color: var(--vscode-gitDecoration-untrackedResourceForeground);
+  }
+}

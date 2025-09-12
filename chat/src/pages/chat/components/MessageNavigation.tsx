@@ -9,6 +9,7 @@ import { FiFileText } from 'react-icons/fi';
 import { HiOutlineCommandLine } from 'react-icons/hi2';
 import { FaPlay } from 'react-icons/fa';
 import { MdCancel } from 'react-icons/md';
+import { FileIcon } from '@elements';
 
 type Props = {
   message: ChatMessage;
@@ -45,8 +46,8 @@ export const MessageNavigation: FC<Props> = ({ message, onCopy, onInteractInstru
             <FaRobot />
           </div>
           <div className="actions">
-            <ActionIcon />
-            {fileActions.includes(instruction.action) && <div>file: {instruction.file}</div>}
+            <ActionIcon />:
+            {fileActions.includes(instruction.action) && <FileIcon path={instruction.file} />}
             {!instruction.state && (
               <Fragment>
                 <IconButton
