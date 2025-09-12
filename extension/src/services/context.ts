@@ -1,6 +1,14 @@
+import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { DbFile, filePatterns, foldersPattern, getWorkspaceName, uuid } from '../utils';
+import {
+  DbFile,
+  filePatterns,
+  foldersPattern,
+  getWorkspaceFileTree,
+  getWorkspaceName,
+  uuid,
+} from '../utils';
 import { DatabaseClient } from './database';
 
 export class Context {
@@ -37,8 +45,9 @@ export class Context {
     return this.database.searchKNN(search, { workspace: getWorkspaceName() }, limit);
   }
 
-  async deleteFile(uri: vscode.Uri) {
-    return this.database.deleteFiles([Context.getStringUri(uri)]);
+  async deleteFiles(uris: vscode.Uri[]) {
+    const uriStrings = uris.map(Context.getStringUri);
+    return this.database.deleteFiles(uriStrings);
   }
 
   async indexWorkspace() {
@@ -58,17 +67,35 @@ export class Context {
     return uris.length;
   }
 
+  async getWorkspaceFileTree(): Promise<string> {
+    const root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '';
+    if (!root) return '';
+
+    const files = await vscode.workspace.findFiles('**/*', foldersPattern);
+    const relativePaths = files.map((file) => path.relative(root, file.fsPath));
+
+    return relativePaths.sort().join('\n');
+  }
+
   async getContext(
     message: string,
-    limit?: number,
+    params?: {
+      contextLimit?: number;
+      lookUpFileTree?: boolean;
+    },
   ): Promise<{
     editor?: vscode.TextEditor;
     selection: string;
     workspaceContext: string;
     currentFilePath: string;
     language?: string;
+    fileTree: string;
   }> {
-    const chunks = await this.searchRelevant(message, limit);
+    const { contextLimit = 5, lookUpFileTree = true } = params ?? {};
+    const [chunks, fileTree] = await Promise.all([
+      this.searchRelevant(message, contextLimit),
+      lookUpFileTree ? getWorkspaceFileTree() : '',
+    ]);
     const ctx = chunks.reduce(
       (acc, chunk) => {
         acc[chunk.path] = (acc[chunk.path] ?? '') + chunk.text;
@@ -87,6 +114,6 @@ export class Context {
     const currentFilePath = editor?.document.uri.fsPath || 'none';
     const language = editor?.document.languageId;
 
-    return { editor, selection, workspaceContext, currentFilePath, language };
+    return { editor, selection, workspaceContext, currentFilePath, language, fileTree };
   }
 }

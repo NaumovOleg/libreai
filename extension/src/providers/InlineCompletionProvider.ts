@@ -53,7 +53,10 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
         const before = this.getContextBeforeCursor(document, position);
         const after = this.getContextAfterCursor(document, position);
 
-        const ctx = await this.ctx.getContext(before + after);
+        const ctx = await this.ctx.getContext(before + after, {
+          contextLimit: 5,
+          lookUpFileTree: false,
+        });
 
         const prompt = INLINE_SUGGESTION_PROMPT({ ...ctx, before, after });
 

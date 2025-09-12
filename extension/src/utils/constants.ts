@@ -14,3 +14,36 @@ export const filePatterns = [
 ];
 export const foldersPattern =
   '**/{node_modules,dist,build,out,.vscode,.idea,.vs,.venv,venv,env,__pycache__,target,bin,obj,coverage,.nyc_output,.next,.nuxt,.svelte-kit,.expo,.gradle,.git,.hg,.svn,.DS_Store,.cache,.parcel-cache,.tmp,tmp,logs}/**';
+
+export const EXCLUDED_FOLDERS = [
+  'node_modules',
+  'dist',
+  'build',
+  'out',
+  '.vscode',
+  '.idea',
+  '.vs',
+  '.venv',
+  'venv',
+  'env',
+  '__pycache__',
+  'target',
+  'bin',
+  'obj',
+  'coverage',
+  '.nyc_output',
+  '.next',
+  '.nuxt',
+  '.svelte-kit',
+  '.expo',
+  '.gradle',
+  '.git',
+  '.hg',
+  '.svn',
+  '.DS_Store',
+  '.cache',
+  '.parcel-cache',
+  '.tmp',
+  'tmp',
+  'logs',
+];

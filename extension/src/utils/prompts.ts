@@ -57,6 +57,7 @@ export const AGENT_PROMPT = (data: PromptProps): PromptMessages => {
       content: `You are an AI coding assistant. You provide instructions to the user for editing, creating, renaming and deleting code files or executing terminal commands step by step.
 Rules:
 1. Use this information to generate instructions accurately:
+- File tree: ${data.fileTree}.
 - Project context: ${data.workspaceContext}.
 - History: ${data.history.join('\n')}. 
 - Current file: ${data.currentFilePath || 'none'}.

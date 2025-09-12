@@ -14,6 +14,7 @@ export type PromptProps = {
   currentFilePath?: string;
   history: string[];
   language?: string;
+  fileTree?: string;
 };
 
 export type FileChunk = {

@@ -1,4 +1,7 @@
+import * as path from 'path';
 import * as vscode from 'vscode';
+
+import { EXCLUDED_FOLDERS } from './constants';
 
 export const uuid = (length: number = 4): string => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -21,3 +24,45 @@ export const getWorkspaceName = () => {
 export const stripCodeFences = (code: string) => {
   return code.replace(/^```[a-zA-Z0-9]*\s*/, '').replace(/```$/, '');
 };
+
+async function collectEntries(
+  dirUri: vscode.Uri,
+  rootPath: string,
+  tree: string[],
+): Promise<boolean> {
+  const entries = await vscode.workspace.fs.readDirectory(dirUri);
+
+  let hasFiles = false;
+
+  for (const [name, type] of entries) {
+    if (EXCLUDED_FOLDERS.includes(name)) continue;
+
+    const entryUri = vscode.Uri.file(path.join(dirUri.fsPath, name));
+    const relativePath = path.relative(rootPath, entryUri.fsPath);
+
+    if (type === vscode.FileType.Directory) {
+      const subDirHasFiles = await collectEntries(entryUri, rootPath, tree);
+      if (!subDirHasFiles) {
+        tree.push(relativePath + '/');
+      }
+      hasFiles = hasFiles || subDirHasFiles;
+    } else {
+      tree.push(relativePath);
+      hasFiles = true;
+    }
+  }
+
+  return hasFiles;
+}
+
+export async function getWorkspaceFileTree(): Promise<string> {
+  const rootUri = vscode.workspace.workspaceFolders?.[0]?.uri;
+  if (!rootUri) return '';
+
+  const rootPath = rootUri.fsPath;
+  const tree: string[] = [];
+
+  await collectEntries(rootUri, rootPath, tree);
+
+  return tree.sort().join('\n');
+}
