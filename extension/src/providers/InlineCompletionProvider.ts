@@ -78,8 +78,6 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
         resolve({ items: item ? [item] : [] });
 
-        console.log('=======================AI-suggestion==============', suggestionText);
-
         this.debounceTimer = null;
         this.lastRequest = null;
       }, 3000);

@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "ES2020",
-        "module": "ESNext", // compile TS modules to ESM, works with dynamic import
+        "module": "ESNext",
         "lib": [
             "ES2020"
         ],

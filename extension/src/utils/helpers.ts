@@ -66,3 +66,9 @@ export async function getWorkspaceFileTree(): Promise<string> {
 
   return tree.sort().join('\n');
 }
+
+export const replaceLast = (str: string, search: string, replacement: string) => {
+  const index = str.lastIndexOf(search);
+  if (index === -1) return str;
+  return str.slice(0, index) + replacement + str.slice(index + search.length);
+};

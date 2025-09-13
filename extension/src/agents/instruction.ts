@@ -31,6 +31,7 @@ export class AIAgent {
     currentFilePath: string;
     workspaceContext: string;
     language?: string;
+    fileTree: string;
   }) {
     if (!vscode.workspace.workspaceFolders?.length) return;
 
@@ -41,6 +42,7 @@ export class AIAgent {
       userPrompt: data.userPrompt,
       history: data.history,
       language: data.language,
+      fileTree: data.fileTree,
     });
     console.log('PROMPT_MESSAGES++++++++++++++++++', messages);
     let aiResponse = '';
@@ -60,8 +62,35 @@ export class AIAgent {
 
   private async createOrUpdateFile(instr: AgentInstruction, root: string) {
     const uri = this.resolveFilePath(instr.file, root);
-    await this.ensureDirectory(uri);
-    await vscode.workspace.fs.writeFile(uri, Buffer.from(instr.content || '', 'utf-8'));
+
+    try {
+      await vscode.workspace.fs.stat(uri);
+    } catch {
+      await this.ensureDirectory(uri);
+      await vscode.workspace.fs.writeFile(uri, Buffer.from('', 'utf-8'));
+    }
+
+    const document = await vscode.workspace.openTextDocument(uri);
+    const edit = new vscode.WorkspaceEdit();
+
+    const start = new vscode.Position(instr.startLine ?? 0, 0);
+    const endLineText = document.lineAt(Math.min(instr?.endLine ?? 0, document.lineCount - 1));
+    const end = new vscode.Position(instr.endLine ?? 0, endLineText.text.length);
+
+    switch (instr.insertMode) {
+      case 'insertBefore':
+        edit.insert(uri, start, instr.content || '');
+        break;
+      case 'insertAfter':
+        edit.insert(uri, end.translate(1, 0), instr.content || '');
+        break;
+      default:
+        edit.replace(uri, new vscode.Range(start, end), instr.content || '');
+        break;
+    }
+
+    await vscode.workspace.applyEdit(edit);
+    await document.save();
   }
 
   private async renameFile(oldPath: string, newPath: string, root: string) {
@@ -94,7 +123,7 @@ export class AIAgent {
       }
 
       return execSync(command, { cwd: root, encoding: 'utf-8' });
-    } catch (err) {
+    } catch (err: any) {
       vscode.window.showErrorMessage(`Failed to execute command: ${command}`);
       return err.message;
     }

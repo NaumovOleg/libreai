@@ -60,6 +60,9 @@ export type AgentInstruction = {
   executedResponse?: string;
   state: INSTRUCTION_STATE;
   id: string;
+  startLine?: number;
+  endLine?: number;
+  insertMode?: 'replace' | 'insertBefore' | 'insertAfter';
 };
 
 export type ChatMessage = {

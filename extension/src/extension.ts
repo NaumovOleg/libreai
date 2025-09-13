@@ -21,9 +21,7 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   const agent = new AIAgent(client);
-
   const chatProvider = new ViewProvider(context.extensionUri, client, agent, storage, ctx, icons);
-
   const chatView = vscode.window.registerWebviewViewProvider(ViewProvider.viewType, chatProvider);
 
   context.subscriptions.push(
@@ -41,7 +39,6 @@ export async function activate(context: vscode.ExtensionContext) {
   });
 
   vscode.workspace.onDidDeleteFiles((ev) => {
-    console.log(ev.files);
     ctx.deleteFiles(Array.from(ev.files));
   });
 

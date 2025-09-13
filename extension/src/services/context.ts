@@ -7,6 +7,7 @@ import {
   foldersPattern,
   getWorkspaceFileTree,
   getWorkspaceName,
+  replaceLast,
   uuid,
 } from '../utils';
 import { DatabaseClient } from './database';
@@ -24,17 +25,32 @@ export class Context {
     return uri.fsPath.replace(root + '/', '');
   }
 
-  async indexFile(uri: vscode.Uri) {
+  async indexFile(uri: vscode.Uri, chunkSize = 10) {
     if (!vscode.workspace.workspaceFolders?.length) return [];
 
     const bytes = await vscode.workspace.fs.readFile(uri);
     const content = new TextDecoder().decode(bytes).slice(0, this.maxChars);
-    const texts = content.match(/[\s\S]{1,500}/g);
-    if (!texts) return [];
     const path = Context.getStringUri(uri);
     const chunks: DbFile[] = [];
-    for (const text of texts) {
-      chunks.push({ path, text, workspace: getWorkspaceName(), id: uuid() });
+
+    const lines = content.split(/\r?\n/);
+
+    for (let startLine = 1; startLine < lines.length; startLine += chunkSize) {
+      const endLine = Math.min(startLine + chunkSize, lines.length);
+
+      const numberedLines = lines
+        .slice(startLine, endLine)
+        .map((line, idx) => `${startLine + idx}| ${line}`)
+        .join('\n');
+
+      chunks.push({
+        path,
+        text: numberedLines,
+        workspace: getWorkspaceName(),
+        id: uuid(),
+        startLine,
+        endLine: endLine - 1,
+      });
     }
 
     await this.database.indexFiles(chunks);
@@ -91,21 +107,32 @@ export class Context {
     language?: string;
     fileTree: string;
   }> {
-    const { contextLimit = 5, lookUpFileTree = true } = params ?? {};
+    const { contextLimit = 1000, lookUpFileTree = true } = params ?? {};
     const [chunks, fileTree] = await Promise.all([
       this.searchRelevant(message, contextLimit),
       lookUpFileTree ? getWorkspaceFileTree() : '',
     ]);
+
     const ctx = chunks.reduce(
       (acc, chunk) => {
+        if (!acc[chunk.path]) {
+          acc[chunk.path] = `<FILE>${chunk.path} \n
+          ${chunk.text}
+          <FILE>`;
+        } else {
+          const replaceString = `\n ${chunk.text}<FILE>`;
+
+          acc[chunk.path] = replaceLast(acc[chunk.path], '<FILE>', replaceString);
+        }
         acc[chunk.path] = (acc[chunk.path] ?? '') + chunk.text;
         return acc;
       },
       {} as { [key: string]: string },
     );
 
-    const workspaceContext = Object.entries(ctx).reduce((acc, [key, value]) => {
-      return acc + `\n===== FILE: ${key} =====\n${value} \n`;
+    const workspaceContext = Object.values(ctx).reduce((acc, val) => {
+      acc += val + '\n';
+      return acc;
     }, '');
 
     const editor = vscode.window.activeTextEditor;

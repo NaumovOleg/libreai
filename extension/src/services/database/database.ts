@@ -1,7 +1,7 @@
 import * as lancedb from '@lancedb/lancedb';
 import { Table } from '@lancedb/lancedb';
 import { getRegistry, LanceSchema, register } from '@lancedb/lancedb/embedding';
-import { Utf8 } from 'apache-arrow';
+import { Uint16, Utf8 } from 'apache-arrow';
 import * as vscode from 'vscode';
 
 import { DbFile, FileChunk, getWorkspaceName } from '../../utils';
@@ -35,6 +35,8 @@ export class DatabaseClient {
       path: new Utf8(),
       id: new Utf8(),
       workspace: new Utf8(),
+      startLine: new Uint16(),
+      endLine: new Uint16(),
     });
 
     this.fileTable = await this.db.createEmptyTable(this.fileTableName, schema, {
@@ -59,6 +61,7 @@ export class DatabaseClient {
     if (!chunks.length) {
       return [];
     }
+
     const filePaths = chunks.map((c) => c.path);
     const existingRows = (await this.fileTable
       .search('*')
