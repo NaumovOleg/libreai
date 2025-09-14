@@ -8,7 +8,7 @@ import {
   AgentInstruction,
   ContextData,
   EXECUTOR_PROMPT,
-  getFileContent,
+  getFileContentWithLineNumbers,
   PlanInstruction,
   PLANNER_PROMPT,
   resolveFilePath,
@@ -32,7 +32,7 @@ export class Agent {
     console.log('CONTEXT--------------', data);
     const planner = await this.planner(data);
     console.log('PLANNER RESPONSE ++++++++++++++++++', planner);
-    const instructions = await this.executor({ instructions: planner, fileTree: data.fileTree });
+    const instructions = await this.executor({ instructions: planner, ctx: data });
     console.log('EXECUTOR RESPONSE ++++++++++++++++++', instructions);
     return instructions;
   }
@@ -58,21 +58,19 @@ export class Agent {
     return this.parseAIResponse<PlanInstruction>(aiResponse);
   }
 
-  async executor(data: { instructions: PlanInstruction[]; fileTree: string }) {
-    const paths = {} as { [key: string]: string };
+  async executor(data: { instructions: PlanInstruction[]; ctx: ContextData }) {
+    const paths: string[] = [];
     data.instructions.forEach((instruction) => {
       instruction.estimatedFiles.forEach(async (el) => {
-        if (!paths[el.path]) {
-          paths[el.path] = el.path;
-        }
+        paths.push(el);
       });
     });
     const fileContents: { [key: string]: string } = {};
 
-    for (const filePath of Object.keys(paths)) {
+    for (const filePath of paths) {
       try {
         const uri = vscode.Uri.file(filePath);
-        fileContents[filePath] = await getFileContent(uri);
+        fileContents[filePath] = await getFileContentWithLineNumbers(uri);
       } catch (err) {
         console.error(`Failed to read file ${filePath}:`, err);
         fileContents[filePath] = '';
@@ -80,7 +78,8 @@ export class Agent {
     }
 
     const executorMessages = EXECUTOR_PROMPT({
-      fileTree: data.fileTree,
+      fileTree: data.ctx.fileTree,
+      workspaceContext: data.ctx.workspaceContext,
       fileContents,
       task: data.instructions,
     });
@@ -108,20 +107,27 @@ export class Agent {
     const document = await vscode.workspace.openTextDocument(uri);
     const edit = new vscode.WorkspaceEdit();
 
-    const start = new vscode.Position(instr.startLine ?? 0, 0);
-    const endLineText = document.lineAt(Math.min(instr?.endLine ?? 0, document.lineCount - 1));
-    const end = new vscode.Position(instr.endLine ?? 0, endLineText.text.length);
+    const content = instr.content;
+    const startLine = instr.startLine ?? 0;
+    const endLine = instr.endLine ?? startLine;
 
-    switch (instr.insertMode) {
-      case 'insertBefore':
-        edit.insert(uri, start, instr.content || '');
-        break;
-      case 'insertAfter':
-        edit.insert(uri, end.translate(1, 0), instr.content || '');
-        break;
-      default:
-        edit.replace(uri, new vscode.Range(start, end), instr.content || '');
-        break;
+    const endPos = new vscode.Position(
+      Math.min(endLine, document.lineCount - 1),
+      document.lineAt(Math.min(endLine, document.lineCount - 1)).text.length,
+    );
+
+    if (instr.insertMode === 'insert') {
+      const startPos = new vscode.Position(startLine + 1, 0);
+      edit.insert(uri, startPos, content.replace(/^\n/, '') + '\n');
+    } else if (instr.insertMode === 'replace') {
+      const startPos = new vscode.Position(startLine, 0);
+      if (content === '' && endLine >= startLine) {
+        const deleteRange = new vscode.Range(startPos, endPos);
+        edit.delete(uri, deleteRange);
+      } else {
+        const replaceRange = new vscode.Range(startPos, endPos);
+        edit.replace(uri, replaceRange, content);
+      }
     }
 
     await vscode.workspace.applyEdit(edit);

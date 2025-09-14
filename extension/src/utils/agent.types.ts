@@ -3,7 +3,7 @@ export type PlanInstruction = {
   title: string;
   description: string;
   priority: string;
-  estimatedFiles: { path: string; startLine: number; endLine: number }[];
+  estimatedFiles: string[];
   dependencies: string[];
   hasFollowUp: boolean;
   executeCommand?: string[];
@@ -12,6 +12,7 @@ export type PlanInstruction = {
 export type ExecutorInstruction = {
   task: PlanInstruction[];
   fileTree: string;
+  workspaceContext: string;
   fileContents: {
     [key: string]: string;
   };

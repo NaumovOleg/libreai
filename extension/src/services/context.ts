@@ -35,7 +35,7 @@ export class Context {
 
     const lines = content.split(/\r?\n/);
 
-    for (let startLine = 1; startLine < lines.length; startLine += chunkSize) {
+    for (let startLine = 0; startLine < lines.length; startLine += chunkSize) {
       const endLine = Math.min(startLine + chunkSize, lines.length);
 
       const numberedLines = lines
@@ -110,7 +110,7 @@ export class Context {
     const { contextLimit = 1000, lookUpFileTree = true } = params ?? {};
     const [chunks, fileTree] = await Promise.all([
       this.searchRelevant(message, contextLimit),
-      lookUpFileTree ? getWorkspaceFileTree() : '',
+      lookUpFileTree ? getWorkspaceFileTree() : [''],
     ]);
 
     const ctx = chunks.reduce(

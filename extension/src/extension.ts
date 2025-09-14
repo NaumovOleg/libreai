@@ -4,7 +4,6 @@ import { Agent } from './agents';
 import { AIClient, SessionStorage } from './clients';
 import { Icons, InlineCompletionProvider, ViewProvider } from './providers';
 import { Context, DatabaseClient } from './services';
-
 export async function activate(context: vscode.ExtensionContext) {
   const client = new AIClient();
   const storage = new SessionStorage(context);

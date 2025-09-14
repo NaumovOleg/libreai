@@ -62,7 +62,7 @@ export type AgentInstruction = {
   id: string;
   startLine?: number;
   endLine?: number;
-  insertMode?: 'replace' | 'insertBefore' | 'insertAfter';
+  insertMode?: 'replace' | 'insertBefore' | 'insertAfter' | 'insert';
 };
 
 export type ChatMessage = {

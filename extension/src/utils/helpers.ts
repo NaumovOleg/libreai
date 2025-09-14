@@ -73,14 +73,13 @@ export const replaceLast = (str: string, search: string, replacement: string) =>
   return str.slice(0, index) + replacement + str.slice(index + search.length);
 };
 
-export const getFileContent = async (uri: vscode.Uri) => {
+export const getFileContentWithLineNumbers = async (uri: vscode.Uri) => {
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
   if (!workspaceFolder) {
     throw new Error('No workspace folder open');
   }
 
   const absolutePath = path.join(workspaceFolder.uri.fsPath, uri.path);
-
   const fileUri = vscode.Uri.file(absolutePath);
   const fileData = await vscode.workspace.fs.readFile(fileUri);
   return Buffer.from(fileData).toString('utf-8');
