@@ -11,7 +11,6 @@ import {
   globalListener,
   USER_ACTIONS_ON_MESSAGE,
 } from '@utils';
-
 const updateInstructionsState = (
   instructions: AgentInstruction[],
   state: INSTRUCTION_STATE,

@@ -26,3 +26,13 @@ export type FileChunk = {
 };
 
 export type DbFile = FileChunk & { id: string };
+
+export type ContextData = {
+  userPrompt: string;
+  history: string[];
+  selection: string;
+  currentFilePath: string;
+  workspaceContext: string;
+  language?: string;
+  fileTree: string;
+};

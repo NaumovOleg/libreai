@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import * as vscode from 'vscode';
 
-import { AIAgent } from '../../agents';
+import { Agent } from '../../agents';
 import { AIClient, SessionStorage } from '../../clients';
 import { Context } from '../../services';
 import {
@@ -26,7 +26,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   constructor(
     private readonly extensionUri: vscode.Uri,
     private aiClient: AIClient,
-    private agent: AIAgent,
+    private agent: Agent,
     private storage: SessionStorage,
     private ctx: Context,
     private icons: Icons,
@@ -165,9 +165,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     console.log('CONTEXT--------------', context);
 
     const data = { ...context, userPrompt: message.text, history };
-    const instructions = await this.agent.run(data);
-
-    console.log('INSTRUCTION--------------', instructions);
+    const instructions = await this.agent.proceed(data);
 
     const payload: ChatMessage = {
       from: Providers.agent,

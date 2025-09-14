@@ -55,20 +55,38 @@ async function collectEntries(
   return hasFiles;
 }
 
-export async function getWorkspaceFileTree(): Promise<string> {
+export async function getWorkspaceFileTree(): Promise<string[]> {
   const rootUri = vscode.workspace.workspaceFolders?.[0]?.uri;
-  if (!rootUri) return '';
+  if (!rootUri) return [];
 
   const rootPath = rootUri.fsPath;
   const tree: string[] = [];
 
   await collectEntries(rootUri, rootPath, tree);
 
-  return tree.sort().join('\n');
+  return tree.sort();
 }
 
 export const replaceLast = (str: string, search: string, replacement: string) => {
   const index = str.lastIndexOf(search);
   if (index === -1) return str;
   return str.slice(0, index) + replacement + str.slice(index + search.length);
+};
+
+export const getFileContent = async (uri: vscode.Uri) => {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  if (!workspaceFolder) {
+    throw new Error('No workspace folder open');
+  }
+
+  const absolutePath = path.join(workspaceFolder.uri.fsPath, uri.path);
+
+  const fileUri = vscode.Uri.file(absolutePath);
+  const fileData = await vscode.workspace.fs.readFile(fileUri);
+  return Buffer.from(fileData).toString('utf-8');
+};
+
+export const resolveFilePath = (filePath: string, root: string) => {
+  const absolutePath = path.isAbsolute(filePath) ? filePath : path.join(root, filePath);
+  return vscode.Uri.file(absolutePath);
 };

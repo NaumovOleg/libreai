@@ -1,19 +1,23 @@
 import { execSync } from 'child_process';
-import * as path from 'path';
+import path from 'path';
 import * as vscode from 'vscode';
 
 import { AIClient } from '../clients';
-import { AGENT_ACTIONS, AgentInstruction, PLANNER_PROMPT } from '../utils';
-import { Agent } from './Agent';
+import {
+  AGENT_ACTIONS,
+  AgentInstruction,
+  ContextData,
+  EXECUTOR_PROMPT,
+  getFileContent,
+  PlanInstruction,
+  PLANNER_PROMPT,
+  resolveFilePath,
+} from '../utils';
 
-export class AIAgent {
-  agent: Agent;
+export class Agent {
+  constructor(private aiClient: AIClient) {}
 
-  constructor(private aiClient: AIClient) {
-    this.agent = new Agent();
-  }
-
-  private parseAIResponse(raw: string): AgentInstruction[] {
+  private parseAIResponse<T>(raw: string): T[] {
     const cleaned = raw
       .replace(/```(?:json)?/g, '')
       .replace(/```/g, '')
@@ -24,12 +28,16 @@ export class AIAgent {
     return Array.isArray(parsed) ? parsed : [parsed];
   }
 
-  private resolveFilePath(filePath: string, root: string): vscode.Uri {
-    const absolutePath = path.isAbsolute(filePath) ? filePath : path.join(root, filePath);
-    return vscode.Uri.file(absolutePath);
+  async proceed(data: ContextData) {
+    console.log('CONTEXT--------------', data);
+    const planner = await this.planner(data);
+    console.log('PLANNER RESPONSE ++++++++++++++++++', planner);
+    const instructions = await this.executor({ instructions: planner, fileTree: data.fileTree });
+    console.log('EXECUTOR RESPONSE ++++++++++++++++++', instructions);
+    return instructions;
   }
 
-  async run(data: {
+  async planner(data: {
     userPrompt: string;
     history: string[];
     selection: string;
@@ -38,36 +46,57 @@ export class AIAgent {
     language?: string;
     fileTree: string;
   }) {
-    if (!vscode.workspace.workspaceFolders?.length) return;
+    const plannerMessages = PLANNER_PROMPT(data);
 
-    const messages = PLANNER_PROMPT({
-      workspaceContext: data.workspaceContext,
-      selection: data.selection,
-      currentFilePath: data.currentFilePath,
-      userPrompt: data.userPrompt,
-      history: data.history,
-      language: data.language,
+    console.log('PLANNER MESSAGES --------------', plannerMessages);
+
+    let aiResponse = '';
+    for await (const chunk of this.aiClient.chat(plannerMessages)) {
+      aiResponse += chunk;
+    }
+
+    return this.parseAIResponse<PlanInstruction>(aiResponse);
+  }
+
+  async executor(data: { instructions: PlanInstruction[]; fileTree: string }) {
+    const paths = {} as { [key: string]: string };
+    data.instructions.forEach((instruction) => {
+      instruction.estimatedFiles.forEach(async (el) => {
+        if (!paths[el.path]) {
+          paths[el.path] = el.path;
+        }
+      });
+    });
+    const fileContents: { [key: string]: string } = {};
+
+    for (const filePath of Object.keys(paths)) {
+      try {
+        const uri = vscode.Uri.file(filePath);
+        fileContents[filePath] = await getFileContent(uri);
+      } catch (err) {
+        console.error(`Failed to read file ${filePath}:`, err);
+        fileContents[filePath] = '';
+      }
+    }
+
+    const executorMessages = EXECUTOR_PROMPT({
       fileTree: data.fileTree,
+      fileContents,
+      task: data.instructions,
     });
 
-    const instruction = await this.agent.planner(data);
+    console.log('EXECUTOR MESSAGES --------------', executorMessages);
 
-    // let aiResponse = '';
-    // for await (const chunk of this.aiClient.chat(messages)) {
-    //   aiResponse += chunk;
-    // }
-
-    try {
-      // const instruction = this.parseAIResponse(aiResponse);
-      return instruction;
-    } catch (err) {
-      vscode.window.showErrorMessage('AI Agent failed to parse AI response');
-      console.error('Parsing Error:', err, '\nRaw Response:');
+    let aiResponse = '';
+    for await (const chunk of this.aiClient.chat(executorMessages)) {
+      aiResponse += chunk;
     }
+
+    return this.parseAIResponse<AgentInstruction>(aiResponse);
   }
 
   private async createOrUpdateFile(instr: AgentInstruction, root: string) {
-    const uri = this.resolveFilePath(instr.file, root);
+    const uri = resolveFilePath(instr.file, root);
 
     try {
       await vscode.workspace.fs.stat(uri);
@@ -100,14 +129,14 @@ export class AIAgent {
   }
 
   private async renameFile(oldPath: string, newPath: string, root: string) {
-    const oldUri = this.resolveFilePath(oldPath, root);
-    const newUri = this.resolveFilePath(newPath, root);
+    const oldUri = resolveFilePath(oldPath, root);
+    const newUri = resolveFilePath(newPath, root);
     await this.ensureDirectory(newUri);
     await vscode.workspace.fs.rename(oldUri, newUri, { overwrite: true });
   }
 
   private async deleteFile(path: string, root: string) {
-    const uri = this.resolveFilePath(path, root);
+    const uri = resolveFilePath(path, root);
 
     await vscode.workspace.fs.delete(uri);
   }
