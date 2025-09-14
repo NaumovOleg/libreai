@@ -31,3 +31,24 @@ export const rehypeCodeIndexPlugin = () => {
     });
   };
 };
+
+export function rehypeLineNumbers() {
+  return (tree: any) => {
+    visit(tree, 'element', (node: any) => {
+      if (node.tagName === 'code' && node.children && node.children.length) {
+        const textNode = node.children[0];
+        if (!textNode || !textNode.value) return;
+
+        const lines = textNode.value.split('\n');
+        const numbered = lines
+          .map((line: string, index: number) => {
+            return `<span class="line"><span class="line-number">${index + 1}</span>${line}</span>`;
+          })
+          .join('\n');
+
+        node.children = [{ type: 'raw', value: numbered }];
+        node.properties.className = (node.properties.className || []).concat('line-numbers');
+      }
+    });
+  };
+}
