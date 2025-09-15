@@ -15,7 +15,7 @@ declare enum COMMANDS {
 }
 
 interface AiConfigT {
-  provider: 'openai' | 'ollama' | 'deepseek';
+  provider: 'openai' | 'ollama' | 'deepseek' | 'openrouter';
   model: string;
   endpoint: string;
   apiKey?: string;

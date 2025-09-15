@@ -7,6 +7,7 @@ import {
   AGENT_ACTIONS,
   AgentInstruction,
   ContextData,
+  EstimatedFile,
   EXECUTOR_PROMPT,
   getFileContentWithLineNumbers,
   PlanInstruction,
@@ -37,15 +38,7 @@ export class Agent {
     return instructions;
   }
 
-  async planner(data: {
-    userPrompt: string;
-    history: string[];
-    selection: string;
-    currentFilePath: string;
-    workspaceContext: string;
-    language?: string;
-    fileTree: string;
-  }) {
+  async planner(data: ContextData) {
     const plannerMessages = PLANNER_PROMPT(data);
 
     console.log('PLANNER MESSAGES --------------', plannerMessages);
@@ -59,27 +52,21 @@ export class Agent {
   }
 
   async executor(data: { instructions: PlanInstruction[]; ctx: ContextData }) {
-    const paths: string[] = [];
+    const estimatedFiles: EstimatedFile[] = [];
     data.instructions.forEach((instruction) => {
       instruction.estimatedFiles.forEach(async (el) => {
-        paths.push(el);
+        estimatedFiles.push(el);
       });
     });
     const fileContents: { [key: string]: string } = {};
 
-    for (const filePath of paths) {
-      try {
-        const uri = vscode.Uri.file(filePath);
-        fileContents[filePath] = await getFileContentWithLineNumbers(uri);
-      } catch (err) {
-        console.error(`Failed to read file ${filePath}:`, err);
-        fileContents[filePath] = '';
-      }
+    for (const file of estimatedFiles) {
+      const uri = vscode.Uri.file(file.path);
+      fileContents[file.path] = (await getFileContentWithLineNumbers(uri)) ?? '';
     }
 
     const executorMessages = EXECUTOR_PROMPT({
       fileTree: data.ctx.fileTree,
-      workspaceContext: data.ctx.workspaceContext,
       fileContents,
       task: data.instructions,
     });
@@ -117,7 +104,7 @@ export class Agent {
     );
 
     if (instr.insertMode === 'insert') {
-      const startPos = new vscode.Position(startLine + 1, 0);
+      const startPos = new vscode.Position(startLine, 0);
       edit.insert(uri, startPos, content.replace(/^\n/, '') + '\n');
     } else if (instr.insertMode === 'replace') {
       const startPos = new vscode.Position(startLine, 0);
@@ -164,6 +151,7 @@ export class Agent {
       }
 
       return execSync(command, { cwd: root, encoding: 'utf-8' });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       vscode.window.showErrorMessage(`Failed to execute command: ${command}`);
       return err.message;
@@ -196,3 +184,5 @@ export class Agent {
     return results;
   }
 }
+
+// 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

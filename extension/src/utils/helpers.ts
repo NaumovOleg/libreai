@@ -83,6 +83,10 @@ export const getFileContentWithLineNumbers = async (uri: vscode.Uri) => {
   const fileUri = vscode.Uri.file(absolutePath);
   const fileData = await vscode.workspace.fs.readFile(fileUri);
   return Buffer.from(fileData).toString('utf-8');
+
+  // const lines = content.split(/\r?\n/);
+
+  // return lines.map((line, index) => `${index + 1}| ${line}`).join('\n');
 };
 
 export const resolveFilePath = (filePath: string, root: string) => {

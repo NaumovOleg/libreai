@@ -1,5 +1,5 @@
+import * as vscode from 'vscode';
 export * from '../../../global.types';
-
 export type PromptMessages = { role: 'system' | 'user' | 'assistant'; content: string }[];
 
 export const CHAT_HISTORY_PROP = 'chatHistory';
@@ -14,7 +14,7 @@ export type PromptProps = {
   currentFilePath?: string;
   history: string[];
   language?: string;
-  fileTree?: string;
+  fileTree?: string[];
 };
 
 export type FileChunk = {
@@ -27,12 +27,15 @@ export type FileChunk = {
 
 export type DbFile = FileChunk & { id: string };
 
-export type ContextData = {
-  userPrompt: string;
-  history: string[];
+export type ContextT = {
+  editor: vscode.TextEditor | undefined;
+  workspaceContext: string;
   selection: string;
   currentFilePath: string;
-  workspaceContext: string;
   language?: string;
-  fileTree: string;
+  fileTree: string[];
+};
+
+export type ContextData = ContextT & {
+  userPrompt: string;
 };

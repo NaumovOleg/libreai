@@ -161,9 +161,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     const context = await this.ctx.getContext(message.text);
     const history = this.storage.getSessionChatHistory(message.session);
 
-    console.log('HISTORY--------------', history);
-    console.log('CONTEXT--------------', context);
-
     const data = { ...context, userPrompt: message.text, history };
     const instructions = await this.agent.proceed(data);
 

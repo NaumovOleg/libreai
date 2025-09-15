@@ -48,22 +48,20 @@ export const MessageNavigation: FC<Props> = ({ message, onCopy, onInteractInstru
           <div className="actions">
             <ActionIcon />:
             {fileActions.includes(instruction.action) && <FileIcon path={instruction.file} />}
-            {!instruction.state && (
-              <Fragment>
-                <IconButton
-                  onClick={() => onInteractInstruction(INSTRUCTION_STATE.accepted, instruction.id)}
-                  className="interaction-button"
-                >
-                  <FaPlay />
-                </IconButton>
-                <IconButton
-                  onClick={() => onInteractInstruction(INSTRUCTION_STATE.declined, instruction.id)}
-                  className="interaction-button"
-                >
-                  <MdCancel />
-                </IconButton>
-              </Fragment>
-            )}
+            <Fragment>
+              <IconButton
+                onClick={() => onInteractInstruction(INSTRUCTION_STATE.accepted, instruction.id)}
+                className="interaction-button"
+              >
+                <FaPlay />
+              </IconButton>
+              <IconButton
+                onClick={() => onInteractInstruction(INSTRUCTION_STATE.declined, instruction.id)}
+                className="interaction-button"
+              >
+                <MdCancel />
+              </IconButton>
+            </Fragment>
           </div>
         </Fragment>
       );

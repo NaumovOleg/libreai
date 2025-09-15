@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import {
+  ContextT,
   DbFile,
   filePatterns,
   foldersPattern,
@@ -99,15 +100,9 @@ export class Context {
       contextLimit?: number;
       lookUpFileTree?: boolean;
     },
-  ): Promise<{
-    editor?: vscode.TextEditor;
-    selection: string;
-    workspaceContext: string;
-    currentFilePath: string;
-    language?: string;
-    fileTree: string;
-  }> {
+  ): Promise<ContextT> {
     const { contextLimit = 1000, lookUpFileTree = true } = params ?? {};
+
     const [chunks, fileTree] = await Promise.all([
       this.searchRelevant(message, contextLimit),
       lookUpFileTree ? getWorkspaceFileTree() : [''],

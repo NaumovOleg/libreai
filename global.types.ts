@@ -20,10 +20,10 @@ export type MESSAGE = {
   value?: AiConfigT | ChatMessage | string;
 };
 
-export type ProviderName = 'openai' | 'ollama';
+export type ProviderName = 'openai' | 'ollama' | 'deepseek' | 'openrouter';
 
 export interface AiConfigT {
-  provider: 'openai' | 'ollama' | 'deepseek';
+  provider: 'openai' | 'ollama' | 'deepseek' | 'openrouter';
   model: string;
   endpoint: string;
   apiKey?: string;

@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import { ExecutorInstruction } from './agent.types';
-import { AGENT_ACTIONS, PromptMessages, PromptProps } from './types';
+import { AGENT_ACTIONS, ContextData, PromptMessages, PromptProps } from './types';
 
 type SuggestionPromptParams = {
   selection?: string;
@@ -139,54 +139,57 @@ Return only a valid JSON array of objects. ***`,
   ];
 };
 
-export const PLANNER_PROMPT = (data: PromptProps): PromptMessages => {
+export const PLANNER_PROMPT = (data: ContextData): PromptMessages => {
   return [
     {
       role: 'system',
-      content: `You are a Task Planner for a VSCode coding assistant. Your job is to analyze a user request and the provided workspace context and return a minimal, clear list of actionable tasks the agent should perform.
+      content: `You are a Task Planner for a VSCode coding assistant.
+Your job is to analyze a user request and the workspace context, and return a minimal, clear list of actionable tasks.
 
-***STRICT RULES:
-1. Return ONLY a JSON array (no prose, no explanation, no markdown).
-2. Each array element MUST strictly follow the schema below.
-3. Use workspace-relative paths only (no absolute system paths).
-4. Prefer minimal number of tasks; group small edits into one task if they naturally belong together.
-5. Do not invent files outside the provided workspace tree.
-7. If the user intent is ambiguous and you cannot plan safely, return [].
-8. Include executeCommand array only if the task requires it.
+***RULES***
+  1. Return ONLY a JSON array (no prose, no markdown).
+  2. Each task must follow the schema below.
+  3. Use workspace-relative paths only.
+  4. Prefer minimal number of tasks; combine small edits naturally.
+  5. Do not invent files outside the workspace tree.
+  6. Include executeCommand only if required.
 
 TASK JSON SCHEMA:
 [
   {
     "id": "task-1",
     "title": "Short title",
-    "description": "Clear single-sentence description of what to do",
+    "description": "Clear single-sentence description",
     "priority": "high|medium|low",
-    "estimatedFiles": [ "src/foo.ts" ],
+    "estimatedFiles": [
+      { "path": "src/foo.ts", "startLine": 0, "endLine": 0 }
+    ],
     "dependencies": ["task-0"],
-    "hasFollowUp": false,
     "executeCommand": ["npm install","npm run build"]
   }
-]`,
+]
+
+***NOTE***:
+- startLine and endLine here are **approximate**, based on relevant chunks.
+- The Executor will adjust them precisely on the full file.`,
     },
     {
       role: 'user',
       content: `
 You will receive the following fields:
-- user_request: user's natural-language request
-- workspace_tree: newline-separated list of files/directories
-- relevant_chunks: array of objects { "path", "startLine", "endLine", "text" }
-- chat_history: recent chat messages (most recent last)
+  - User request: user's natural-language request
+  - Workspace tree: list of files/directories
+  - Project Context: chunks of code with numbered lines.
+  - Language: Programming language of workspace.
 
 Task: produce a JSON array of tasks following the schema above.
 Use only the information provided.
 Do not add extra fields or guess outside the workspace.
 Keep tasks actionable, conservative, and minimal.
-Project Information:
-- File Tree: ${data.fileTree}
-- Project Context: ${data.workspaceContext}
-- Current File: ${data.currentFilePath}
-- Selection: ${data.selection}
-- Language: ${data.language}`,
+Use this information to generate accurate responses:
+  - File Tree: ${data.fileTree}
+  - Project Context: ${data.workspaceContext}
+  - Language: ${data.language}`,
     },
     {
       role: 'user',
@@ -195,55 +198,66 @@ Project Information:
   ];
 };
 
-export const EXECUTOR_PROMPT = (data: ExecutorInstruction): any => {
+export const EXECUTOR_PROMPT = (data: ExecutorInstruction): PromptMessages => {
   return [
     {
       role: 'system',
       content: `
-You are an AI Code Executor. 
-You receive an array of tasks, relevant file contents, and chat history. Your job is to produce precise file editing instructions.
+You are an AI coding assistant.
+Provide instructions to the user for editing, creating, renaming and deleting code files or executing terminal commands step by step.
+You receive an array of tasks, relevant file contents, and chat history. 
+Your job is to produce **precise file editing instructions** based strictly on the given data.
+You receive:
+  - tasks (with approximate startLine/endLine from Planner)
+  - fileContents contents of files where you need to make changes.
+IMPORTANT!!!: Focus on correct calculation of startLine, endLine, insertMode and code snipped.
 
-## INPUT:
+## INPUT FORMAT:
 {
   "tasks": [{
     "id": "task-1",
     "title": "...",
     "description": "...",
     "priority": "high|medium|low",
-    "estimatedFiles": [ "path/to/file" ],
+    "estimatedFiles": [{"path":"path/to/file", "endLine":0, "startLine":0 }],
     "dependencies": ["task-0"],
-    "hasFollowUp": false,
     "executeCommand": ["npm install","npm run build"]
   }],
-  "fileTree": ["..."],
-  "fileContents": { "path/to/file": "...", "path/to/file": "..." },
-  "history": ["..."],
-  "workspaceContext":"..."
-}`,
-    },
-    {
-      role: 'user',
-      content: `
-*** IMPORTANT!!! 
-RULES:
-  1. Only modify files listed in task.estimatedFiles.
-  2. The field "content" must contain ONLY the code that should be inserted or replaced at the position specified in "startLine" and "endLine" .
-    - Escape all special characters in string values (\\n, quotes, etc.).
-    - AI must **determine the exact range/position** in the file where the code should be applied.
-  3. Specify the affected lines:
-    - startLine (0-based): the index of the first line to be affected.
-    - endLine (0-based): the index of the last line to be affected.
-    - Both lines are inclusive. If startLine equals endLine, only that single line is affected.
-    - The AI must determine whether to replace, insert, or delete lines based on the content..
-  4. The "insertMode" field should indicate how the code should be applied:  
-      - "replace": replace the lines in the specified range.
-      - "insert": insert after the startLine.
-  5. insertMode must be one of:
-    - "replace" (replace lines in range). Use replace only if any lines should be deleted.
-    - "insert" (insert code after startLine). Use insert only when the code should be added after existing line
-  6. If creating a file, use "action": "createFile".
-  7. Include "executeCommand" only if the task has commands.
-  8. Return ONLY JSON array; no explanations.
+  "fileTree": ["path/to/file"],
+  "fileContents": { "path/to/file": "...", "path/to/file2": "..." },
+}
+*** IMPORTANT RULES ***
+  1. For each task in "tasks", read the "description" field carefully. Use the description as the authoritative instruction on what edits to make. Use "estimatedFiles" only to know which files may be affected.
+  2. The "content" field must contain ***ONLY the exact code snippet*** to insert or replace at the specified lines.
+    - Escape special characters (\\n, quotes, etc.).
+  3. Calculate ***correct line numbers (startLine and endLine) based on the file content***.
+    - startLine (0-based): first affected line.
+    - endLine (0-based): last affected line.
+    - Both inclusive.
+    - If startLine = endLine, only that line is affected.
+  4. "insertMode" logic:
+    - "insert":
+      - startLine and endLine MUST be equal.
+      - The code snippet will be inserted **AFTER** the specified startLine content.
+      - All existing content below will be shifted down by the number of lines in the snippet.
+      - Use ONLY to add code after a line content.
+    - "replace":
+      - The lines from startLine (inclusive) to endLine (inclusive) are replaced with the snippet.
+      - The snippet should have the same or different number of lines; replaced content is removed entirely.
+      - Use ONLY to replace lines
+    - "delete":
+      - The lines from startLine (inclusive) to endLine (inclusive) are **deleted**.
+      - "content" must be an empty string.
+      - Use ONLY to remove lines.
+  5. File operations:
+    - To create a file: action = "createFile".
+    - To delete a file: action = "deleteFile".
+    - To rename a file: action = "renameFile".
+  6. Include "executeCommand" only if the task has commands.
+  7. Output:
+    - Return ONLY a **valid JSON array** (no text or explanation).
+    - Do NOT modify unrelated lines or files.
+  8. If no changes are needed, return [].
 
 ## OUTPUT SCHEMA:
 [{
@@ -253,10 +267,9 @@ RULES:
   "content": "...",
   "startLine": 0,
   "endLine": 0,
-  "insertMode": "replace|insert",
+  "insertMode": "replace|insert|delete",
   "newName": "new file name if renaming"
-}]
-If no changes are needed, return [].`,
+}]`,
     },
     {
       role: 'user',
