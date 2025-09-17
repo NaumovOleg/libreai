@@ -16,9 +16,9 @@ export class Cursor {
   ) {
     let { output: response } = await this.planner.run(input);
     response = JSON.parse(response) as PlanInstruction;
-    console.log('instructions, ++++++++++++++++++++++++++', response);
-    let { output: instructions } = await this.executor.run(response);
-    instructions = JSON.parse(instructions) as PlanInstruction;
+    console.log('response, ++++++++++++++++++++++++++', response);
+    const { output: instructions } = await this.executor.run(response);
+    // instructions = JSON.parse(instructions) as PlanInstruction;
     console.log('instructions, ++++++++++++++++++++++++++', instructions);
   }
 }

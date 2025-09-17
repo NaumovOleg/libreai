@@ -4,6 +4,9 @@ import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 
 import { PlanInstruction } from '../../../utils';
 import { EXECUTOR_PROMPT } from '../prompts';
+import { createFile, deleteFile, executeCommandTool, renameFile, updateFileTool } from '../tools';
+
+const tools = [renameFile, createFile, updateFileTool, deleteFile, executeCommandTool];
 
 export class Executor {
   private agent: RunnableSequence;
@@ -12,12 +15,12 @@ export class Executor {
   constructor(private llm: BaseChatModel) {
     this.agent = createToolCallingAgent({
       llm,
-      tools: [],
+      tools,
       prompt: EXECUTOR_PROMPT,
     });
     this.executor = new AgentExecutor({
       agent: this.agent,
-      tools: [],
+      tools,
     });
   }
 
