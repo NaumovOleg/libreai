@@ -16,6 +16,8 @@ build({
     'onnxruntime-node',
     'sharp',
     '@lancedb/lancedb',
+    '@langchain',
+    'ai',
   ],
   sourcemap: true,
 }).catch((err) => {

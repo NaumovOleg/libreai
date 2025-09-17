@@ -3,6 +3,7 @@ import path from 'path';
 import * as vscode from 'vscode';
 
 import { Agent } from '../../agents';
+import { Cursor } from '../../agents/agent/Cursor';
 import { AIClient, SessionStorage } from '../../clients';
 import { Context } from '../../services';
 import {
@@ -13,7 +14,6 @@ import {
   CONFIG_PARAGRAPH,
   MESSAGE,
   Providers,
-  USER_ACTIONS_ON_MESSAGE,
   uuid,
 } from '../../utils';
 import { Icons } from '../Icons';
@@ -22,6 +22,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
   private mediaFolder = 'out/view';
   private vebView!: vscode.WebviewView;
+  private cursor: Cursor;
 
   constructor(
     private readonly extensionUri: vscode.Uri,
@@ -30,7 +31,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     private storage: SessionStorage,
     private ctx: Context,
     private icons: Icons,
-  ) {}
+  ) {
+    this.cursor = new Cursor();
+  }
 
   resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -144,43 +147,48 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   public async useAgent(message: ChatMessage) {
     console.log('RECEIVED_MESSAGE BACKEND--------------', message);
 
-    const historyToUpdate: ChatMessage[] = [{ ...message, instructions: undefined }];
-    if (message.text === USER_ACTIONS_ON_MESSAGE.runInstructions && message.instructions?.length) {
-      const instructions = await this.agent.processInstruction(message.instructions);
-      return this.storage.addChatHistoryItems([
-        {
-          ...message,
-          from: Providers.agent,
-          text: '<instruction>',
-          instructions,
-        },
-      ]);
-    }
+    // const historyToUpdate: ChatMessage[] = [{ ...message, instructions: undefined }];
+    // if (message.text === USER_ACTIONS_ON_MESSAGE.runInstructions && message.instructions?.length) {
+    //   const instructions = await this.agent.processInstruction(message.instructions);
+    //   return this.storage.addChatHistoryItems([
+    //     {
+    //       ...message,
+    //       from: Providers.agent,
+    //       text: '<instruction>',
+    //       instructions,
+    //     },
+    //   ]);
+    // }
 
     const context = await this.ctx.getContext(message.text);
-    const history = this.storage.getSessionChatHistory(message.session);
+    // const history = this.storage.getSessionChatHistory(message.session);
 
-    const data = { ...context, userPrompt: message.text, history };
-    const instructions = await this.agent.proceed(data);
+    // const data = { ...context, request: message.text };
+    const instructions = await this.cursor.exec({
+      fileTree: context.fileTree,
+      workspaceContext: context.workspaceContext,
+      language: context.language,
+      request: message.text,
+    });
 
-    const payload: ChatMessage = {
-      from: Providers.agent,
-      to: Providers.user,
-      text: '<instruction>',
-      time: new Date(),
-      id: uuid(),
-      session: message.session,
-      type: 'instruction',
-      instructions: instructions?.map((el) => {
-        el.id = uuid(5);
-        return el;
-      }),
-    };
+    // const payload: ChatMessage = {
+    //   from: Providers.agent,
+    //   to: Providers.user,
+    //   text: '<instruction>',
+    //   time: new Date(),
+    //   id: uuid(),
+    //   session: message.session,
+    //   type: 'instruction',
+    //   instructions: instructions?.map((el) => {
+    //     el.id = uuid(5);
+    //     return el;
+    //   }),
+    // };
 
-    historyToUpdate.push(payload);
+    // historyToUpdate.push(payload);
 
-    this.storage.addChatHistoryItems(historyToUpdate);
-    this.vebView.webview.postMessage({ type: COMMANDS.agentResponse, payload });
+    // this.storage.addChatHistoryItems(historyToUpdate);
+    // this.vebView.webview.postMessage({ type: COMMANDS.agentResponse, payload });
   }
 
   public updateContext(payload: unknown) {

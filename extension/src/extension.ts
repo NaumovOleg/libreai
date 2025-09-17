@@ -44,3 +44,4 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {}
+// 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;
