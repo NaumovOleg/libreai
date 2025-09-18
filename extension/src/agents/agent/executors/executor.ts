@@ -2,7 +2,6 @@ import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 
-import { PlanInstruction } from '../../../utils';
 import { EXECUTOR_PROMPT } from '../prompts';
 import { createFile, deleteFile, executeCommandTool, renameFile, updateFileTool } from '../tools';
 
@@ -24,7 +23,7 @@ export class Executor {
     });
   }
 
-  run(instructions: PlanInstruction) {
-    return this.executor.invoke({ instructions: JSON.stringify(instructions) });
+  run(data: any) {
+    return this.executor.invoke({ tasks: JSON.stringify(data) });
   }
 }

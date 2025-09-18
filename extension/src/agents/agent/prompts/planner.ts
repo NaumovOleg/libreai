@@ -16,7 +16,7 @@ Your job is to analyze a user request and the workspace context, and return a mi
   3. Use workspace-relative paths only.
   4. Prefer minimal number of tasks; combine small edits naturally.
   5. Do not invent files outside the workspace tree.
-  6. Include executeCommand only if required.
+  6. Include executeCommand only if no file changes.
 
 TASK JSON SCHEMA:
 [
@@ -27,7 +27,7 @@ TASK JSON SCHEMA:
     "estimatedFiles": [
       { "path": "src/foo.ts", "startLine": 0, "endLine": 0 }
     ],
-    "executeCommand": ["npm install","npm run build"]
+    "executeCommand": ["..."]
   }
 ]
 

@@ -11,7 +11,7 @@ export type PlanInstruction = {
 };
 
 export type ExecutorInstruction = {
-  task: PlanInstruction[];
+  tasks: PlanInstruction[];
   fileTree: string[];
   fileContents: {
     [key: string]: string;

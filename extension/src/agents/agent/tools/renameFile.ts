@@ -7,14 +7,15 @@ export const renameFile = tool(
     return JSON.stringify({
       status: 'ok',
       action: 'renameFile',
-      ...args,
+      taskId: args.taskId,
     });
   },
   {
     name: 'renameFile',
     description: 'Can rename file',
     schema: z.object({
-      file: z.string().describe('Full path to the file that should be renamed'),
+      taskId: z.string().optional().describe('ID of the task for tracking'),
+      file: z.string().describe('Full path to the file'),
       newName: z.string().describe('New name of file'),
     }),
   },
