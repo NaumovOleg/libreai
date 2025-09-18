@@ -12,14 +12,10 @@ export const renameFile = tool(
   },
   {
     name: 'renameFile',
-    description: 'Rename existing file.',
+    description: 'Can rename file',
     schema: z.object({
-      file: z.string(),
-      content: z.string(),
-      startLine: z.number(),
-      endLine: z.number(),
-      insertMode: z.enum(['insert', 'replace', 'delete']),
-      newName: z.string().optional(),
+      file: z.string().describe('Full path to the file that should be renamed'),
+      newName: z.string().describe('New name of file'),
     }),
   },
 );

@@ -16,32 +16,48 @@ You receive:
   - fileContents contents of files where you need to make changes.
 IMPORTANT!!!: Focus on correct calculation of startLine, endLine, insertMode and code snipped.
 
-## OUTPUT SCHEMA: 
-[{
-    "tool":"createFile|updateFile|renameFile|deleteFile|executeCommand",
-    "args":{
-      "action":"createFile|updateFile|renameFile|deleteFile|executeCommand"
-      "language": "...",
-      "file": "path/to/file",
-      "content": "...",
-      "startLine": 0,
-      "endLine": 0,
-      "insertMode": "replace|insert|delete",
-      "newName": "new file name if renaming",
+Rules:  
+1. Always return a **single JSON object** with a field "tool_calls".  
+2. "tool_calls" must be an array. Each element is one instruction.  
+3. Each element must follow this schema:  
+   {
+     "name": "<tool name>",
+     "arguments": { ... }
+   }  
+4. Do not return raw text, explanations, or multiple JSON objects.  
+5. Never wrap the response in Markdown. Return only valid JSON.  
+
+Example output (if multiple edits are needed):  
+{
+  "tool_calls": [
+    {
+      "name": "editFile",
+      "arguments": {
+        "file": "controllers/userController.ts",
+        "startLine": 20,
+        "endLine": 20,
+        "insertMode": "insert",
+        "content": "...",
+      }
+    },
+    {
+      "name": "deleteFile",
+      "arguments": {"file": "..."}
+    },
+    {
+      "name": "renameFile",
+      "arguments": { "file": "...", "newName": "..."}
+    },
+    {
+      "name": "createFile",
+      "arguments": { "file": "...", "content": "..."}
+    },
+    {
+      "name": "command",
+      "arguments": { "command": "npm install"}
     }
-  },
-  {
-    "tool":"createFile|updateFile|renameFile|deleteFile|executeCommand",
-    "args":{
-      "language": "...",
-      "file": "path/to/file",
-      "content": "...",
-      "startLine": 0,
-      "endLine": 0,
-      "insertMode": "replace|insert|delete",
-      "newName": "new file name if renaming",
-    }
-  }]
+  ]
+}
 
 *** IMPORTANT RULES ***
   1. For each task in "tasks", read the "description" field carefully. Use the description as the authoritative instruction on what edits to make. Use "estimatedFiles" only to know which files may be affected.
@@ -70,12 +86,17 @@ IMPORTANT!!!: Focus on correct calculation of startLine, endLine, insertMode and
     - To create a file: tool = "createFile".
     - To delete a file: tool = "deleteFile".
     - To rename a file: tool = "renameFile".
-  6. Include "args.executeCommand" only if the task has commands.
+    - To edit a file: tool = "editFile".
+  6.	Exclusivity rule:
+  	-	If "tool" = "editFile", do not include "command" in arguments.
+  	-	If "tool" = "renameFile", include only "newName" and "file" fields in arguments.
+  	-	If "tool" = "deleteFile", include only "file".
+  	-	If "tool" = "createFile", include only "file" and "content" ("content" is optional).
+  	-	If "tool" = "command", do not include file-related fields (file, content, startLine, endLine, insertMode).
+  6. Include "args.command" only if the task has commands to run.
   7. Output:
-    - Return ONLY a **valid JSON array** (no text or explanation outside json).
+    - Return ONLY a **valid JSON objects** (no text or explanation outside json).
     - Do NOT modify unrelated lines or files.
-
-***Respond by calling a tool for each task separately. Do not combine them into an array.***
 `,
     { templateFormat: 'mustache' },
   ),

@@ -13,13 +13,9 @@ export const deleteFile = tool(
   },
   {
     name: 'deleteFile',
-    description: 'Delete existing file',
+    description: 'Can delete file',
     schema: z.object({
-      file: z.string().optional(),
-      content: z.string().optional(),
-      startLine: z.number().optional(),
-      endLine: z.number().optional(),
-      insertMode: z.enum(['insert', 'replace', 'delete']).optional(),
+      file: z.string().describe('Full path to the file that should be deleted.'),
     }),
   },
 );

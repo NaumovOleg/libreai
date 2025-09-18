@@ -7,7 +7,7 @@ import {
 
 export const PLANNER_PROMPT = ChatPromptTemplate.fromMessages([
   SystemMessagePromptTemplate.fromTemplate(
-    `You are a Task Planner for a VSCode coding assistant.
+    `You are a Task Planner for a coding assistant.
 Your job is to analyze a user request and the workspace context, and return a minimal, clear list of actionable tasks.
 
 ***RULES***
@@ -24,11 +24,9 @@ TASK JSON SCHEMA:
     "id": "task-1",
     "title": "Short title",
     "description": "Clear single-sentence description",
-    "priority": "high|medium|low",
     "estimatedFiles": [
       { "path": "src/foo.ts", "startLine": 0, "endLine": 0 }
     ],
-    "dependencies": ["task-0"],
     "executeCommand": ["npm install","npm run build"]
   }
 ]

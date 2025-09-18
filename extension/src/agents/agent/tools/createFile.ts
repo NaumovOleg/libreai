@@ -12,12 +12,13 @@ export const createFile = tool(
   },
   {
     name: 'createFile',
-    description: 'Create new file.',
+    description: 'Can create new file',
     schema: z.object({
-      file: z.string(),
-      content: z.string(),
-      startLine: z.number().optional(),
-      endLine: z.number().optional(),
+      file: z.string().describe('Full path to the file that should be created'),
+      content: z
+        .string()
+        .describe('New content to insert. Required for insert and replace modes.')
+        .optional(),
     }),
   },
 );

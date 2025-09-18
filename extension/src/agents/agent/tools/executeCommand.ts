@@ -4,13 +4,13 @@ export const executeCommandTool = tool(
   async ({ command }: any) => {
     console.log(`Executing command: ${command}`);
     // тут можно дернуть child_process.spawn
-    return JSON.stringify({ status: 'ok', action: 'executeCommand', command });
+    return JSON.stringify({ status: 'ok', action: 'command', command });
   },
   {
-    name: 'executeCommand',
-    description: 'Execute command',
+    name: 'command',
+    description: 'Can execute command',
     schema: z.object({
-      content: z.string(),
+      command: z.string().describe('Command to  execute.'),
     }),
   },
 );
