@@ -1,8 +1,10 @@
 import { tool } from '@langchain/core/tools';
-import { z } from 'zod';
+
+import { AGENT_TOOLS, DeleteFileToolArgs } from '../../../utils';
+import { Schemas } from './schemas';
 
 export const deleteFile = tool(
-  async (args: any) => {
+  async (args: DeleteFileToolArgs) => {
     console.log('Deleting', args);
 
     return JSON.stringify({
@@ -12,11 +14,8 @@ export const deleteFile = tool(
     });
   },
   {
-    name: 'deleteFile',
-    description: 'Can delete file',
-    schema: z.object({
-      taskId: z.string().optional().describe('ID of the task for tracking'),
-      file: z.string().describe('Full path to the file'),
-    }),
+    name: AGENT_TOOLS.deleteFile,
+    description: 'Deletes existed file.',
+    schema: Schemas[AGENT_TOOLS.deleteFile],
   },
 );

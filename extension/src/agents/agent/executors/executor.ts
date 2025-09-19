@@ -3,10 +3,16 @@ import { RunnableSequence } from '@langchain/core/runnables';
 import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 
 import { EXECUTOR_PROMPT } from '../prompts';
-import { createFile, deleteFile, executeCommandTool, renameFile, updateFileTool } from '../tools';
+import {
+  createFile,
+  deleteFile,
+  executeCommandTool,
+  readFile,
+  renameFile,
+  updateFileTool,
+} from '../tools';
 
-const tools = [renameFile, createFile, updateFileTool, deleteFile, executeCommandTool];
-
+const tools = [renameFile, readFile, createFile, updateFileTool, deleteFile, executeCommandTool];
 export class Executor {
   private agent: RunnableSequence;
   private executor: AgentExecutor;
@@ -24,6 +30,6 @@ export class Executor {
   }
 
   run(data: any) {
-    return this.executor.invoke({ tasks: JSON.stringify(data) });
+    return this.executor.invoke({ tasks: JSON.stringify(data, null, 2) });
   }
 }

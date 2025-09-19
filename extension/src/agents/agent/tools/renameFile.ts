@@ -1,7 +1,10 @@
 import { tool } from '@langchain/core/tools';
-import { z } from 'zod';
+
+import { AGENT_TOOLS, RenameFileToolArgs } from '../../../utils';
+import { Schemas } from './schemas';
+
 export const renameFile = tool(
-  async (args: any) => {
+  async (args: RenameFileToolArgs) => {
     console.log('Renamin file', args);
 
     return JSON.stringify({
@@ -11,12 +14,8 @@ export const renameFile = tool(
     });
   },
   {
-    name: 'renameFile',
-    description: 'Can rename file',
-    schema: z.object({
-      taskId: z.string().optional().describe('ID of the task for tracking'),
-      file: z.string().describe('Full path to the file'),
-      newName: z.string().describe('New name of file'),
-    }),
+    name: AGENT_TOOLS.renameFile,
+    description: 'Renames existed file',
+    schema: Schemas[AGENT_TOOLS.renameFile],
   },
 );

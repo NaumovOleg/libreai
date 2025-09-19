@@ -16,27 +16,23 @@ Your job is to analyze a user request and the workspace context, and return a mi
   3. Use workspace-relative paths only.
   4. Prefer minimal number of tasks; combine small edits naturally.
   5. Do not invent files outside the workspace tree.
-  6. Include executeCommand only if no file changes.
+  6. Include "command" only if no file changes.
 
 TASK JSON SCHEMA:
 [
   {
-    "id": "task-1",
-    "title": "Short title",
-    "description": "Clear single-sentence description",
-    "estimatedFiles": [
-      { "path": "src/foo.ts", "startLine": 0, "endLine": 0 }
-    ],
-    "executeCommand": ["..."]
-  }
+    "task": "Clear single-sentence description",
+    "file": "path/to/file
+  },
+  {"command":"npm install"}
 ]
 
 ***NOTE***:
-    - startLine and endLine here are **approximate**, based on relevant chunks.
-    - The Executor will adjust them precisely on the full file.
-***Return ONLY a valid JSON array.
-Do NOT add any explanations, notes, or markdown.
-Do not include any text outside the JSON array.***`,
+    - "task": is an instruction to agent what shoul be done. Exclude if need to execute command.
+    - "file": path to file.
+    - "command": exact terminal command. Exclude if there are any file changes.
+
+***Return ONLY a valid JSON array. Do NOT add any explanations, notes, or markdown. Do not include any text outside the JSON array.***`,
     { templateFormat: 'mustache' },
   ),
   ['placeholder', '{chat_history}'],
@@ -56,10 +52,7 @@ Use this information to generate accurate responses:
     - File Tree: {{fileTree}}
     - Project Context: {{workspaceContext}}
     - Language: {{language}}
-    - User request: {{request}}
-***Return ONLY a valid JSON array.
-Do NOT add any explanations, notes, or markdown.
-Do not include any text outside the JSON array.***`,
+    - User request: {{request}}`,
     { templateFormat: 'mustache' },
   ),
   ['placeholder', '{agent_scratchpad}'],

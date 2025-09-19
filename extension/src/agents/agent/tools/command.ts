@@ -1,17 +1,17 @@
 import { tool } from '@langchain/core/tools';
-import { z } from 'zod';
+
+import { AGENT_TOOLS, CommandToolArgs } from '../../../utils';
+import { Schemas } from './schemas';
+
 export const executeCommandTool = tool(
-  async ({ command, taskId }: any) => {
+  async ({ command, taskId }: CommandToolArgs) => {
     console.log(`Executing command: ${command}`);
     // тут можно дернуть child_process.spawn
     return JSON.stringify({ status: 'ok', action: 'command', taskId });
   },
   {
-    name: 'command',
-    description: 'Can execute command',
-    schema: z.object({
-      taskId: z.string().describe('Id of current task'),
-      command: z.string().describe('Command to  execute.'),
-    }),
+    name: AGENT_TOOLS.commang,
+    description: 'Executes terminal command',
+    schema: Schemas[AGENT_TOOLS.commang],
   },
 );

@@ -1,8 +1,11 @@
 import { tool } from '@langchain/core/tools';
-import { z } from 'zod';
+
+import { AGENT_TOOLS, CreateToolArgs } from '../../../utils';
+import { Schemas } from './schemas';
+
 export const createFile = tool(
-  async (args: any) => {
-    console.log('Createing', args);
+  async (args: CreateToolArgs) => {
+    console.log('Creating', args);
 
     return JSON.stringify({
       status: 'ok',
@@ -11,12 +14,8 @@ export const createFile = tool(
     });
   },
   {
-    name: 'createFile',
-    description: 'Can create new file',
-    schema: z.object({
-      taskId: z.string().optional().describe('ID of the task for tracking'),
-      file: z.string().describe('Full path to the file'),
-      content: z.string().describe('Content for insert.'),
-    }),
+    name: AGENT_TOOLS.createFile,
+    description: 'Creates a new file with provided content.',
+    schema: Schemas[AGENT_TOOLS.createFile],
   },
 );
