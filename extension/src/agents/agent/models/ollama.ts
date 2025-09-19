@@ -5,7 +5,7 @@ export const openAi = new ChatOpenAI({
   model: 'deepseek/deepseek-chat-v3.1:free',
   temperature: 0.2,
   configuration: {
-    apiKey: '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',
+    apiKey: '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',
     baseURL: 'https://openrouter.ai/api/v1',
   },
 });

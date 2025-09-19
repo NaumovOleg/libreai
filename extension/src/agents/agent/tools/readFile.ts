@@ -1,29 +1,28 @@
-import { tool } from '@langchain/core/tools';
-import * as vscode from 'vscode';
+import { DynamicStructuredTool, tool } from '@langchain/core/tools';
 
-import { AGENT_TOOLS, getFileContentWithLineNumbers, ReadFileToolArgs } from '../../../utils';
+import { AGENT_TOOLS, ReadFileToolArgs, ToolCallbacks } from '../../../utils';
 import { Schemas } from './schemas';
 
-export const readFile = tool(
-  async (args: ReadFileToolArgs) => {
-    console.log('Reading file from disk:', args);
+export class ReadFileTool {
+  tool: DynamicStructuredTool;
 
-    const url = vscode.Uri.file(args.file);
-    const content = await getFileContentWithLineNumbers(url);
+  constructor(cb: ToolCallbacks[AGENT_TOOLS.readFile]) {
+    this.tool = tool(
+      async (args: ReadFileToolArgs) => {
+        console.log('Reading file from disk:', args);
+        let status = 'success';
+        const content = await cb(args.file).catch(() => (status = 'error'));
 
-    const result = {
-      taskId: args.taskId,
-      file: args.file,
-      content,
-      status: 'success',
-    };
-    console.log('Reading file response :', args.file, content);
+        const result = { ...args, content, status, tool: AGENT_TOOLS.readFile };
+        console.log('Reading file response :', args.file, content);
 
-    return JSON.stringify(result);
-  },
-  {
-    name: AGENT_TOOLS.readFile,
-    description: `Read the full content of a file.`,
-    schema: Schemas[AGENT_TOOLS.readFile],
-  },
-);
+        return JSON.stringify(result);
+      },
+      {
+        name: AGENT_TOOLS.readFile,
+        description: `Read the full content of a file.`,
+        schema: Schemas[AGENT_TOOLS.readFile],
+      },
+    );
+  }
+}

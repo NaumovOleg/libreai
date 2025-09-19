@@ -93,3 +93,12 @@ export const resolveFilePath = (filePath: string, root: string) => {
   const absolutePath = path.isAbsolute(filePath) ? filePath : path.join(root, filePath);
   return vscode.Uri.file(absolutePath);
 };
+
+export const ensureDirectory = async (fileUri: vscode.Uri) => {
+  const dirUri = vscode.Uri.file(path.dirname(fileUri.fsPath));
+  try {
+    await vscode.workspace.fs.stat(dirUri);
+  } catch {
+    await vscode.workspace.fs.createDirectory(dirUri);
+  }
+};

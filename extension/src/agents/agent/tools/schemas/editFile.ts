@@ -3,10 +3,14 @@ import { z } from 'zod';
 const file = z.string().describe('Full path to the file. Ommited for "command"');
 const startLine = z
   .number()
-  .describe('Starting line number (0-indexed). Ommited for "renaemFile", "renaemFile"');
+  .describe(
+    'Starting line number (0-indexed). Ommited for "renaemFile", "renaemFile". !!!IMPORTANT: calculate this param very precise.',
+  );
 const endLine = z
   .number()
-  .describe('Ending line number (0-indexed). Ommited for "renaemFile", "renaemFile"');
+  .describe(
+    'Ending line number (0-indexed). Ommited for "renaemFile", "renaemFile". !!!IMPORTANT: calculate this param very precise.',
+  );
 const insertMode = z.enum(['insert', 'replace', 'delete'])
   .describe(`Operation mode. Ommited for "renaemFile", "renaemFile" 
 "insertMode" logic:
@@ -44,5 +48,7 @@ export const EditFileSchema = z
    - "insert": startLine and endLine MUST be equal; snippet is inserted AFTER that line.
    - "replace": lines from startLine..endLine are replaced with the snippet.
    - "delete": lines from startLine..endLine are deleted; "content" MUST be empty.
-   - Do NOT invent any other values (like "append", "add", "update")`,
+   - Do NOT invent any other values (like "append", "add", "update")
+   
+   ***Read content carefully and make very precise calculation of "startLine" and "endLine"`,
   );
