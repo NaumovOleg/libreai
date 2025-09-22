@@ -28,6 +28,7 @@ export default [
       './lambdas',
       './cdk.out',
       './node_modules',
+      './out',
     ],
     files: ['**/*.{js,mjs,cjs,ts}'],
     plugins: {

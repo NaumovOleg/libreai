@@ -10,7 +10,7 @@ export class EditFileTool {
   constructor(cb: ToolCallbacks[AGENT_TOOLS.editFile], observer: EditorObserver) {
     this.tool = tool(
       async (args: EditFileToolArgs) => {
-        console.log('Updating file:', args);
+        console.log('Updating file:', args, cb);
         observer.emit(EDITOR_EVENTS.editFile, { status: 'pending', args: args.file });
         let status = 'success';
 

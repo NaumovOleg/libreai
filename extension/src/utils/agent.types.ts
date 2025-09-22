@@ -58,7 +58,7 @@ export type RenameFileToolArgs = {
 
 export enum AGENT_TOOLS {
   editFile = 'editFile',
-  commang = 'command',
+  command = 'command',
   renameFile = 'renameFile',
   deleteFile = 'deleteFile',
   createFile = 'createFile',
@@ -67,7 +67,7 @@ export enum AGENT_TOOLS {
 
 export type ToolCallbacks = {
   [AGENT_TOOLS.editFile]: (args: EditFileToolArgs) => Promise<string | null>;
-  [AGENT_TOOLS.commang]: (args: CommandToolArgs) => Promise<string | null>;
+  [AGENT_TOOLS.command]: (args: CommandToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.renameFile]: (args: RenameFileToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.deleteFile]: (args: DeleteFileToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.createFile]: (args: CreateToolArgs) => Promise<string | null>;

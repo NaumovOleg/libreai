@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 
 import { RenameFileToolArgs, resolveFilePath } from '../../utils';
 
-export const renameFile = async (instruction: RenameFileToolArgs) => {
+export const renameFileCb = async (instruction: RenameFileToolArgs) => {
+  console.log('ENTERING rename-------------');
   if (!vscode.workspace.workspaceFolders?.length) return null;
   const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
 

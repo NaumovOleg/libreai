@@ -9,6 +9,7 @@ export class Cursor {
   private executor: Executor;
 
   constructor(cbks: ToolCallbacks) {
+    console.log('++=s=s=sksskks', cbks);
     const observer = EditorObserver.getInstance();
     this.planner = new Planner(ollama);
     const toolFactory = new ToolFactory(cbks, observer);

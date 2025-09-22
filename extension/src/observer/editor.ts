@@ -7,12 +7,14 @@ import { Handler, Payloads } from './types';
 export class EditorObserver {
   observer = new Observer();
   private static instance: EditorObserver;
+  web!: vscode.WebviewView;
 
-  constructor(private web: vscode.WebviewView) {
+  init(web: vscode.WebviewView) {
+    this.web = web;
     if (!EditorObserver.instance) {
-      EditorObserver.instance = new EditorObserver(web);
+      EditorObserver.instance = new EditorObserver();
     }
-    return EditorObserver.instance;
+    return this.observe();
   }
 
   static getInstance(): EditorObserver {
@@ -23,7 +25,7 @@ export class EditorObserver {
     this.observer.emit(event, payload);
   }
 
-  init() {
+  observe() {
     this.observer.subscribe(EDITOR_EVENTS.readFile, this.readFile.bind(this));
     this.observer.subscribe(EDITOR_EVENTS.renameFile, this.renameFile.bind(this));
     this.observer.subscribe(EDITOR_EVENTS.deleteFile, this.deleteFile.bind(this));

@@ -9,7 +9,7 @@ export class ReadFileTool {
   constructor(cb: ToolCallbacks[AGENT_TOOLS.readFile], observer: EditorObserver) {
     this.tool = tool(
       async (args: ReadFileToolArgs) => {
-        console.log('Reading file from disk:', args);
+        console.log('Reading file from disk:', args, cb);
         observer.emit(EDITOR_EVENTS.readFile, { status: 'pending', args: args.file });
         let status = 'success';
         const content = await cb(args.file).catch(() => (status = 'error'));

@@ -3,7 +3,8 @@ import * as vscode from 'vscode';
 
 import { CommandToolArgs } from '../../utils';
 
-export const command = async (instruction: CommandToolArgs) => {
+export const commandCb = async (instruction: CommandToolArgs) => {
+  console.log('ENTERING command-------------');
   if (!vscode.workspace.workspaceFolders?.length) return null;
   const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
 
@@ -16,7 +17,7 @@ export const command = async (instruction: CommandToolArgs) => {
     return execSync(instruction.command, { cwd: root, encoding: 'utf-8' });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
-    vscode.window.showErrorMessage(`Failed to execute command: ${command}`);
+    vscode.window.showErrorMessage(`Failed to execute command: ${instruction.command}`);
     return err.message;
   }
 };

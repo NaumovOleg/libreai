@@ -13,7 +13,7 @@ export * from './readFile';
 export * from './renameFile';
 
 export const Schemas = {
-  [AGENT_TOOLS.commang]: CommandSchema,
+  [AGENT_TOOLS.command]: CommandSchema,
   [AGENT_TOOLS.editFile]: EditFileSchema,
   [AGENT_TOOLS.readFile]: ReadFileSchema,
   [AGENT_TOOLS.renameFile]: RenameFileSchema,

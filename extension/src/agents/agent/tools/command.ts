@@ -7,7 +7,7 @@ import { Schemas } from './schemas';
 export class CommandTool {
   tool: DynamicStructuredTool;
 
-  constructor(cb: ToolCallbacks[AGENT_TOOLS.commang], observer: EditorObserver) {
+  constructor(cb: ToolCallbacks[AGENT_TOOLS.command], observer: EditorObserver) {
     this.tool = tool(
       async (args: CommandToolArgs) => {
         observer.emit(EDITOR_EVENTS.command, { status: 'pending', args: args.command });
@@ -22,12 +22,12 @@ export class CommandTool {
           observer.emit(EDITOR_EVENTS.command, { status: 'done', args: args.command });
         }
 
-        return JSON.stringify({ status, tool: AGENT_TOOLS.commang, taskId: args.taskId });
+        return JSON.stringify({ status, tool: AGENT_TOOLS.command, taskId: args.taskId });
       },
       {
-        name: AGENT_TOOLS.commang,
+        name: AGENT_TOOLS.command,
         description: 'Executes terminal command',
-        schema: Schemas[AGENT_TOOLS.commang],
+        schema: Schemas[AGENT_TOOLS.command],
       },
     );
   }

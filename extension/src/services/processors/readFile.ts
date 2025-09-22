@@ -1,7 +1,8 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-export const readFile = async (file: string) => {
+export const readFileCb = async (file: string) => {
+  console.log('ENTERING read-------------');
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
   if (!workspaceFolder) {
     throw new Error('No workspace folder open');

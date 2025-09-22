@@ -10,7 +10,7 @@ import { TypingDots } from '@elements';
 export const Chat = () => {
   const [input, setInput] = useState<string | undefined>();
   const { sendMessage, messages, isAgentThinking } = useChat();
-
+  
   return (
     <section className="chat-section">
       <TopNavigation />

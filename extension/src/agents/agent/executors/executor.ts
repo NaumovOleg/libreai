@@ -10,10 +10,7 @@ export class Executor {
   private agent: RunnableSequence;
   private executor: AgentExecutor;
 
-  constructor(
-    private llm: BaseChatModel,
-    tools: DynamicStructuredTool[],
-  ) {
+  constructor(llm: BaseChatModel, tools: DynamicStructuredTool[]) {
     this.agent = createToolCallingAgent({
       llm,
       tools,

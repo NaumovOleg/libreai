@@ -12,7 +12,7 @@ export class ToolFactory {
   tools: DynamicStructuredTool[];
 
   constructor(cbks: ToolCallbacks, observer: EditorObserver) {
-    const command = new CommandTool(cbks[AGENT_TOOLS.commang], observer);
+    const command = new CommandTool(cbks[AGENT_TOOLS.command], observer);
     const create = new CreateFileTool(cbks[AGENT_TOOLS.createFile], observer);
     const deleteFile = new DeleteFileTool(cbks[AGENT_TOOLS.deleteFile], observer);
     const edit = new EditFileTool(cbks[AGENT_TOOLS.editFile], observer);

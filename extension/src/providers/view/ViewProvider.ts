@@ -6,7 +6,7 @@ import { Agent } from '../../agents';
 import { Cursor } from '../../agents/agent/Cursor';
 import { AIClient, SessionStorage } from '../../clients';
 import { EditorObserver } from '../../observer';
-import { Callbacks, Context } from '../../services';
+import { callbacks, Context } from '../../services';
 import {
   CHAT_PROMPT,
   ChatMessage,
@@ -33,7 +33,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     private ctx: Context,
     private icons: Icons,
   ) {
-    this.cursor = new Cursor(Callbacks);
+    console.log('+_s-dodkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdk', () => {});
+    this.cursor = new Cursor(callbacks);
   }
 
   resolveWebviewView(
@@ -58,8 +59,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     const htmlPath = path.join(this.extensionUri.fsPath, 'out', 'view', 'index.html');
     let html = fs.readFileSync(htmlPath, 'utf-8');
-    const observer = new EditorObserver(this.web);
-    observer.init();
+    const observer = new EditorObserver();
+    observer.init(this.web);
 
     const iconsMap = this.icons.getIcons(this.web);
     html = html

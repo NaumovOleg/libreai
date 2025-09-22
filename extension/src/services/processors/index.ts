@@ -1,16 +1,16 @@
 import { AGENT_TOOLS, ToolCallbacks } from '../../utils';
-import { command } from './command';
-import { createFile } from './createFile';
-import { deleteFile } from './deleteFile';
-import { editFile } from './editFile';
-import { readFile } from './readFile';
-import { renameFile } from './renameFile';
+import { commandCb } from './command';
+import { createFileCb } from './createFile';
+import { deleteFileCb } from './deleteFile';
+import { editFileCb } from './editFile';
+import { readFileCb } from './readFile';
+import { renameFileCb } from './renameFile';
 
-export const Callbacks: ToolCallbacks = {
-  [AGENT_TOOLS.commang]: command,
-  [AGENT_TOOLS.createFile]: createFile,
-  [AGENT_TOOLS.deleteFile]: deleteFile,
-  [AGENT_TOOLS.editFile]: editFile,
-  [AGENT_TOOLS.readFile]: readFile,
-  [AGENT_TOOLS.renameFile]: renameFile,
+export const callbacks: ToolCallbacks = {
+  [AGENT_TOOLS.command]: commandCb,
+  [AGENT_TOOLS.createFile]: createFileCb,
+  [AGENT_TOOLS.deleteFile]: deleteFileCb,
+  [AGENT_TOOLS.editFile]: editFileCb,
+  [AGENT_TOOLS.readFile]: readFileCb,
+  [AGENT_TOOLS.renameFile]: renameFileCb,
 };
