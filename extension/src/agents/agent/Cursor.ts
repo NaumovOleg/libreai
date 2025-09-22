@@ -1,3 +1,4 @@
+import { EditorObserver } from '../../observer';
 import { PlannerQuery, ToolCallbacks } from '../../utils';
 import { Executor, Planner } from './executors';
 import { ollama, openAi } from './models';
@@ -8,8 +9,9 @@ export class Cursor {
   private executor: Executor;
 
   constructor(cbks: ToolCallbacks) {
+    const observer = EditorObserver.getInstance();
     this.planner = new Planner(ollama);
-    const toolFactory = new ToolFactory(cbks);
+    const toolFactory = new ToolFactory(cbks, observer);
     this.executor = new Executor(openAi, toolFactory.tools);
   }
 

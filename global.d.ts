@@ -12,6 +12,7 @@ declare enum COMMANDS {
   updatedContext = 'updatedContext',
   removeChatSession = 'removeChatSession',
   agentResponse = 'agentResponse',
+  editor = 'editor',
 }
 
 interface AiConfigT {

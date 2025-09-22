@@ -3,6 +3,15 @@ export enum CONFIG_PARAGRAPH {
   'autoCompleteConfig' = 'autoCompleteConfig',
 }
 
+export enum EDITOR_EVENTS {
+  readFile = 'readFile',
+  editFile = 'editFile',
+  renameFile = 'renameFile',
+  deleteFile = 'deleteFile',
+  createFile = 'createFile',
+  command = 'command',
+}
+
 export enum COMMANDS {
   changeConfig = 'changeConfig',
   configListenerMounted = 'configListenerMounted',
@@ -12,6 +21,7 @@ export enum COMMANDS {
   updatedContext = 'updatedContext',
   removeChatSession = 'removeChatSession',
   agentResponse = 'agentResponse',
+  editor = 'editor',
 }
 
 export type MESSAGE = {

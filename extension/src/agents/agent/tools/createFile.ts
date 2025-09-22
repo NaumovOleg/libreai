@@ -1,17 +1,19 @@
 import { DynamicStructuredTool, tool } from '@langchain/core/tools';
 
-import { AGENT_TOOLS, CreateToolArgs, ToolCallbacks } from '../../../utils';
+import { EditorObserver } from '../../../observer';
+import { AGENT_TOOLS, CreateToolArgs, EDITOR_EVENTS, ToolCallbacks } from '../../../utils';
 import { Schemas } from './schemas';
-
 export class CreateFileTool {
   tool: DynamicStructuredTool;
 
-  constructor(cb: ToolCallbacks[AGENT_TOOLS.createFile]) {
+  constructor(cb: ToolCallbacks[AGENT_TOOLS.createFile], observer: EditorObserver) {
     this.tool = tool(
       async (args: CreateToolArgs) => {
         console.log('Creating', args);
+        observer.emit(EDITOR_EVENTS.createFile, { status: 'pending', args: args.file });
         let status = 'success';
         await cb(args).catch(() => (status = 'error'));
+        observer.emit(EDITOR_EVENTS.createFile, { status: 'done', args: args.file });
 
         return JSON.stringify({
           status,

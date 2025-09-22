@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { Agent } from '../../agents';
 import { Cursor } from '../../agents/agent/Cursor';
 import { AIClient, SessionStorage } from '../../clients';
+import { EditorObserver } from '../../observer';
 import { Callbacks, Context } from '../../services';
 import {
   CHAT_PROMPT,
@@ -21,7 +22,7 @@ import { Icons } from '../Icons';
 export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
   private mediaFolder = 'out/view';
-  private vebView!: vscode.WebviewView;
+  private web!: vscode.WebviewView;
   private cursor: Cursor;
 
   constructor(
@@ -40,8 +41,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     _context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken,
   ) {
-    this.vebView = webviewView;
-    this.vebView.webview.options = {
+    this.web = webviewView;
+    this.web.webview.options = {
       enableScripts: true,
       localResourceRoots: [
         vscode.Uri.file(path.join(this.extensionUri.fsPath, 'out', 'view')),
@@ -49,7 +50,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       ],
     };
 
-    this.vebView.webview.onDidReceiveMessage(
+    this.web.webview.onDidReceiveMessage(
       (message) => this.onDidReceiveMessage(message),
       undefined,
       [],
@@ -57,8 +58,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     const htmlPath = path.join(this.extensionUri.fsPath, 'out', 'view', 'index.html');
     let html = fs.readFileSync(htmlPath, 'utf-8');
+    const observer = new EditorObserver(this.web);
+    observer.init();
 
-    const iconsMap = this.icons.getIcons(this.vebView);
+    const iconsMap = this.icons.getIcons(this.web);
     html = html
       .replace(
         /href="\/index\.css"/,
@@ -77,11 +80,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         `<script>window.ICONS_PATHS = ${JSON.stringify(iconsMap)};</script></head>`,
       );
 
-    this.vebView.webview.html = html;
+    this.web.webview.html = html;
   }
 
   private onStartMessages() {
-    return this.vebView.webview.postMessage({
+    return this.web.webview.postMessage({
       type: COMMANDS.changeConfig,
       payload: {
         [CONFIG_PARAGRAPH.chatConfig]: Conf.chatConfig,
@@ -114,10 +117,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       const messages = CHAT_PROMPT({ ...ctx, userPrompt: message.text, history });
       for await (const chunk of this.aiClient.chat(messages)) {
         payload.text += chunk;
-        this.vebView.webview.postMessage({ type: COMMANDS.chatStream, payload });
+        this.web.webview.postMessage({ type: COMMANDS.chatStream, payload });
       }
 
-      this.vebView.webview.postMessage({ type: COMMANDS.chatStreamEnd });
+      this.web.webview.postMessage({ type: COMMANDS.chatStreamEnd });
       await this.storage.addChatHistoryItems([message, payload]);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
@@ -190,12 +193,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     // historyToUpdate.push(payload);
 
     // this.storage.addChatHistoryItems(historyToUpdate);
-    // this.vebView.webview.postMessage({ type: COMMANDS.agentResponse, payload });
+    // this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
   }
 
   public updateContext(payload: unknown) {
-    if (!this.vebView) return;
+    if (!this.web) return;
 
-    this.vebView.webview.postMessage({ type: COMMANDS.changeConfig, payload });
+    this.web.webview.postMessage({ type: COMMANDS.changeConfig, payload });
   }
 }
