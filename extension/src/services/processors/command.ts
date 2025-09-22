@@ -4,7 +4,6 @@ import * as vscode from 'vscode';
 import { CommandToolArgs } from '../../utils';
 
 export const commandCb = async (instruction: CommandToolArgs) => {
-  console.log('ENTERING command-------------');
   if (!vscode.workspace.workspaceFolders?.length) return null;
   const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
 

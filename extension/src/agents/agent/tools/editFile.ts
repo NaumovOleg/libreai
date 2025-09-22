@@ -7,9 +7,10 @@ import { Schemas } from './schemas';
 export class EditFileTool {
   tool: DynamicStructuredTool;
 
-  constructor(cb: ToolCallbacks[AGENT_TOOLS.editFile], observer: EditorObserver) {
+  constructor(cb: ToolCallbacks[AGENT_TOOLS.editFile]) {
     this.tool = tool(
       async (args: EditFileToolArgs) => {
+        const observer = EditorObserver.getInstance();
         console.log('Updating file:', args, cb);
         observer.emit(EDITOR_EVENTS.editFile, { status: 'pending', args: args.file });
         let status = 'success';

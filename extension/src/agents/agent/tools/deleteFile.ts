@@ -7,9 +7,10 @@ import { Schemas } from './schemas';
 export class DeleteFileTool {
   tool: DynamicStructuredTool;
 
-  constructor(cb: ToolCallbacks[AGENT_TOOLS.deleteFile], observer: EditorObserver) {
+  constructor(cb: ToolCallbacks[AGENT_TOOLS.deleteFile]) {
     this.tool = tool(
       async (args: DeleteFileToolArgs) => {
+        const observer = EditorObserver.getInstance();
         console.log('Deleting', args);
         observer.emit(EDITOR_EVENTS.deleteFile, { status: 'pending', args: args.file });
         let status = 'success';

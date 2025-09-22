@@ -6,9 +6,10 @@ import { Schemas } from './schemas';
 export class RenameFileTool {
   tool: DynamicStructuredTool;
 
-  constructor(cb: ToolCallbacks[AGENT_TOOLS.renameFile], observer: EditorObserver) {
+  constructor(cb: ToolCallbacks[AGENT_TOOLS.renameFile]) {
     this.tool = tool(
       async (args: RenameFileToolArgs) => {
+        const observer = EditorObserver.getInstance();
         console.log('Renamin file', args);
         observer.emit(EDITOR_EVENTS.renameFile, { status: 'pending', args: args.file });
         let status = 'success';

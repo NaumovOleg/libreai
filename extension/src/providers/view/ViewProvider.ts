@@ -33,7 +33,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     private ctx: Context,
     private icons: Icons,
   ) {
-    console.log('+_s-dodkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdk', () => {});
     this.cursor = new Cursor(callbacks);
   }
 
@@ -59,7 +58,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     const htmlPath = path.join(this.extensionUri.fsPath, 'out', 'view', 'index.html');
     let html = fs.readFileSync(htmlPath, 'utf-8');
-    const observer = new EditorObserver();
+    const observer = EditorObserver.getInstance();
     observer.init(this.web);
 
     const iconsMap = this.icons.getIcons(this.web);

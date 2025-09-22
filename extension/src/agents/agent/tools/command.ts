@@ -7,9 +7,10 @@ import { Schemas } from './schemas';
 export class CommandTool {
   tool: DynamicStructuredTool;
 
-  constructor(cb: ToolCallbacks[AGENT_TOOLS.command], observer: EditorObserver) {
+  constructor(cb: ToolCallbacks[AGENT_TOOLS.command]) {
     this.tool = tool(
       async (args: CommandToolArgs) => {
+        const observer = EditorObserver.getInstance();
         observer.emit(EDITOR_EVENTS.command, { status: 'pending', args: args.command });
         console.log(`Executing command: ${args.command}`);
 

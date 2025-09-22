@@ -9,16 +9,18 @@ export class EditorObserver {
   private static instance: EditorObserver;
   web!: vscode.WebviewView;
 
-  init(web: vscode.WebviewView) {
-    this.web = web;
+  private constructor() {} // private to prevent direct instantiation
+
+  static getInstance(): EditorObserver {
     if (!EditorObserver.instance) {
       EditorObserver.instance = new EditorObserver();
     }
-    return this.observe();
+    return EditorObserver.instance;
   }
 
-  static getInstance(): EditorObserver {
-    return EditorObserver.instance;
+  init(web: vscode.WebviewView) {
+    this.web = web;
+    this.observe();
   }
 
   emit(event: EDITOR_EVENTS, payload: Payloads<EDITOR_EVENTS>) {
@@ -26,10 +28,10 @@ export class EditorObserver {
   }
 
   observe() {
-    this.observer.subscribe(EDITOR_EVENTS.readFile, this.readFile.bind(this));
+    this.observer.subscribe(EDITOR_EVENTS.readFile, this.readFile);
     this.observer.subscribe(EDITOR_EVENTS.renameFile, this.renameFile.bind(this));
     this.observer.subscribe(EDITOR_EVENTS.deleteFile, this.deleteFile.bind(this));
-    this.observer.subscribe(EDITOR_EVENTS.editFile, this.editFile.bind(this));
+    this.observer.subscribe(EDITOR_EVENTS.editFile, this.editFile);
     this.observer.subscribe(EDITOR_EVENTS.createFile, this.createFile.bind(this));
     this.observer.subscribe(EDITOR_EVENTS.command, this.command.bind(this));
   }

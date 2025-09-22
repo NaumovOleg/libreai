@@ -3,7 +3,6 @@ import * as vscode from 'vscode';
 import { EditFileToolArgs, resolveFilePath } from '../../utils';
 
 export const editFileCb = async (instruction: EditFileToolArgs) => {
-  console.log('ENTERING EDIT-------------');
   if (!vscode.workspace.workspaceFolders?.length) return null;
   const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
 

@@ -1,4 +1,3 @@
-import { EditorObserver } from '../../observer';
 import { PlannerQuery, ToolCallbacks } from '../../utils';
 import { Executor, Planner } from './executors';
 import { ollama, openAi } from './models';
@@ -9,18 +8,24 @@ export class Cursor {
   private executor: Executor;
 
   constructor(cbks: ToolCallbacks) {
-    console.log('++=s=s=sksskks', cbks);
-    const observer = EditorObserver.getInstance();
     this.planner = new Planner(ollama);
-    const toolFactory = new ToolFactory(cbks, observer);
+    const toolFactory = new ToolFactory(cbks);
     this.executor = new Executor(openAi, toolFactory.tools);
   }
 
   async exec(input: PlannerQuery) {
     const tasks = await this.planner.run(input);
+
+    // const tasks = [
+    //   {
+    //     file: 'services/userService.ts',
+    //     task: 'Add removeUserById method to user service',
+    //   },
+    // ];
+
     console.log('planner output--------------------', tasks);
 
     const { output } = await this.executor.run(tasks);
-    console.log('agent response, ++++++++++++++++++++++++++', output);
+    return output;
   }
 }

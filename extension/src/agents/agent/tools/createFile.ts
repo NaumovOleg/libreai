@@ -6,9 +6,10 @@ import { Schemas } from './schemas';
 export class CreateFileTool {
   tool: DynamicStructuredTool;
 
-  constructor(cb: ToolCallbacks[AGENT_TOOLS.createFile], observer: EditorObserver) {
+  constructor(cb: ToolCallbacks[AGENT_TOOLS.createFile]) {
     this.tool = tool(
       async (args: CreateToolArgs) => {
+        const observer = EditorObserver.getInstance();
         console.log('Creating', args);
         observer.emit(EDITOR_EVENTS.createFile, { status: 'pending', args: args.file });
         let status = 'success';
