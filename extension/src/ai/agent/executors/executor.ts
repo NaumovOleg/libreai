@@ -4,7 +4,7 @@ import { DynamicStructuredTool } from '@langchain/core/tools';
 import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 
 import { PlannerOutput } from '../../../utils';
-import { EXECUTOR_PROMPT } from '../prompts';
+import { EXECUTOR_PROMPT } from '../../prompts';
 
 export class Executor {
   private agent: RunnableSequence;

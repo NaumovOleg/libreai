@@ -1,11 +1,4 @@
-import {
-  AiConfigT,
-  ChatMessage,
-  COMMANDS,
-  CONFIG_PARAGRAPH,
-  INSTRUCTION_STATE,
-  Providers,
-} from './types';
+import { AiConfigT, ChatMessage, COMMANDS, CONFIG_PARAGRAPH, Providers } from './types';
 
 export type ConfigContextType = {
   [CONFIG_PARAGRAPH.chatConfig]: AiConfigT;
@@ -32,9 +25,4 @@ export type ChatContextType = {
   setSession: (session: string) => void;
   removeSession: (session: string) => void;
   addSession: () => void;
-  interactInstruction: (
-    data: ChatMessage,
-    state: INSTRUCTION_STATE.accepted | INSTRUCTION_STATE.declined,
-    id?: string,
-  ) => void;
 };

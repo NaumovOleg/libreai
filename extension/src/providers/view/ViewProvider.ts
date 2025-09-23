@@ -2,13 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import * as vscode from 'vscode';
 
-import { Agent } from '../../agents';
-import { Cursor } from '../../agents/agent/Cursor';
-import { AIClient, SessionStorage } from '../../clients';
+import { Chat, Cursor } from '../../ai';
+import { SessionStorage } from '../../clients';
 import { EditorObserver } from '../../observer';
 import { callbacks, Context } from '../../services';
 import {
-  CHAT_PROMPT,
   ChatMessage,
   COMMANDS,
   Conf,
@@ -24,16 +22,16 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   private mediaFolder = 'out/view';
   private web!: vscode.WebviewView;
   private cursor: Cursor;
+  private chat: Chat;
 
   constructor(
     private readonly extensionUri: vscode.Uri,
-    private aiClient: AIClient,
-    private agent: Agent,
     private storage: SessionStorage,
     private ctx: Context,
     private icons: Icons,
   ) {
     this.cursor = new Cursor(callbacks);
+    this.chat = new Chat();
   }
 
   resolveWebviewView(
@@ -114,8 +112,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       };
       const ctx = await this.ctx.getContext(message.text);
       const history = this.storage.getSessionChatHistory(message.session);
-      const messages = CHAT_PROMPT({ ...ctx, userPrompt: message.text, history });
-      for await (const chunk of this.aiClient.chat(messages)) {
+
+      for await (const chunk of this.chat.chatStream({ ...ctx, text: message.text, history })) {
         payload.text += chunk;
         this.web.webview.postMessage({ type: COMMANDS.chatStream, payload });
       }
@@ -150,23 +148,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   public async useAgent(message: ChatMessage) {
     console.log('RECEIVED_MESSAGE BACKEND--------------', message);
 
-    // const historyToUpdate: ChatMessage[] = [{ ...message, instructions: undefined }];
-    // if (message.text === USER_ACTIONS_ON_MESSAGE.runInstructions && message.instructions?.length) {
-    //   const instructions = await this.agent.processInstruction(message.instructions);
-    //   return this.storage.addChatHistoryItems([
-    //     {
-    //       ...message,
-    //       from: Providers.agent,
-    //       text: '<instruction>',
-    //       instructions,
-    //     },
-    //   ]);
-    // }
-
     const context = await this.ctx.getContext(message.text);
     // const history = this.storage.getSessionChatHistory(message.session);
 
-    // const data = { ...context, request: message.text };
     const instructions = await this.cursor.exec({
       fileTree: context.fileTree,
       workspaceContext: context.workspaceContext,
@@ -175,20 +159,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     });
 
     console.log('AGENT_RUN-----------', instructions);
-
-    // const payload: ChatMessage = {
-    //   from: Providers.agent,
-    //   to: Providers.user,
-    //   text: '<instruction>',
-    //   time: new Date(),
-    //   id: uuid(),
-    //   session: message.session,
-    //   type: 'instruction',
-    //   instructions: instructions?.map((el) => {
-    //     el.id = uuid(5);
-    //     return el;
-    //   }),
-    // };
 
     // historyToUpdate.push(payload);
 

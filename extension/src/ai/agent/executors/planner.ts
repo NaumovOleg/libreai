@@ -5,7 +5,7 @@ import { RunnableSequence } from '@langchain/core/runnables';
 import { z } from 'zod';
 
 import { PlannerOutput, PlannerQuery } from '../../../utils';
-import { PLANNER_PROMPT } from '../prompts';
+import { PLANNER_PROMPT } from '../../prompts';
 
 export class Planner {
   private parser = StructuredOutputParser.fromZodSchema(

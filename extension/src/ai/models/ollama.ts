@@ -17,3 +17,10 @@ export const ollama = new ChatOllama({
   model: 'llama3.1:8b',
   temperature: 0,
 });
+
+export const chat = new ChatOllama({
+  baseUrl: 'http://localhost:11434',
+  model: 'llama3.1:8b',
+  temperature: 0,
+  streaming: true,
+});

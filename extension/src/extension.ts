@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 
-import { Agent } from './agents';
 import { AIClient, SessionStorage } from './clients';
 import { Icons, InlineCompletionProvider, ViewProvider } from './providers';
 import { Context, DatabaseClient } from './services';
@@ -18,8 +17,7 @@ export async function activate(context: vscode.ExtensionContext) {
     new InlineCompletionProvider(client, ctx),
   );
 
-  const agent = new Agent(client);
-  const chatProvider = new ViewProvider(context.extensionUri, client, agent, storage, ctx, icons);
+  const chatProvider = new ViewProvider(context.extensionUri, storage, ctx, icons);
   const chatView = vscode.window.registerWebviewViewProvider(ViewProvider.viewType, chatProvider);
 
   context.subscriptions.push(

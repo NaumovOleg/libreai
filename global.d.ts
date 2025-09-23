@@ -44,23 +44,6 @@ declare enum AGENT_ACTIONS {
   executeCommand = 'executeCommand',
 }
 
-declare enum INSTRUCTION_STATE {
-  pending = 'pending',
-  declined = 'declined',
-  accepted = 'accepted',
-}
-
-declare type AgentInstruction = {
-  action: AGENT_ACTIONS;
-  file: string;
-  content: string;
-  newName: string;
-  language?: string;
-  executedResponse?: string;
-  state: INSTRUCTION_STATE;
-  id: string;
-};
-
 declare type ChatMessage = {
   from: Providers;
   to: Providers;
@@ -68,8 +51,6 @@ declare type ChatMessage = {
   time?: Date;
   id: string;
   session: string;
-  type?: 'message' | 'instruction';
-  instructions?: AgentInstruction[];
 };
 
 type ChatSession = { [key: string]: ChatMessage[] };

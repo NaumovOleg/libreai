@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import { ExecutorInstruction } from './agent.types';
-import { ContextData, PromptMessages, PromptProps } from './types';
+import { ContextData, PromptMessages } from './types';
 
 type SuggestionPromptParams = {
   selection?: string;
@@ -35,22 +35,22 @@ ${data.after}`,
   },
 ];
 
-export const CHAT_PROMPT = (data: PromptProps): PromptMessages => [
-  {
-    role: 'system',
-    content: `You are a highly skilled coding assistant.
-     Use this information to generate instructions accurately:
-- Project context: ${data.workspaceContext}.
-- History: ${data.history.join('\n')}. 
-- Current file: ${data.currentFilePath || 'none'}.
-- Selection: ${data.selection}.
-- Programming language: ${data.language}.`,
-  },
-  {
-    role: 'user',
-    content: data.userPrompt,
-  },
-];
+// export const CHAT_PROMPT = (data: PromptProps): PromptMessages => [
+//   {
+//     role: 'system',
+//     content: `You are a highly skilled coding assistant.
+//      Use this information to generate instructions accurately:
+// - Project context: ${data.workspaceContext}.
+// - History: ${data.history.join('\n')}.
+// - Current file: ${data.currentFilePath || 'none'}.
+// - Selection: ${data.selection}.
+// - Programming language: ${data.language}.`,
+//   },
+//   {
+//     role: 'user',
+//     content: data.userPrompt,
+//   },
+// ];
 
 export const PLANNER_PROMPT = (data: ContextData): PromptMessages => {
   return [

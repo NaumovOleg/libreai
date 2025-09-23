@@ -1,7 +1,7 @@
-import { PlannerQuery, ToolCallbacks } from '../../utils';
-import { Executor, Planner } from './executors';
+import { PlannerQuery, ToolCallbacks } from '../utils';
+import { Executor, Planner } from './agent/executors';
+import { ToolFactory } from './agent/tools';
 import { ollama, openAi } from './models';
-import { ToolFactory } from './tools';
 
 export class Cursor {
   private planner: Planner;

@@ -10,7 +10,7 @@ export type CHAT_HISTORY = {
 export type PromptProps = {
   workspaceContext: string;
   selection: string;
-  userPrompt: string;
+  text: string;
   currentFilePath?: string;
   history: string[];
   language?: string;

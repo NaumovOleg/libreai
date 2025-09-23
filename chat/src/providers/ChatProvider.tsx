@@ -1,28 +1,6 @@
 import { useState, type FC, type ReactElement, useEffect, useRef } from 'react';
 import { ChatContext } from './context';
-import {
-  State,
-  ChatMessage,
-  vscode,
-  uuid,
-  COMMANDS,
-  Providers,
-  INSTRUCTION_STATE,
-  globalListener,
-  USER_ACTIONS_ON_MESSAGE,
-} from '@utils';
-const updateInstructionsState = (
-  instructions: AgentInstruction[],
-  state: INSTRUCTION_STATE,
-  id?: string,
-) => {
-  return instructions.map((instruction) => {
-    if (!id || id === instruction.id) {
-      return { ...instruction, state };
-    }
-    return { ...instruction };
-  });
-};
+import { State, ChatMessage, vscode, uuid, COMMANDS, Providers, globalListener } from '@utils';
 
 export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const vsCodeState = vscode.getState() as State;
@@ -150,54 +128,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     }
   };
 
-  const interactInstruction = (
-    data: ChatMessage,
-    state: INSTRUCTION_STATE.accepted | INSTRUCTION_STATE.declined,
-    id?: string,
-  ) => {
-    setSessions((s) => {
-      const chatSession = s[session].map((msg) => {
-        if (msg.id !== data.id) return { ...msg };
-
-        const msData = { ...msg };
-        if (msData.instructions) {
-          msData.instructions = updateInstructionsState(msData.instructions, state, id);
-        }
-        return msData;
-      });
-      s[session] = [...chatSession];
-
-      vscode.setState({ ...vscode.getState(), chatSession: s });
-
-      return s;
-    });
-    setMessages((prev) => {
-      return prev.map((msg) => {
-        if (msg.id !== data.id || !msg.instructions?.length) return msg;
-        return {
-          ...msg,
-          instructions: updateInstructionsState(msg.instructions, state, id),
-        };
-      });
-    });
-
-    if (state !== INSTRUCTION_STATE.accepted) return;
-
-    const instructions = updateInstructionsState(data.instructions ?? [], state, id);
-
-    const message: ChatMessage = {
-      id: uuid(7),
-      from: Providers.user,
-      to: provider,
-      time: new Date(),
-      session,
-      text: USER_ACTIONS_ON_MESSAGE.runInstructions,
-      instructions: id ? instructions.filter((el) => el.id === id) : instructions,
-    };
-
-    vscode.postMessage({ command: COMMANDS.sendMessage, value: message });
-  };
-
   const setProvider = (provider: Providers) => {
     setCatProvider(provider);
     vscode.setState({ ...vscode.getState(), provider });
@@ -218,7 +148,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     setProvider,
     provider,
     isAgentThinking,
-    interactInstruction,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

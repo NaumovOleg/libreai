@@ -55,26 +55,6 @@ export type State = {
   provider?: Providers;
 };
 
-export enum INSTRUCTION_STATE {
-  pending = 'pending',
-  declined = 'declined',
-  accepted = 'accepted',
-}
-
-export type AgentInstruction = {
-  action: AGENT_ACTIONS;
-  file: string;
-  content: string;
-  newName: string;
-  language?: string;
-  executedResponse?: string;
-  state: INSTRUCTION_STATE;
-  id: string;
-  startLine?: number;
-  endLine?: number;
-  insertMode?: 'replace' | 'insertBefore' | 'insertAfter' | 'insert';
-};
-
 export type ChatMessage = {
   from: Providers;
   to: Providers;
@@ -82,8 +62,6 @@ export type ChatMessage = {
   time?: Date;
   id: string;
   session: string;
-  type?: 'message' | 'instruction';
-  instructions?: AgentInstruction[];
 };
 
 export enum AGENT_ACTIONS {
