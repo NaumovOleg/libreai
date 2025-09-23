@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { COMMANDS, EDITOR_EVENTS } from '../../../global.types';
 import { Observer } from './observer';
-import { Handler, Payloads } from './types';
+import { EventArgs, Handler, Payloads } from './types';
 
 export class EditorObserver {
   observer = new Observer();
@@ -23,7 +23,7 @@ export class EditorObserver {
     this.observe();
   }
 
-  emit(event: EDITOR_EVENTS, payload: Payloads<EDITOR_EVENTS>) {
+  emit<E extends keyof EventArgs>(event: E, payload: Payloads<E>) {
     this.observer.emit(event, payload);
   }
 
@@ -34,6 +34,7 @@ export class EditorObserver {
     this.observer.subscribe(EDITOR_EVENTS.editFile, this.editFile);
     this.observer.subscribe(EDITOR_EVENTS.createFile, this.createFile.bind(this));
     this.observer.subscribe(EDITOR_EVENTS.command, this.command.bind(this));
+    this.observer.subscribe(EDITOR_EVENTS.planning, this.planning.bind(this));
   }
   readFile: Handler<EDITOR_EVENTS.readFile> = (data) => {
     const payload = { ...data, type: EDITOR_EVENTS.readFile };
@@ -57,6 +58,10 @@ export class EditorObserver {
   };
   command: Handler<EDITOR_EVENTS.command> = (data) => {
     const payload = { ...data, type: EDITOR_EVENTS.command };
+    this.web.webview.postMessage({ type: COMMANDS.editor, payload });
+  };
+  planning: Handler<EDITOR_EVENTS.command> = (data) => {
+    const payload = { ...data, type: EDITOR_EVENTS.planning };
     this.web.webview.postMessage({ type: COMMANDS.editor, payload });
   };
 }

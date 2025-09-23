@@ -1,7 +1,7 @@
 import { DynamicStructuredTool, tool } from '@langchain/core/tools';
 
 import { EditorObserver } from '../../../observer';
-import { AGENT_TOOLS, EDITOR_EVENTS, ReadFileToolArgs, ToolCallbacks } from '../../../utils';
+import { AGENT_TOOLS, EDITOR_EVENTS, ReadFileToolArgs, ToolCallbacks, uuid } from '../../../utils';
 import { Schemas } from './schemas';
 export class ReadFileTool {
   tool: DynamicStructuredTool;
@@ -12,13 +12,14 @@ export class ReadFileTool {
         const observer = EditorObserver.getInstance();
         try {
           console.log('Reading file from disk:', { args, cb, observer });
-          observer.emit(EDITOR_EVENTS.readFile, { status: 'pending', args: args.file });
+          const event = { id: uuid(4), args: args.file };
+          observer.emit(EDITOR_EVENTS.readFile, { status: 'pending', ...event });
           let status = 'success';
           const content = await cb(args.file).catch(() => (status = 'error'));
 
           const result = { ...args, content, status, tool: AGENT_TOOLS.readFile };
           console.log('Reading file response :', args.file, content);
-          observer.emit(EDITOR_EVENTS.readFile, { status: 'done', args: args.file });
+          observer.emit(EDITOR_EVENTS.readFile, { status: 'done', ...event });
           return JSON.stringify(result);
         } catch (err) {
           console.log(err);

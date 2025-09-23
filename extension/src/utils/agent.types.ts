@@ -63,6 +63,7 @@ export enum AGENT_TOOLS {
   deleteFile = 'deleteFile',
   createFile = 'createFile',
   readFile = 'readFile',
+  planning = 'planning',
 }
 
 export type ToolCallbacks = {
@@ -72,4 +73,5 @@ export type ToolCallbacks = {
   [AGENT_TOOLS.deleteFile]: (args: DeleteFileToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.createFile]: (args: CreateToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.readFile]: (args: string) => Promise<string>;
+  [AGENT_TOOLS.planning]: (args: string) => Promise<string>;
 };

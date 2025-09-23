@@ -1,4 +1,5 @@
-import { PlannerQuery, ToolCallbacks } from '../utils';
+import { EditorObserver } from '../observer';
+import { EDITOR_EVENTS, PlannerQuery, ToolCallbacks, uuid } from '../utils';
 import { Executor, Planner } from './agent/executors';
 import { ToolFactory } from './agent/tools';
 import { ollama, openAi } from './models';
@@ -14,7 +15,12 @@ export class Cursor {
   }
 
   async exec(input: PlannerQuery) {
+    const observer = EditorObserver.getInstance();
+    const id = uuid(4);
+    observer.emit(EDITOR_EVENTS.planning, { status: 'pending', args: 'planning', id });
     const tasks = await this.planner.run(input);
+    observer.emit(EDITOR_EVENTS.planning, { status: 'done', args: 'planning', id });
+    observer.emit(EDITOR_EVENTS.planning, { status: 'done', args: 'start processing', id });
 
     // const tasks = [
     //   {

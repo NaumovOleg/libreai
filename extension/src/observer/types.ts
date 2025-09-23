@@ -7,17 +7,19 @@ export type EventArgs = {
   [EDITOR_EVENTS.deleteFile]: string;
   [EDITOR_EVENTS.createFile]: string;
   [EDITOR_EVENTS.command]: string;
+  [EDITOR_EVENTS.planning]: string;
 };
 
 export type Status = 'pending' | 'done' | 'error';
 
-export type Payloads<E extends EDITOR_EVENTS> = {
+export type Payloads<E extends keyof EventArgs> = {
   type?: E;
   status: Status;
+  id: string;
   args: EventArgs[E];
 };
 
-export type Handler<E extends EDITOR_EVENTS> = (payload: Payloads<E>) => void;
+export type Handler<E extends keyof EventArgs> = (payload: Payloads<E>) => void;
 
 export type Handlers =
   | Handler<EDITOR_EVENTS.readFile>

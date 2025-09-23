@@ -10,6 +10,7 @@ export enum EDITOR_EVENTS {
   deleteFile = 'deleteFile',
   createFile = 'createFile',
   command = 'command',
+  planning = 'planning',
 }
 
 export enum COMMANDS {

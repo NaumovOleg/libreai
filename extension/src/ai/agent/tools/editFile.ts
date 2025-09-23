@@ -1,7 +1,7 @@
 import { DynamicStructuredTool, tool } from '@langchain/core/tools';
 
 import { EditorObserver } from '../../../observer';
-import { AGENT_TOOLS, EditFileToolArgs, EDITOR_EVENTS, ToolCallbacks } from '../../../utils';
+import { AGENT_TOOLS, EditFileToolArgs, EDITOR_EVENTS, ToolCallbacks, uuid } from '../../../utils';
 import { Schemas } from './schemas';
 
 export class EditFileTool {
@@ -11,12 +11,13 @@ export class EditFileTool {
     this.tool = tool(
       async (args: EditFileToolArgs) => {
         const observer = EditorObserver.getInstance();
+        const event = { id: uuid(4), args: args.file };
         console.log('Updating file:', args, cb);
-        observer.emit(EDITOR_EVENTS.editFile, { status: 'pending', args: args.file });
+        observer.emit(EDITOR_EVENTS.editFile, { status: 'pending', ...event });
         let status = 'success';
 
         await cb(args).catch(() => (status = 'error'));
-        observer.emit(EDITOR_EVENTS.editFile, { status: 'done', args: args.file });
+        observer.emit(EDITOR_EVENTS.editFile, { status: 'done', ...event });
         return JSON.stringify({
           status,
           taskId: args.taskId,
