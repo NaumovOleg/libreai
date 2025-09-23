@@ -3,7 +3,7 @@ import { EDITOR_EVENTS } from '../../../global.types';
 export type EventArgs = {
   [EDITOR_EVENTS.readFile]: string;
   [EDITOR_EVENTS.renameFile]: { file: string; newName: string };
-  [EDITOR_EVENTS.editFile]: string;
+  [EDITOR_EVENTS.editFile]: { file: string; content: string };
   [EDITOR_EVENTS.deleteFile]: string;
   [EDITOR_EVENTS.createFile]: string;
   [EDITOR_EVENTS.command]: string;

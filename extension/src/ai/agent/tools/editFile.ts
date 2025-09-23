@@ -11,7 +11,7 @@ export class EditFileTool {
     this.tool = tool(
       async (args: EditFileToolArgs) => {
         const observer = EditorObserver.getInstance();
-        const event = { id: uuid(4), args: args.file };
+        const event = { id: uuid(4), args: { file: args.file, content: args.content } };
         console.log('Updating file:', args, cb);
         observer.emit(EDITOR_EVENTS.editFile, { status: 'pending', ...event });
         let status = 'success';

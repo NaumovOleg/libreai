@@ -4,7 +4,6 @@ import { DynamicStructuredTool } from '@langchain/core/tools';
 import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 
 import { PlannerOutput } from '../../../utils';
-import { ollama } from '../../models';
 import { EXECUTOR_PROMPT } from '../../prompts';
 
 export class Executor {
@@ -13,7 +12,7 @@ export class Executor {
 
   constructor(llm: BaseChatModel, tools: DynamicStructuredTool[]) {
     this.agent = createToolCallingAgent({
-      llm: ollama,
+      llm,
       tools,
       prompt: EXECUTOR_PROMPT,
     });

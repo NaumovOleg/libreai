@@ -5,12 +5,10 @@ export const openAi = new ChatOpenAI({
   model: 'deepseek/deepseek-chat-v3.1:free',
   temperature: 0.2,
   configuration: {
-    apiKey: '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',
+    apiKey: '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',
     baseURL: 'https://openrouter.ai/api/v1',
   },
 });
-
-const personal = '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';
 
 export const ollama = new ChatOllama({
   baseUrl: 'http://localhost:11434',
