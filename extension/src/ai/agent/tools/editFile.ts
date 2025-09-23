@@ -1,6 +1,7 @@
 import { DynamicStructuredTool, tool } from '@langchain/core/tools';
 
 import { EditorObserver } from '../../../observer';
+import { PreviewManager } from '../../../services';
 import { AGENT_TOOLS, EditFileToolArgs, EDITOR_EVENTS, ToolCallbacks, uuid } from '../../../utils';
 import { Schemas } from './schemas';
 
@@ -15,6 +16,17 @@ export class EditFileTool {
         console.log('Updating file:', args, cb);
         observer.emit(EDITOR_EVENTS.editFile, { status: 'pending', ...event });
         let status = 'success';
+        try {
+          const preview = await PreviewManager.createPreview(args.file, args.content);
+
+          if (preview === 'accept') {
+            console.log('User accepted changes');
+          } else {
+            console.log('User rejected changes');
+          }
+        } catch (err) {
+          console.log(err);
+        }
 
         await cb(args).catch(() => (status = 'error'));
         observer.emit(EDITOR_EVENTS.editFile, { status: 'done', ...event });
