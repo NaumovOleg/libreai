@@ -2,7 +2,17 @@ import * as vscode from 'vscode';
 
 import { AIClient, SessionStorage } from './clients';
 import { Icons, InlineCompletionProvider, ViewProvider } from './providers';
-import { Context, DatabaseClient } from './services';
+import { Context, DatabaseClient, PreviewManager } from './services';
+
+const diff = {
+  file: 'services/userService.ts',
+  startLine: 6,
+  endLine: 6,
+  insertMode: 'insert',
+  content: 'removeUser(): void {\n    // implementation\n}',
+  taskId: "Add a new method 'removeUser' to the userService",
+};
+
 export async function activate(context: vscode.ExtensionContext) {
   const client = new AIClient();
   const storage = new SessionStorage(context);
@@ -11,6 +21,8 @@ export async function activate(context: vscode.ExtensionContext) {
   await Promise.all([icons.initIcons(), db.init()]);
   const ctx = new Context(db);
   await ctx.indexWorkspace();
+
+  const preview = await PreviewManager.createPreview(diff);
 
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },

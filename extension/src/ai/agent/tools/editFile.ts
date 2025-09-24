@@ -17,7 +17,7 @@ export class EditFileTool {
         observer.emit(EDITOR_EVENTS.editFile, { status: 'pending', ...event });
         let status = 'success';
         try {
-          const preview = await PreviewManager.createPreview(args.file, args.content);
+          const preview = await PreviewManager.createPreview(args);
 
           if (preview === 'accept') {
             console.log('User accepted changes');
