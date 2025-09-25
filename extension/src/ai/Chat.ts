@@ -1,25 +1,30 @@
-import { Runnable } from '@langchain/core/runnables';
+import { ToolCallLLM } from 'llamaindex';
 
 import { PromptProps } from '../utils';
 import { chat } from './models';
 import { CHAT_PROMPT } from './prompts';
 
 export class Chat {
-  private chain: Runnable;
+  private llm: ToolCallLLM;
 
   constructor() {
-    this.chain = CHAT_PROMPT.pipe(chat);
+    this.llm = chat;
   }
 
-  chat(data: PromptProps) {
-    return this.chain.invoke(data);
+  async chat(data: PromptProps) {
+    console.log('chat=====================');
+    const messages = CHAT_PROMPT(data);
+    const response = await this.llm.chat({ messages });
+    return JSON.parse(response.message.content as string);
   }
 
   async *chatStream(data: PromptProps) {
-    const stream = await this.chain.stream(data);
-
-    for await (const chunk of stream) {
-      yield chunk.content;
+    console.log('chatStream=====================');
+    const messages = CHAT_PROMPT(data);
+    const response = await this.llm.chat({ messages, stream: true });
+    for await (const chunk of response) {
+      console.log('+++++++++++++++', chunk.delta);
+      yield chunk.delta;
     }
   }
 }

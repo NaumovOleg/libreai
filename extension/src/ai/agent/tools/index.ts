@@ -1,4 +1,5 @@
-import { DynamicStructuredTool } from '@langchain/core/tools';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { FunctionTool } from 'llamaindex';
 
 import { AGENT_TOOLS, ToolCallbacks } from '../../../utils';
 import { CommandTool } from './command';
@@ -7,8 +8,9 @@ import { DeleteFileTool } from './deleteFile';
 import { EditFileTool } from './editFile';
 import { ReadFileTool } from './readFile';
 import { RenameFileTool } from './renameFile';
-export class ToolFactory {
-  tools: DynamicStructuredTool[];
+
+export class ToolFactory2 {
+  tools: FunctionTool<any, any, any>[];
 
   constructor(cbks: ToolCallbacks) {
     const command = new CommandTool(cbks[AGENT_TOOLS.command]);

@@ -1,4 +1,4 @@
-import { DynamicStructuredTool, tool } from '@langchain/core/tools';
+import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
 import { EditorObserver } from '../../../observer';
 import {
@@ -10,11 +10,11 @@ import {
 } from '../../../utils';
 import { Schemas } from './schemas';
 export class RenameFileTool {
-  tool: DynamicStructuredTool;
+  tool: FunctionTool<RenameFileToolArgs, JSONValue | Promise<JSONValue>, object>;
 
   constructor(cb: ToolCallbacks[AGENT_TOOLS.renameFile]) {
-    this.tool = tool(
-      async (args: RenameFileToolArgs) => {
+    this.tool = tool({
+      execute: async (args: RenameFileToolArgs) => {
         const observer = EditorObserver.getInstance();
         const event = { id: uuid(4), args: { file: args.file, newName: args.newName } };
         console.log('Renamin file', args);
@@ -28,11 +28,10 @@ export class RenameFileTool {
           taskId: args.taskId,
         });
       },
-      {
-        name: AGENT_TOOLS.renameFile,
-        description: 'Renames existed file',
-        schema: Schemas[AGENT_TOOLS.renameFile],
-      },
-    );
+
+      name: AGENT_TOOLS.renameFile,
+      description: 'Renames existed file',
+      parameters: Schemas[AGENT_TOOLS.renameFile],
+    });
   }
 }

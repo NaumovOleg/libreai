@@ -1,49 +1,33 @@
-import { BaseChatModel } from '@langchain/core/language_models/chat_models';
-import { StructuredOutputParser } from '@langchain/core/output_parsers';
-import { ChatPromptValue } from '@langchain/core/prompt_values';
-import { RunnableSequence } from '@langchain/core/runnables';
+import { ToolCallLLM } from 'llamaindex';
 import { z } from 'zod';
 
 import { PlannerOutput, PlannerQuery } from '../../../utils';
-import { PLANNER_PROMPT } from '../../prompts';
+import { PLANNER_SYSTEM_PROMPT, PLANNER_USER_PROMPT } from '../../prompts';
 
 export class Planner {
-  private parser = StructuredOutputParser.fromZodSchema(
-    z.array(
-      z.object({
-        file: z
-          .string()
-          .optional()
-          .describe('Path to the file to edit. Exclude if there are commands to run'),
-        task: z
-          .string()
-          .optional()
-          .describe('Instruction to apply. Exctude if there are file changes.'),
-        command: z
-          .string()
-          .optional()
-          .describe('Optional shell command to run. Exctude if there are file changes.'),
-      }),
-    ),
+  private parser = z.array(
+    z.object({
+      file: z.string().describe('Path to the file to edit. Exclude if there are commands to run'),
+      task: z.string().describe('Instruction to apply. Exctude if there are file changes.'),
+      command: z
+        .string()
+        .optional()
+        .describe('Optional shell command to run. Exctude if there are file changes.'),
+    }),
   );
-  private chain: RunnableSequence<PlannerQuery, PlannerOutput>;
 
-  constructor(private llm: BaseChatModel) {
-    this.chain = this.chain = RunnableSequence.from([
-      async (query) => {
-        const messages = await PLANNER_PROMPT.formatMessages({
-          ...query,
-          format_instructions: this.parser.getFormatInstructions(),
-        });
+  constructor(private llm: ToolCallLLM) {}
 
-        return new ChatPromptValue(messages);
-      },
-      this.llm,
-      this.parser,
-    ]);
-  }
-
-  async run(query: PlannerQuery) {
-    return this.chain.invoke(query);
+  async run(query: PlannerQuery): Promise<PlannerOutput> {
+    console.log(query);
+    return this.llm
+      .chat({
+        responseFormat: this.parser,
+        messages: [
+          { role: 'system', content: PLANNER_SYSTEM_PROMPT },
+          { role: 'user', content: PLANNER_USER_PROMPT(query) },
+        ],
+      })
+      .then((resp) => JSON.parse(resp.message.content as string));
   }
 }

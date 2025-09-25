@@ -1,4 +1,4 @@
-import { DynamicStructuredTool, tool } from '@langchain/core/tools';
+import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
 import { EditorObserver } from '../../../observer';
 import {
@@ -11,11 +11,11 @@ import {
 import { Schemas } from './schemas';
 
 export class DeleteFileTool {
-  tool: DynamicStructuredTool;
+  tool: FunctionTool<DeleteFileToolArgs, JSONValue | Promise<JSONValue>, object>;
 
   constructor(cb: ToolCallbacks[AGENT_TOOLS.deleteFile]) {
-    this.tool = tool(
-      async (args: DeleteFileToolArgs) => {
+    this.tool = tool({
+      execute: async (args: DeleteFileToolArgs) => {
         const observer = EditorObserver.getInstance();
         const event = { id: uuid(4), args: args.file };
         console.log('Deleting', args);
@@ -31,11 +31,9 @@ export class DeleteFileTool {
           taskId: args.taskId,
         });
       },
-      {
-        name: AGENT_TOOLS.deleteFile,
-        description: 'Deletes existed file.',
-        schema: Schemas[AGENT_TOOLS.deleteFile],
-      },
-    );
+      name: AGENT_TOOLS.deleteFile,
+      description: 'Deletes existed file.',
+      parameters: Schemas[AGENT_TOOLS.deleteFile],
+    });
   }
 }

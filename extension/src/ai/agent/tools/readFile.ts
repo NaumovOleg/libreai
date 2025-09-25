@@ -1,14 +1,14 @@
-import { DynamicStructuredTool, tool } from '@langchain/core/tools';
+import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
 import { EditorObserver } from '../../../observer';
 import { AGENT_TOOLS, EDITOR_EVENTS, ReadFileToolArgs, ToolCallbacks, uuid } from '../../../utils';
 import { Schemas } from './schemas';
 export class ReadFileTool {
-  tool: DynamicStructuredTool;
+  tool: FunctionTool<ReadFileToolArgs, JSONValue | Promise<JSONValue>, object>;
 
   constructor(cb: ToolCallbacks[AGENT_TOOLS.readFile]) {
-    this.tool = tool(
-      async (args: ReadFileToolArgs) => {
+    this.tool = tool({
+      execute: async (args: ReadFileToolArgs) => {
         const observer = EditorObserver.getInstance();
         try {
           console.log('Reading file from disk:', { args, cb, observer });
@@ -23,13 +23,13 @@ export class ReadFileTool {
           return JSON.stringify(result);
         } catch (err) {
           console.log(err);
+          return JSON.stringify({ status: 'error' });
         }
       },
-      {
-        name: AGENT_TOOLS.readFile,
-        description: `Read the full content of a file.`,
-        schema: Schemas[AGENT_TOOLS.readFile],
-      },
-    );
+
+      name: AGENT_TOOLS.readFile,
+      description: `Read the full content of a file.`,
+      parameters: Schemas[AGENT_TOOLS.readFile],
+    });
   }
 }

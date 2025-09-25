@@ -1,29 +1,25 @@
-import { BaseChatModel } from '@langchain/core/language_models/chat_models';
-import { RunnableSequence } from '@langchain/core/runnables';
-import { DynamicStructuredTool } from '@langchain/core/tools';
-import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
+import { agent, AgentWorkflow } from '@llamaindex/workflow';
+import { FunctionTool, ToolCallLLM } from 'llamaindex';
 
 import { PlannerOutput } from '../../../utils';
-import { ollama } from '../../models';
-import { EXECUTOR_PROMPT } from '../../prompts';
+import { SYSTEM_EXECUTOR_PROMPT } from '../../prompts';
 
 export class Executor {
-  private agent: RunnableSequence;
-  private executor: AgentExecutor;
+  private agent: AgentWorkflow;
 
-  constructor(llm: BaseChatModel, tools: DynamicStructuredTool[]) {
-    this.agent = createToolCallingAgent({
-      llm: ollama,
+  constructor(
+    private llm: ToolCallLLM,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private tools: FunctionTool<any, any, any>[],
+  ) {
+    this.agent = agent({
+      llm,
       tools,
-      prompt: EXECUTOR_PROMPT,
-    });
-    this.executor = new AgentExecutor({
-      agent: this.agent,
-      tools,
+      systemPrompt: SYSTEM_EXECUTOR_PROMPT,
     });
   }
 
-  run(data: PlannerOutput) {
-    return this.executor.invoke({ tasks: JSON.stringify(data, null, 2) });
+  async run(query: PlannerOutput): Promise<any> {
+    return this.agent.run(`Instructions: ${JSON.stringify(query, null, 2)}`);
   }
 }

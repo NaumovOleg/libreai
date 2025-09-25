@@ -1,13 +1,6 @@
 /* eslint-disable max-len */
-import {
-  ChatPromptTemplate,
-  HumanMessagePromptTemplate,
-  SystemMessagePromptTemplate,
-} from '@langchain/core/prompts';
-
-export const PLANNER_PROMPT = ChatPromptTemplate.fromMessages([
-  SystemMessagePromptTemplate.fromTemplate(
-    `You are a Task Planner for a coding assistant.
+import { PlannerQuery } from '../../utils';
+export const PLANNER_SYSTEM_PROMPT = `You are a Task Planner for a coding assistant.
 Your job is to analyze a user request and the workspace context, and return a minimal, clear list of actionable tasks.
 
 ***RULES***
@@ -32,12 +25,10 @@ TASK JSON SCHEMA:
     - "file": path to file.
     - "command": exact terminal command. Exclude if there are any file changes.
 
-***Return ONLY a valid JSON array. Do NOT add any explanations, notes, or markdown. Do not include any text outside the JSON array.***`,
-    { templateFormat: 'mustache' },
-  ),
-  ['placeholder', '{chat_history}'],
-  HumanMessagePromptTemplate.fromTemplate(
-    `
+***Return ONLY a valid JSON array. Do NOT add any explanations, notes, or markdown. Do not include any text outside the JSON array.***`;
+
+export const PLANNER_USER_PROMPT = (data: PlannerQuery) => {
+  return `
 You will receive the following fields:
     - User request: user's natural-language request
     - Workspace tree: list of files/directories
@@ -49,11 +40,8 @@ Use only the information provided.
 Do not add extra fields or guess outside the workspace.
 Keep tasks actionable, conservative, and minimal.
 Use this information to generate accurate responses:
-    - File Tree: {{fileTree}}
-    - Project Context: {{workspaceContext}}
-    - Language: {{language}}
-    - User request: {{request}}`,
-    { templateFormat: 'mustache' },
-  ),
-  ['placeholder', '{agent_scratchpad}'],
-]);
+    - File Tree: <***>${data.fileTree}}<***>.
+    - Project Context: <***> ${data.workspaceContext} <***>.
+    - Language: <***>${data.language}<***>.
+    - User request: <***>${data.request}<***>.`;
+};

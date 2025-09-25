@@ -1,12 +1,4 @@
-import {
-  ChatPromptTemplate,
-  HumanMessagePromptTemplate,
-  SystemMessagePromptTemplate,
-} from '@langchain/core/prompts';
-
-export const EXECUTOR_PROMPT = ChatPromptTemplate.fromMessages([
-  SystemMessagePromptTemplate.fromTemplate(
-    `You are an AI coding assistant...
+export const SYSTEM_EXECUTOR_PROMPT = `You are an AI coding assistant...
 CRITICAL: You MUST return tool calls in the proper format, NOT as JSON in the content field.
 Use the tool calling capability of the model to return structured tool calls.
 
@@ -44,10 +36,4 @@ Example output (if multiple edits are needed):
   
 - Return ONLY a **valid JSON objects** (no text or explanation outside json).
 - Do NOT modify unrelated lines or files.
-`,
-    { templateFormat: 'mustache' },
-  ),
-  ['placeholder', '{chat_history}'],
-  HumanMessagePromptTemplate.fromTemplate(`{{tasks}}`, { templateFormat: 'mustache' }),
-  ['placeholder', '{agent_scratchpad}'],
-]);
+`;

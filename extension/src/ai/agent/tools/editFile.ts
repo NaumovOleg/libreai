@@ -1,4 +1,4 @@
-import { DynamicStructuredTool, tool } from '@langchain/core/tools';
+import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
 import { EditorObserver } from '../../../observer';
 import { PreviewManager } from '../../../services';
@@ -6,11 +6,11 @@ import { AGENT_TOOLS, EditFileToolArgs, EDITOR_EVENTS, ToolCallbacks, uuid } fro
 import { Schemas } from './schemas';
 
 export class EditFileTool {
-  tool: DynamicStructuredTool;
+  tool: FunctionTool<EditFileToolArgs, JSONValue | Promise<JSONValue>, object>;
 
   constructor(cb: ToolCallbacks[AGENT_TOOLS.editFile]) {
-    this.tool = tool(
-      async (args: EditFileToolArgs) => {
+    this.tool = tool({
+      execute: async (args: EditFileToolArgs) => {
         const observer = EditorObserver.getInstance();
         const event = { id: uuid(4), args: { file: args.file, content: args.content } };
         console.log('Updating file:', args, cb);
@@ -36,12 +36,11 @@ export class EditFileTool {
           tool: AGENT_TOOLS.editFile,
         });
       },
-      {
-        name: AGENT_TOOLS.editFile,
-        description: `Edit a file at specific lines using one of three modes.
+
+      name: AGENT_TOOLS.editFile,
+      description: `Edit a file at specific lines using one of three modes.
 IMPORTANT!!!: Focus on correct calculation of startLine, endLine, insertMode and code snipped.`,
-        schema: Schemas[AGENT_TOOLS.editFile],
-      },
-    );
+      parameters: Schemas[AGENT_TOOLS.editFile],
+    });
   }
 }
