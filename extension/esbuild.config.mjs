@@ -18,6 +18,11 @@ build({
     '@lancedb/lancedb',
     '@langchain',
     'ai',
+    '@llamaindex/huggingface',
+    'llamaindex',
+    '@llamaindex/ollama',
+    'cohere-ai',
+    '@llamaindex/chroma',
   ],
   sourcemap: true,
 }).catch((err) => {

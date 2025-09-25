@@ -1,2 +1,1 @@
-export * from './database';
-export * from './fileEmbedder';
+export * from './vectorizer';

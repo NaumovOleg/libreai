@@ -11,11 +11,11 @@ import {
   replaceLast,
   uuid,
 } from '../utils';
-import { DatabaseClient } from './database';
+import { VectorizerClient } from './database/vectorizer';
 
 export class Context {
   constructor(
-    private database: DatabaseClient,
+    private database: VectorizerClient,
     private maxFiles = 500,
     private maxChars = 5000,
   ) {}
@@ -54,8 +54,7 @@ export class Context {
       });
     }
 
-    await this.database.indexFiles(chunks);
-    return chunks;
+    return this.database.indexFiles(chunks);
   }
 
   async searchRelevant(search: string, limit?: number) {
@@ -68,7 +67,7 @@ export class Context {
   }
 
   async indexWorkspace() {
-    const isWorkspaceIndexed = await this.database.checkWorkspaceIndex();
+    const isWorkspaceIndexed = await this.database.isWorkspaceIndexed();
     if (!vscode.workspace.workspaceFolders?.length || isWorkspaceIndexed) return [];
     let uris: vscode.Uri[] = [];
 
