@@ -22,19 +22,19 @@ export type ExecutorInstruction = {
 export type PlannerQuery = Pick<ContextT, 'fileTree' | 'workspaceContext' | 'language'> & {
   request: string;
 };
-export type PlannerOutput = ({ file?: string; task?: string } | { command?: string })[];
+export type PlannerOutput = ({ file: string; task: string } | { command?: string })[];
 
 export type EditFileToolArgs = {
   file: string;
   content: string;
   startLine: number;
   endLine: number;
-  insertMode: string;
+  insertMode: 'insert' | 'replace' | 'delete';
   taskId: string;
 };
 export type CreateToolArgs = {
   file: string;
-  content: string;
+  content?: string;
   taskId: string;
 };
 export type CommandToolArgs = {

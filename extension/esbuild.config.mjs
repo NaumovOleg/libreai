@@ -22,7 +22,8 @@ build({
     'llamaindex',
     '@llamaindex/ollama',
     'cohere-ai',
-    '@llamaindex/chroma',
+    '@llamaindex',
+    'zod',
   ],
   sourcemap: true,
 }).catch((err) => {
