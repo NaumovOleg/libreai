@@ -16,7 +16,6 @@ build({
     'onnxruntime-node',
     'sharp',
     '@lancedb/lancedb',
-    '@langchain',
     'ai',
     '@llamaindex/huggingface',
     'llamaindex',

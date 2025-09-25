@@ -16,6 +16,7 @@ export class Executor {
       llm,
       tools,
       systemPrompt: SYSTEM_EXECUTOR_PROMPT,
+      verbose: true,
     });
   }
 
