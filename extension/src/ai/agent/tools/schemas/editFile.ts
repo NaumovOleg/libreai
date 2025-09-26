@@ -28,12 +28,9 @@ const insertMode = z.enum(['insert', 'replace', 'delete'])
   - "content" must be an empty string.
   - Use ONLY to remove lines.`);
 const content = z.string().describe('Content for insert/replace.');
-const taskId = z.string().describe('ID of the task for tracking');
 
-export const EditFileSchema = z
-  .object({ file, startLine, endLine, insertMode, content, taskId })
-  .describe(
-    `*** TOOL INPUT RULES ***
+export const EditFileSchema = z.object({ file, startLine, endLine, insertMode, content }).describe(
+  `*** TOOL INPUT RULES ***
 1. The "content" field must contain ONLY the exact code snippet to insert or replace.
    - Escape special characters (\\n, quotes, etc.).
    - MUST be empty if insertMode = "delete".
@@ -51,4 +48,4 @@ export const EditFileSchema = z
    - Do NOT invent any other values (like "append", "add", "update")
    
    ***Read content carefully and make very precise calculation of "startLine" and "endLine"`,
-  );
+);

@@ -110,15 +110,15 @@ export class Context {
     const ctx = chunks.reduce(
       (acc, chunk) => {
         if (!acc[chunk.path]) {
-          acc[chunk.path] = `<FILE>${chunk.path} \n
+          acc[chunk.path] = `<FILE>${chunk.path}</FILE> \n
+          <CHUNK>
           ${chunk.text}
-          <FILE>`;
+          </CHUNK>`;
         } else {
-          const replaceString = `\n ${chunk.text}<FILE>`;
+          const replaceString = `\n ${chunk.text}</CHUNK>`;
 
-          acc[chunk.path] = replaceLast(acc[chunk.path], '<FILE>', replaceString);
+          acc[chunk.path] = replaceLast(acc[chunk.path], '</CHUNK>', replaceString);
         }
-        acc[chunk.path] = (acc[chunk.path] ?? '') + chunk.text;
         return acc;
       },
       {} as { [key: string]: string },

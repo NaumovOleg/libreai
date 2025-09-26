@@ -2,20 +2,21 @@ import * as vscode from 'vscode';
 
 import { AIClient, SessionStorage } from './clients';
 import { Icons, InlineCompletionProvider, ViewProvider } from './providers';
-import { Context } from './services';
+import { Context, PreviewManager } from './services';
 import { VectorizerClient } from './services/database';
 
-// const diff = {
-//   file: 'services/userService.ts',
-//   startLine: 6,
-//   endLine: 6,
-//   insertMode: 'insert',
-//   content: 'removeUser(): void {\n    // implementation\n}',
-//   taskId: "Add a new method 'removeUser' to the userService",
-// };
+const diff = {
+  file: 'services/userService.ts',
+  startLine: 10,
+  endLine: 10,
+  insertMode: 'insert',
+  content: '\n removeUser(): void {\n    // implementation\n  }',
+} as any;
 
 export async function activate(context: vscode.ExtensionContext) {
   const vectorizer = new VectorizerClient(context);
+
+  await PreviewManager.createPreview(diff);
 
   const client = new AIClient();
   const storage = new SessionStorage(context);

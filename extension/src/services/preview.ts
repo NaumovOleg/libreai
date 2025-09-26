@@ -2,17 +2,15 @@ import path from 'path';
 import * as vscode from 'vscode';
 
 import { EditFileToolArgs } from '../utils';
-
-const deletedDecoration = vscode.window.createTextEditorDecorationType({
-  backgroundColor: 'rgba(255,0,0,0.3)',
-});
-
-const addedDecoration = vscode.window.createTextEditorDecorationType({
-  backgroundColor: 'rgba(0,255,0,0.3)',
-});
+import { Editor } from './editor';
 
 export class PreviewManager {
   private decorations: vscode.TextEditorDecorationType[] = [];
+  root: string;
+
+  constructor(private editor: Editor) {
+    this.root = vscode.workspace?.workspaceFolders?.[0]?.uri?.fsPath ?? '';
+  }
 
   static async createPreview(args: EditFileToolArgs): Promise<'accept' | 'reject'> {
     const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -27,103 +25,93 @@ export class PreviewManager {
       preview: false,
     });
 
-    const manager = new PreviewManager();
+    const manager = new PreviewManager(new Editor(args));
     return manager.showDiff(editor, args);
   }
 
-  async showDiff(editor: vscode.TextEditor, args: EditFileToolArgs): Promise<'accept' | 'reject'> {
-    this.clear();
+  async showInsertMode(editor: vscode.TextEditor, args: EditFileToolArgs) {
+    const newLines = args.content.split('\n');
+    const startLine = args.startLine;
+    const addedRanges: vscode.Range[] = [];
+
+    for (let i = 1; i < newLines.length; i++) {
+      const lineNum = startLine + i;
+      addedRanges.push(
+        new vscode.Range(new vscode.Position(lineNum, 0), new vscode.Position(lineNum, 0)),
+      );
+    }
+    const addedDecoration = vscode.window.createTextEditorDecorationType({
+      backgroundColor: 'rgba(33, 181, 33, 0.24)',
+      isWholeLine: true,
+    });
+    const deletedDecoration = vscode.window.createTextEditorDecorationType({
+      backgroundColor: 'rgba(255,0,0,0.3)',
+      isWholeLine: true,
+    });
+    await this.editor.apply(args);
+    editor.setDecorations(addedDecoration, addedRanges);
+    this.decorations.push(deletedDecoration, addedDecoration);
+  }
+
+  async showReplaceMode(editor: vscode.TextEditor, args: EditFileToolArgs) {
+    const newLines = args.content.split('\n');
+    const removedRanges: vscode.Range[] = [];
+    const addedRanges: vscode.Range[] = [];
+
+    for (let i = 0; i < newLines.length - 1; i++) {
+      const lineNum = args.endLine + i;
+      addedRanges.push(
+        new vscode.Range(new vscode.Position(lineNum, 0), new vscode.Position(lineNum, 0)),
+      );
+    }
+
+    for (let i = 0; i < args.endLine - args.startLine + 1; i++) {
+      const lineNum = args.startLine + i;
+      removedRanges.push(
+        new vscode.Range(new vscode.Position(lineNum, 0), new vscode.Position(lineNum, 0)),
+      );
+    }
+
+    const addedDecoration = vscode.window.createTextEditorDecorationType({
+      backgroundColor: 'rgba(33, 181, 33, 0.24)',
+      isWholeLine: true,
+    });
 
     const deletedDecoration = vscode.window.createTextEditorDecorationType({
       backgroundColor: 'rgba(255,0,0,0.3)',
       isWholeLine: true,
     });
 
-    const addedDecoration = vscode.window.createTextEditorDecorationType({
-      backgroundColor: 'rgba(0,255,0,0.3)',
-      isWholeLine: true,
-    });
-
-    const deletedRanges: vscode.Range[] = [];
-    const addedRanges: vscode.Range[] = [];
-
-    const startLine = args.startLine;
-    const endLine = args.endLine;
-    const newLines = args.content.split('\n');
-
-    if (args.insertMode === 'replace') {
-      // Подсветка удаляемого текста
-      for (let i = startLine; i <= endLine; i++) {
-        deletedRanges.push(
-          new vscode.Range(
-            new vscode.Position(i, 0),
-            new vscode.Position(i, editor.document.lineAt(i).text.length),
-          ),
-        );
-      }
-      // Подсветка нового текста на месте старого
-      for (let i = 0; i < newLines.length; i++) {
-        const lineNum = startLine + i;
-        const lineLength = editor.document.lineAt(lineNum)?.text.length || 0;
-        addedRanges.push(
-          new vscode.Range(
-            new vscode.Position(lineNum, 0),
-            new vscode.Position(lineNum, lineLength),
-          ),
-        );
-      }
-    } else {
-      // insert mode → только зелёный
-      for (let i = 0; i < newLines.length; i++) {
-        const lineNum = startLine + i;
-        addedRanges.push(
-          new vscode.Range(new vscode.Position(lineNum, 0), new vscode.Position(lineNum, 0)),
-        );
-      }
-    }
-
-    editor.setDecorations(deletedDecoration, deletedRanges);
+    await this.editor.apply(args);
+    editor.setDecorations(deletedDecoration, removedRanges);
     editor.setDecorations(addedDecoration, addedRanges);
     this.decorations.push(deletedDecoration, addedDecoration);
+  }
+
+  async showDiff(editor: vscode.TextEditor, args: EditFileToolArgs): Promise<'accept' | 'reject'> {
+    this.clear();
+
+    if (args.insertMode === 'insert') {
+      await this.showInsertMode(editor, args);
+    }
+    if (args.insertMode === 'replace') {
+      await this.showReplaceMode(editor, args);
+    }
 
     const choice = await vscode.window.showInformationMessage(
-      `Apply AI changes for task: ${args.taskId || ''}?`,
+      `Apply AI changes for task: ${args.file || ''}?`,
       '✅ Accept',
       '❌ Reject',
     );
 
     if (choice === '✅ Accept') {
-      await this.applyChanges(editor, args);
+      this.clear();
+      await this.editor.save();
       return 'accept';
     } else {
       this.clear();
       return 'reject';
     }
-  }
-
-  async applyChanges(editor: vscode.TextEditor, args: EditFileToolArgs) {
-    const edit = new vscode.WorkspaceEdit();
-    const startPos = new vscode.Position(args.startLine, 0);
-    const endPos = new vscode.Position(
-      args.endLine,
-      editor.document.lineAt(args.endLine).text.length,
-    );
-    const range = new vscode.Range(startPos, endPos);
-
-    switch (args.insertMode) {
-      case 'replace':
-        edit.replace(editor.document.uri, range, args.content);
-        break;
-      case 'insertBefore':
-        edit.insert(editor.document.uri, startPos, args.content + '\n');
-        break;
-      case 'insertAfter':
-        edit.insert(editor.document.uri, endPos, '\n' + args.content);
-        break;
-    }
-
-    await vscode.workspace.applyEdit(edit);
-    this.clear();
   }
 
   clear() {

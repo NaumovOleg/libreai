@@ -30,29 +30,24 @@ export type EditFileToolArgs = {
   startLine: number;
   endLine: number;
   insertMode: 'insert' | 'replace' | 'delete';
-  taskId: string;
 };
 export type CreateToolArgs = {
   file: string;
   content?: string;
-  taskId: string;
 };
 export type CommandToolArgs = {
   command: string;
-  taskId: string;
 };
 export type DeleteFileToolArgs = {
   file: string;
-  taskId: string;
 };
 export type ReadFileToolArgs = {
   file: string;
-  taskId: string;
 };
 
 export type RenameFileToolArgs = {
   file: string;
-  taskId: string;
+
   newName: string;
 };
 

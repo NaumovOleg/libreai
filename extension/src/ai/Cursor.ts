@@ -2,7 +2,7 @@ import { EditorObserver } from '../observer';
 import { EDITOR_EVENTS, PlannerQuery, ToolCallbacks, uuid } from '../utils';
 import { Executor, Planner } from './agent/executors';
 import { ToolFactory2 } from './agent/tools';
-import { ollamaLlama, openAiLlama } from './models';
+import { ollamaLlama } from './models';
 
 export class Cursor {
   private planner: Planner;
@@ -11,7 +11,7 @@ export class Cursor {
   constructor(cbks: ToolCallbacks) {
     this.planner = new Planner(ollamaLlama);
     const toolFactory = new ToolFactory2(cbks);
-    this.executor = new Executor(openAiLlama, toolFactory.tools);
+    this.executor = new Executor(ollamaLlama, toolFactory.tools);
   }
 
   async exec(input: PlannerQuery) {
@@ -33,7 +33,6 @@ export class Cursor {
 
     const executor = await this.executor.run(tasks);
 
-    console.log('executor output--------------------', executor);
-    return 'output';
+    return executor;
   }
 }

@@ -22,11 +22,7 @@ export class RenameFileTool {
         let status = 'success';
         await cb(args).catch(() => (status = 'error'));
         observer.emit(EDITOR_EVENTS.renameFile, { status: 'done', ...event });
-        return JSON.stringify({
-          status,
-          tool: AGENT_TOOLS.renameFile,
-          taskId: args.taskId,
-        });
+        return JSON.stringify({ status, tool: AGENT_TOOLS.renameFile });
       },
 
       name: AGENT_TOOLS.renameFile,
