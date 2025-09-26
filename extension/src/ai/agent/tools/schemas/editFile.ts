@@ -1,51 +1,30 @@
-/* eslint-disable max-len */
 import { z } from 'zod';
-const file = z.string().describe('Full path to the file. Ommited for "command"');
-const startLine = z
-  .number()
-  .describe(
-    'Starting line number (0-indexed). Ommited for "renaemFile", "renaemFile". !!!IMPORTANT: calculate this param very precise.',
-  );
-const endLine = z
-  .number()
-  .describe(
-    'Ending line number (0-indexed). Ommited for "renaemFile", "renaemFile". !!!IMPORTANT: calculate this param very precise.',
-  );
-const insertMode = z.enum(['insert', 'replace', 'delete'])
-  .describe(`Operation mode. Ommited for "renaemFile", "renaemFile" 
-"insertMode" logic:
-- "insert":
-  - startLine and endLine MUST be equal.
-  - The code snippet will be inserted **AFTER** the specified startLine content.
-  - All existing content below will be shifted down by the number of lines in the snippet.
-  - Use ONLY to add code after a line content.
-- "replace":
-  - The lines from startLine (inclusive) to endLine (inclusive) are replaced with the snippet.
-  - The snippet should have the same or different number of lines; replaced content is removed entirely.
-  - Use ONLY to replace lines
-- "delete":
-  - The lines from startLine (inclusive) to endLine (inclusive) are **deleted**.
-  - "content" must be an empty string.
-  - Use ONLY to remove lines.`);
-const content = z.string().describe('Content for insert/replace.');
 
-export const EditFileSchema = z.object({ file, startLine, endLine, insertMode, content }).describe(
-  `*** TOOL INPUT RULES ***
-1. The "content" field must contain ONLY the exact code snippet to insert or replace.
-   - Escape special characters (\\n, quotes, etc.).
-   - MUST be empty if insertMode = "delete".
+const file = z
+  .string()
+  .min(1, 'File path cannot be empty')
+  .describe('Full absolute path to the file being edited.');
 
-2. Calculate correct line numbers (startLine and endLine) based on the file content.
-   - startLine (0-based): first affected line.
-   - endLine (0-based): last affected line.
-   - Both inclusive.
-   - If startLine = endLine, only that line is affected.
+const content = z.string().min(1, 'Content cannot be empty').describe(`
+***COMPLETE FILE CONTENT*** - Return the ENTIRE corrected file content.
 
-3. insertMode logic:
-   - "insert": startLine and endLine MUST be equal; snippet is inserted AFTER that line.
-   - "replace": lines from startLine..endLine are replaced with the snippet.
-   - "delete": lines from startLine..endLine are deleted; "content" MUST be empty.
-   - Do NOT invent any other values (like "append", "add", "update")
-   
-   ***Read content carefully and make very precise calculation of "startLine" and "endLine"`,
-);
+CRITICAL RULES:
+- Include ALL content from the original file with corrections applied
+- Preserve original formatting, indentation, and code style
+- Ensure syntax correctness for the file type
+- Include all imports, comments, and structure
+- Do NOT return only changes - return the complete file`);
+
+export const EditFileSchema = z.object({
+  file,
+  content,
+}).describe(`***COMPLETE FILE REPLACEMENT***
+
+Replaces the entire file content with the corrected version.
+
+IMPORTANT:
+- You MUST call "readFile" first to get current content
+- Return the WHOLE file, not just changes
+- Preserve file encoding and line endings`);
+
+console.log(JSON.stringify(EditFileSchema));

@@ -24,9 +24,6 @@ Example output (if multiple edits are needed):
       "name": "editFile",
       "arguments": {
         "file": "controllers/userController.ts",
-        "startLine": 20,
-        "endLine": 20,
-        "insertMode": "insert",
         "content": "..."
       }
     }
@@ -36,7 +33,5 @@ Example output (if multiple edits are needed):
 
 - Return ONLY a **valid JSON objects** (no text or explanation outside json).
 - Do NOT modify unrelated lines or files.
-- *** Determine "startLine" and "endLine" very precise***.
-- *** "startLine" and "endLine" should be calculated only for tool "editFile".***.
 - *** Before calling "editFile" tool You  must  call tool "readFile" to  get file content.***.
 `;

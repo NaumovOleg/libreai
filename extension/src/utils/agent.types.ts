@@ -27,9 +27,6 @@ export type PlannerOutput = ({ file: string; task: string } | { command?: string
 export type EditFileToolArgs = {
   file: string;
   content: string;
-  startLine: number;
-  endLine: number;
-  insertMode: 'insert' | 'replace' | 'delete';
 };
 export type CreateToolArgs = {
   file: string;
