@@ -24,6 +24,27 @@ export class Editor {
     this.document = await vscode.workspace.openTextDocument(this.uri);
     const edit = new vscode.WorkspaceEdit();
 
+    // Заменяем весь документ целиком
+    const start = new vscode.Position(0, 0);
+    const end = this.document.lineAt(this.document.lineCount - 1).range.end;
+
+    edit.replace(this.uri, new vscode.Range(start, end), instruction.content);
+
+    await vscode.workspace.applyEdit(edit);
+
+    return true;
+  }
+
+  async applyRange(instruction: EditFileToolArgs = this.instruction) {
+    if (!vscode.workspace.workspaceFolders?.length) return null;
+    const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
+
+    this.uri = resolveFilePath(instruction.file, root);
+
+    this.document = await vscode.workspace.openTextDocument(this.uri);
+
+    const edit = new vscode.WorkspaceEdit();
+
     const data = { instruction, edit, document: this.document, uri: this.uri };
 
     if (this.instruction.insertMode === 'insert') {

@@ -12,21 +12,17 @@ export class ModelFactory {
   agent!: OpenAI;
 
   constructor() {
-    this.buildAgentModel(Conf.autoCompleteConfig.provider);
+    this.buildAgentModel(Conf.agentConfig.provider);
   }
 
   buildAgentModel(provider: 'openai' | 'ollama' | 'deepseek' | 'openrouter') {
     const config = Conf.chatConfig;
     const constructor = constructors[provider];
 
-    console.log('+++++++++', {
-      apiKey: config.apiKey,
-      model: config.model,
-    });
-
     this.agent = constructor({
       apiKey: config.apiKey,
       model: config.model,
+      supportToolCall: true,
     });
   }
 }

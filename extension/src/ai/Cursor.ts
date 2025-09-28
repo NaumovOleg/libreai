@@ -1,5 +1,4 @@
-import { EditorObserver } from '../observer';
-import { EDITOR_EVENTS, PlannerQuery, ToolCallbacks, uuid } from '../utils';
+import { PlannerQuery, ToolCallbacks } from '../utils';
 import { Executor, Planner } from './agent/executors';
 import { ToolFactory2 } from './agent/tools';
 import { ModelFactory, ollamaLlamaLocal } from './models';
@@ -16,13 +15,23 @@ export class Cursor {
   }
 
   async exec(input: PlannerQuery) {
-    const observer = EditorObserver.getInstance();
-    const id = uuid(4);
-    observer.emit(EDITOR_EVENTS.planning, { status: 'pending', args: 'planning', id });
-    const tasks = await this.planner.run(input);
-    observer.emit(EDITOR_EVENTS.planning, { status: 'done', args: 'planning', id });
-    observer.emit(EDITOR_EVENTS.planning, { status: 'done', args: 'start processing', id });
+    // const observer = EditorObserver.getInstance();
+    // const id = uuid(4);
+    // observer.emit(EDITOR_EVENTS.planning, { status: 'pending', args: 'planning', id });
+    // const tasks = await this.planner.run(input);
+    // observer.emit(EDITOR_EVENTS.planning, { status: 'done', args: 'planning', id });
+    // observer.emit(EDITOR_EVENTS.planning, { status: 'done', args: 'start processing', id });
 
+    const tasks = [
+      {
+        file: 'services/userService.ts',
+        task: 'Move user list array outside of const userService',
+      },
+      {
+        file: 'services/userService.ts',
+        task: "Add property 'address' with value '' to each user in the user list array",
+      },
+    ];
     console.log('planner output--------------------', tasks);
 
     const executor = await this.executor.run(tasks, input.language);
