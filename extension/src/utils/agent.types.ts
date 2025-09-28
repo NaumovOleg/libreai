@@ -47,7 +47,6 @@ export type ReadFileToolArgs = {
 
 export type RenameFileToolArgs = {
   file: string;
-
   newName: string;
 };
 

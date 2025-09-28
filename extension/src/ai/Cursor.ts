@@ -2,14 +2,14 @@ import { EditorObserver } from '../observer';
 import { EDITOR_EVENTS, PlannerQuery, ToolCallbacks, uuid } from '../utils';
 import { Executor, Planner } from './agent/executors';
 import { ToolFactory2 } from './agent/tools';
-import { ollamaLlama } from './models';
+import { ollamaLlama, ollamaLlamaLocal } from './models';
 
 export class Cursor {
   private planner: Planner;
   private executor: Executor;
 
   constructor(cbks: ToolCallbacks) {
-    this.planner = new Planner(ollamaLlama);
+    this.planner = new Planner(ollamaLlamaLocal);
     const toolFactory = new ToolFactory2(cbks);
     this.executor = new Executor(ollamaLlama, toolFactory.tools);
   }

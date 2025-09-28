@@ -17,6 +17,17 @@ export class Executor {
       tools,
       systemPrompt: SYSTEM_EXECUTOR_PROMPT,
       verbose: true,
+      logger: {
+        log: (args) => {
+          console.log('📝 AGENT LOG:', args);
+        },
+        error: (args) => {
+          console.error('❌ AGENT ERROR:', args);
+        },
+        warn: (args) => {
+          console.warn('⚠️ AGENT WARN:', args);
+        },
+      },
     });
   }
 
