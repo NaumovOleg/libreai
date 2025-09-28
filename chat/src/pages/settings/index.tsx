@@ -14,6 +14,7 @@ export const Settings = () => {
 
   const tabItems = [
     { label: 'Chat', content: <AiConfig configType={CONFIG_PARAGRAPH.chatConfig} /> },
+    { label: 'Agent', content: <AiConfig configType={CONFIG_PARAGRAPH.agentConfig} /> },
     {
       label: 'Autocomplete',
       content: <AiConfig configType={CONFIG_PARAGRAPH.autoCompleteConfig} />,

@@ -87,6 +87,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       payload: {
         [CONFIG_PARAGRAPH.chatConfig]: Conf.chatConfig,
         [CONFIG_PARAGRAPH.autoCompleteConfig]: Conf.autoCompleteConfig,
+        [CONFIG_PARAGRAPH.agentConfig]: Conf.agentConfig,
       },
     });
   }

@@ -1,6 +1,7 @@
 declare enum CONFIG_PARAGRAPH {
   'chatConfig' = 'chatConfig',
   'autoCompleteConfig' = 'autoCompleteConfig',
+  'agentConfig' = 'agentConfig',
 }
 
 declare enum COMMANDS {

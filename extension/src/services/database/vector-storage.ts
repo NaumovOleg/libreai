@@ -23,7 +23,7 @@ export class VectorizerClient {
   private storage!: SimpleVectorStore;
 
   constructor(private context: vscode.ExtensionContext) {
-    this.storagePath = path.join(context?.globalStorageUri?.fsPath, 'vectors-storage');
+    this.storagePath = path.join(context?.globalStorageUri?.fsPath, 'vectors-storage-index');
   }
 
   async init() {

@@ -1,6 +1,7 @@
 export enum CONFIG_PARAGRAPH {
   'chatConfig' = 'chatConfig',
   'autoCompleteConfig' = 'autoCompleteConfig',
+  'agentConfig' = 'agentConfig',
 }
 
 export enum EDITOR_EVENTS {

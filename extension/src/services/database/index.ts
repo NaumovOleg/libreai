@@ -1,1 +1,1 @@
-export * from './vectorizer';
+export * from './vector-storage';

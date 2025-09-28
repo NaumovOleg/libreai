@@ -11,7 +11,7 @@ import {
   replaceLast,
   uuid,
 } from '../utils';
-import { VectorizerClient } from './database/vectorizer';
+import { VectorizerClient } from './database/vector-storage';
 
 export class Context {
   constructor(

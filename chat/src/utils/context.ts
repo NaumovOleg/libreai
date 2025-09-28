@@ -3,6 +3,7 @@ import { AiConfigT, ChatMessage, COMMANDS, CONFIG_PARAGRAPH, Providers } from '.
 export type ConfigContextType = {
   [CONFIG_PARAGRAPH.chatConfig]: AiConfigT;
   [CONFIG_PARAGRAPH.autoCompleteConfig]: AiConfigT;
+  [CONFIG_PARAGRAPH.agentConfig]: AiConfigT;
   setConfig: (type: CONFIG_PARAGRAPH, conf: Partial<AiConfigT>) => void;
   applyChanges: (type: CONFIG_PARAGRAPH) => void;
 };

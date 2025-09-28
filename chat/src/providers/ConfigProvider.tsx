@@ -3,7 +3,6 @@ import { ConfigContext } from './context';
 import { AiConfigT, CONFIG_PARAGRAPH, COMMANDS, vscode, globalListener } from '@utils';
 
 const defaultData = {
-  endpoint: 'http://localhost:11434',
   maxTokens: 500,
   temperature: 0.2,
 } as AiConfigT;
@@ -11,6 +10,7 @@ const defaultData = {
 export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [chatSettings, setChatSettings] = useState<AiConfigT>({ ...defaultData });
   const [autocompleteSettings, setAutocompleteSettings] = useState<AiConfigT>({ ...defaultData });
+  const [agentSettings, setAgentSettings] = useState<AiConfigT>({ ...defaultData });
 
   const setConfig = (type: CONFIG_PARAGRAPH, conf: Partial<AiConfigT>) => {
     if (type === CONFIG_PARAGRAPH.chatConfig) {
@@ -19,10 +19,14 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
     if (type === CONFIG_PARAGRAPH.autoCompleteConfig) {
       setAutocompleteSettings((prev) => prev && { ...prev, ...conf });
     }
+    if (type === CONFIG_PARAGRAPH.agentConfig) {
+      setAgentSettings((prev) => prev && { ...prev, ...conf });
+    }
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handler = (event: MessageEvent<any>) => {
+    console.log('wwwwwwwwwwwww', event);
     if (event.data.type === COMMANDS.changeConfig) {
       setConfig(
         CONFIG_PARAGRAPH.chatConfig,
@@ -31,6 +35,10 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
       setConfig(
         CONFIG_PARAGRAPH.autoCompleteConfig,
         event.data.payload[CONFIG_PARAGRAPH.autoCompleteConfig] as AiConfigT,
+      );
+      setConfig(
+        CONFIG_PARAGRAPH.agentConfig,
+        event.data.payload[CONFIG_PARAGRAPH.agentConfig] as AiConfigT,
       );
     }
   };
@@ -49,8 +57,13 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
     if (key === CONFIG_PARAGRAPH.autoCompleteConfig) {
       value = autocompleteSettings;
     }
+    if (key === CONFIG_PARAGRAPH.agentConfig) {
+      value = agentSettings;
+    }
+    if (key === CONFIG_PARAGRAPH.chatConfig) {
+      value = chatSettings;
+    }
     const command = COMMANDS.changeConfig;
-    console.log('+++++++++', value);
     vscode.postMessage({ key, value, command });
   };
 
@@ -59,6 +72,7 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
       value={{
         [CONFIG_PARAGRAPH.chatConfig]: chatSettings,
         [CONFIG_PARAGRAPH.autoCompleteConfig]: autocompleteSettings,
+        [CONFIG_PARAGRAPH.agentConfig]: agentSettings,
         setConfig,
         applyChanges,
       }}

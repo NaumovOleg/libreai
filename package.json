@@ -109,6 +109,25 @@
         },
         "autoCompleteConfig.temperature": {
           "type": "number"
+        },
+        "agentConfig.provider": {
+          "type": "string"
+        },
+        "agentConfig.model": {
+          "type": "string"
+        },
+        "agentConfig.endpoint": {
+          "type": "string",
+          "default": "http://localhost:11434"
+        },
+        "agentConfig.apiKey": {
+          "type": "string"
+        },
+        "agentConfig.maxTokens": {
+          "type": "number"
+        },
+        "agentConfig.temperature": {
+          "type": "number"
         }
       }
     }
