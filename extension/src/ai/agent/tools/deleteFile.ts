@@ -25,7 +25,7 @@ export class DeleteFileTool {
 
         observer.emit(EDITOR_EVENTS.createFile, { status: 'done', ...event });
 
-        return JSON.stringify({ status, tool: AGENT_TOOLS.deleteFile });
+        return JSON.stringify({ success: true, name: EDITOR_EVENTS.deleteFile });
       },
       name: AGENT_TOOLS.deleteFile,
       description: 'Deletes existed file.',

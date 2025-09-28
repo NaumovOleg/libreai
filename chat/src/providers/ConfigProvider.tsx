@@ -50,6 +50,7 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
       value = autocompleteSettings;
     }
     const command = COMMANDS.changeConfig;
+    console.log('+++++++++', value);
     vscode.postMessage({ key, value, command });
   };
 

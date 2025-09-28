@@ -17,6 +17,7 @@ export class Executor {
       tools,
       systemPrompt: SYSTEM_EXECUTOR_PROMPT,
       verbose: true,
+      name: 'Code copilot',
       logger: {
         log: (args) => {
           console.log('📝 AGENT LOG:', args);
@@ -31,7 +32,8 @@ export class Executor {
     });
   }
 
-  async run(query: PlannerOutput): Promise<any> {
-    return this.agent.run(`Instructions: ${JSON.stringify(query, null, 2)}`);
+  async run(tasks: PlannerOutput, language?: string): Promise<any> {
+    const data = { language, tasks };
+    return this.agent.run(JSON.stringify(data));
   }
 }

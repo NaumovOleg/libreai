@@ -22,6 +22,7 @@ class Configuration {
   }
 
   async updateChatConfig(data: AiConfigT) {
+    console.log(data);
     const promises = Object.entries(data).map(([key, value]) => {
       return this.config.update(
         `${CONFIG_PARAGRAPH.chatConfig}.${key}`,

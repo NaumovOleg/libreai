@@ -18,7 +18,7 @@ export class EditFileTool {
 
         await cb(args).catch(() => (status = 'error'));
         observer.emit(EDITOR_EVENTS.editFile, { status: 'done', ...event });
-        return JSON.stringify({ status, tool: AGENT_TOOLS.editFile });
+        return { success: true, content: args.content, name: AGENT_TOOLS.editFile };
       },
 
       name: AGENT_TOOLS.editFile,

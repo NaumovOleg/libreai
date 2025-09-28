@@ -17,10 +17,16 @@ export class ReadFileTool {
           let status = 'success';
           const content = await cb(args.file).catch(() => (status = 'error'));
 
-          const result = { ...args, content, status, tool: AGENT_TOOLS.readFile };
+          const result = {
+            name: AGENT_TOOLS.readFile,
+            arguments: { file: args.file },
+            content,
+            success: status === 'success',
+          };
+
           console.log('Reading file response :', args.file, content);
           observer.emit(EDITOR_EVENTS.readFile, { status: 'done', ...event });
-          return JSON.stringify(result);
+          return result;
         } catch (err) {
           console.log(err);
           return JSON.stringify({ status: 'error' });

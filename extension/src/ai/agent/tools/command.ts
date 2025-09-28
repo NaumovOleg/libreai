@@ -27,7 +27,7 @@ export class CommandTool {
           observer.emit(EDITOR_EVENTS.command, { status: 'done', ...event });
         }
 
-        return JSON.stringify({ status, tool: AGENT_TOOLS.command });
+        return { status, name: AGENT_TOOLS.command };
       },
     });
   }
