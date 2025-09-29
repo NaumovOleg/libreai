@@ -19,13 +19,13 @@ export class Executor {
       verbose: true,
       name: 'Code copilot',
       logger: {
-        log: (args) => {
+        log: (...args) => {
           console.log('📝 AGENT LOG:', args);
         },
-        error: (args) => {
+        error: (...args) => {
           console.error('❌ AGENT ERROR:', args);
         },
-        warn: (args) => {
+        warn: (...args) => {
           console.warn('⚠️ AGENT WARN:', args);
         },
       },

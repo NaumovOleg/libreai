@@ -11,6 +11,7 @@ import {
   COMMANDS,
   Conf,
   CONFIG_PARAGRAPH,
+  EDITOR_EVENTS,
   MESSAGE,
   Providers,
   uuid,
@@ -58,6 +59,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     let html = fs.readFileSync(htmlPath, 'utf-8');
     const observer = EditorObserver.getInstance();
     observer.init(this.web);
+
+    setTimeout(() => {
+      const id = uuid(4);
+      observer.emit(EDITOR_EVENTS.planning, { status: 'pending', id });
+    }, 3000);
 
     const iconsMap = this.icons.getIcons(this.web);
     html = html

@@ -1,15 +1,20 @@
 import * as vscode from 'vscode';
 
-import { COMMANDS, EDITOR_EVENTS } from '../../../global.types';
+import {
+  COMMANDS,
+  EDITOR_EVENTS,
+  EditorObserverEventArgs,
+  EditorObserverHandler,
+  ObserverPayloads,
+} from '../../../global.types';
 import { Observer } from './observer';
-import { EventArgs, Handler, Payloads } from './types';
 
 export class EditorObserver {
   observer = new Observer();
   private static instance: EditorObserver;
   web!: vscode.WebviewView;
 
-  private constructor() {} // private to prevent direct instantiation
+  private constructor() {}
 
   static getInstance(): EditorObserver {
     if (!EditorObserver.instance) {
@@ -23,7 +28,7 @@ export class EditorObserver {
     this.observe();
   }
 
-  emit<E extends keyof EventArgs>(event: E, payload: Payloads<E>) {
+  emit<E extends keyof EditorObserverEventArgs>(event: E, payload: ObserverPayloads<E>) {
     this.observer.emit(event, payload);
   }
 
@@ -36,32 +41,32 @@ export class EditorObserver {
     this.observer.subscribe(EDITOR_EVENTS.command, this.command.bind(this));
     this.observer.subscribe(EDITOR_EVENTS.planning, this.planning.bind(this));
   }
-  readFile: Handler<EDITOR_EVENTS.readFile> = (data) => {
+  readFile: EditorObserverHandler<EDITOR_EVENTS.readFile> = (data) => {
     const payload = { ...data, type: EDITOR_EVENTS.readFile };
-    this.web.webview.postMessage({ type: COMMANDS.editor, payload });
+    this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
   };
-  renameFile: Handler<EDITOR_EVENTS.renameFile> = (data) => {
+  renameFile: EditorObserverHandler<EDITOR_EVENTS.renameFile> = (data) => {
     const payload = { ...data, type: EDITOR_EVENTS.renameFile };
-    this.web.webview.postMessage({ type: COMMANDS.editor, payload });
+    this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
   };
-  deleteFile: Handler<EDITOR_EVENTS.deleteFile> = (data) => {
+  deleteFile: EditorObserverHandler<EDITOR_EVENTS.deleteFile> = (data) => {
     const payload = { ...data, type: EDITOR_EVENTS.deleteFile };
-    this.web.webview.postMessage({ type: COMMANDS.editor, payload });
+    this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
   };
-  editFile: Handler<EDITOR_EVENTS.editFile> = (data) => {
+  editFile: EditorObserverHandler<EDITOR_EVENTS.editFile> = (data) => {
     const payload = { ...data, type: EDITOR_EVENTS.editFile };
-    this.web.webview.postMessage({ type: COMMANDS.editor, payload });
+    this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
   };
-  createFile: Handler<EDITOR_EVENTS.createFile> = (data) => {
+  createFile: EditorObserverHandler<EDITOR_EVENTS.createFile> = (data) => {
     const payload = { ...data, type: EDITOR_EVENTS.createFile };
-    this.web.webview.postMessage({ type: COMMANDS.editor, payload });
+    this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
   };
-  command: Handler<EDITOR_EVENTS.command> = (data) => {
+  command: EditorObserverHandler<EDITOR_EVENTS.command> = (data) => {
     const payload = { ...data, type: EDITOR_EVENTS.command };
-    this.web.webview.postMessage({ type: COMMANDS.editor, payload });
+    this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
   };
-  planning: Handler<EDITOR_EVENTS.command> = (data) => {
+  planning: EditorObserverHandler<EDITOR_EVENTS.command> = (data) => {
     const payload = { ...data, type: EDITOR_EVENTS.planning };
-    this.web.webview.postMessage({ type: COMMANDS.editor, payload });
+    this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
   };
 }

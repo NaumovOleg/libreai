@@ -66,6 +66,13 @@ export type ChatMessage = {
   session: string;
 };
 
+export type AgentMessage = {
+  id: string;
+  status: 'done' | 'pending' | 'error';
+  type: 'planning' | 'editing';
+  args: any;
+};
+
 export enum AGENT_ACTIONS {
   createFile = 'createFile',
   updateFile = 'updateFile',
@@ -77,3 +84,37 @@ export enum AGENT_ACTIONS {
 export enum USER_ACTIONS_ON_MESSAGE {
   runInstructions = 'runInstructions',
 }
+
+export type EditorObserverEventArgs = {
+  [EDITOR_EVENTS.readFile]: { file: string; content: string };
+  [EDITOR_EVENTS.renameFile]: { file: string; newName: string };
+  [EDITOR_EVENTS.editFile]: { file: string; content: string; error?: string };
+  [EDITOR_EVENTS.deleteFile]: string;
+  [EDITOR_EVENTS.createFile]: string;
+  [EDITOR_EVENTS.command]: string;
+  [EDITOR_EVENTS.planning]: string;
+};
+
+export type ObserverStatus = 'pending' | 'done' | 'error';
+
+export type ObserverPayloads<E extends keyof EditorObserverEventArgs> = {
+  type?: E;
+  status: ObserverStatus;
+  error?: string;
+  id: string;
+  args?: EditorObserverEventArgs[E];
+};
+
+export type EditorObserverHandler<E extends keyof EditorObserverEventArgs> = (
+  payload: ObserverPayloads<E>,
+) => void;
+
+export type EditorObserverHandlers =
+  | EditorObserverHandler<EDITOR_EVENTS.readFile>
+  | EditorObserverHandler<EDITOR_EVENTS.renameFile>
+  | EditorObserverHandler<EDITOR_EVENTS.createFile>
+  | EditorObserverHandler<EDITOR_EVENTS.editFile>
+  | EditorObserverHandler<EDITOR_EVENTS.command>
+  | EditorObserverHandler<EDITOR_EVENTS.deleteFile>;
+
+export type EditorObserverListener<E extends EDITOR_EVENTS> = EditorObserverHandler<E>;

@@ -23,6 +23,10 @@ export class ModelFactory {
       apiKey: config.apiKey,
       model: config.model,
       supportToolCall: true,
+
+      additionalChatOptions: {
+        tool_choice: 'auto',
+      },
     });
   }
 }

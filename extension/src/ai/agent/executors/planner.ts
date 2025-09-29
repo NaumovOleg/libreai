@@ -1,7 +1,7 @@
 import { ToolCallLLM } from 'llamaindex';
 import { z } from 'zod';
 
-import { PlannerOutput, PlannerQuery } from '../../../utils';
+import { PlannerQuery, PlannerTask } from '../../../utils';
 import { PLANNER_SYSTEM_PROMPT, PLANNER_USER_PROMPT } from '../../prompts';
 
 export class Planner {
@@ -18,8 +18,7 @@ export class Planner {
 
   constructor(private llm: ToolCallLLM) {}
 
-  async run(query: PlannerQuery): Promise<PlannerOutput> {
-    console.log(query);
+  async run(query: PlannerQuery): Promise<PlannerTask[]> {
     return this.llm
       .chat({
         responseFormat: this.parser,

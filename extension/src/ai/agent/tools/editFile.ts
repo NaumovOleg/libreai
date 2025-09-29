@@ -11,19 +11,32 @@ export class EditFileTool {
     this.tool = tool({
       execute: async (args: EditFileToolArgs) => {
         const observer = EditorObserver.getInstance();
+        const taskid = uuid(4);
         const event = { id: uuid(4), args: { file: args.file, content: args.content } };
         console.log('Updating file:', args, cb);
-        observer.emit(EDITOR_EVENTS.editFile, { status: 'pending', ...event });
-        let status = 'success';
+        observer.emit(EDITOR_EVENTS.editFile, {
+          status: 'pending',
+          id: taskid,
+          args: {
+            file: args.file,
+            content: args.content,
+          },
+        });
 
-        await cb(args).catch(() => (status = 'error'));
-        observer.emit(EDITOR_EVENTS.editFile, { status: 'done', ...event });
-        return { success: true, content: args.content, name: AGENT_TOOLS.editFile };
+        let status = 'done';
+        let success = true;
+
+        await cb(args).catch(() => {
+          success = false;
+          status = 'error';
+        });
+        observer.emit(EDITOR_EVENTS.editFile, { status, id: taskid });
+        return JSON.stringify({ success, name: AGENT_TOOLS.editFile });
       },
 
       name: AGENT_TOOLS.editFile,
-      description: `Edit a file at specific lines using one of three modes.
-IMPORTANT!!!: Focus on correct calculation of startLine, endLine, insertMode and code snipped.`,
+      description: `Edit a file with content.
+     IMPORTANT: Only call editFile if this content is DIFFERENT from the current file content.`,
       parameters: Schemas[AGENT_TOOLS.editFile],
     });
   }

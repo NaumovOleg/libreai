@@ -1,6 +1,17 @@
 import { useState, type FC, type ReactElement, useEffect, useRef } from 'react';
 import { ChatContext } from './context';
-import { State, ChatMessage, vscode, uuid, COMMANDS, Providers, globalListener } from '@utils';
+import {
+  State,
+  ChatMessage,
+  vscode,
+  uuid,
+  COMMANDS,
+  Providers,
+  globalListener,
+  AgentMessage,
+} from '@utils';
+
+const commands = [COMMANDS.agentResponse, COMMANDS.chatStreamEnd, COMMANDS.chatStream];
 
 export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const vsCodeState = vscode.getState() as State;
@@ -19,7 +30,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
 
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<(ChatMessage | AgentMessage)[]>([]);
   const [session, setSessionId] = useState<string>(() => {
     const { lastSession } = vscode.getState() as State;
     return lastSession ?? Object.keys(sessions ?? {})[0];
@@ -37,7 +48,25 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
       return data;
     });
     setIsStreaming(false);
-    setMessages((prev) => [...prev, message]);
+    setMessages((prev) => [...prev, message as ChatMessage]);
+  };
+
+  useEffect(() => {
+    if (true) {
+    }
+  }, [messages]);
+
+  const updateAgentMessages = (message: AgentMessage) => {
+    setMessages((prev) => {
+      if (message.status === 'pending') {
+        return prev.concat(message);
+      }
+      const found = prev.find(({ id }) => id === message.id);
+      if (!found) return prev;
+      return { ...prev, status: message.status };
+    });
+
+    console.log('Agent response ssssssss', message);
   };
 
   useEffect(() => {
@@ -55,16 +84,12 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
         setIsStreaming(true);
       }
       if (event.data.type === COMMANDS.agentResponse) {
-        updateLastMessage(event.data.payload);
-        setIsAgentThinking(false);
+        updateAgentMessages(event.data as AgentMessage);
       }
     };
 
-    const commands = [COMMANDS.agentResponse, COMMANDS.chatStreamEnd, COMMANDS.chatStream];
     globalListener.subscribe(commands, handler);
-    return () => {
-      globalListener.unsubscribe(commands, handler);
-    };
+    return () => globalListener.unsubscribe(commands, handler);
   }, [session]);
 
   useEffect(() => {
@@ -149,6 +174,8 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     provider,
     isAgentThinking,
   };
+
+  console.log(messages);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

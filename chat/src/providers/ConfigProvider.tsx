@@ -26,7 +26,6 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handler = (event: MessageEvent<any>) => {
-    console.log('wwwwwwwwwwwww', event);
     if (event.data.type === COMMANDS.changeConfig) {
       setConfig(
         CONFIG_PARAGRAPH.chatConfig,

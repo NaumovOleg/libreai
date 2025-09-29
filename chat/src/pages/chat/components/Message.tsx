@@ -3,16 +3,23 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 // import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import atomOneDark from 'react-syntax-highlighter/dist/esm/styles/prism/atom-dark';
-import { ChatMessage, extractTextFromNode, rehypeCodeIndexPlugin } from '@utils';
+import {
+  AgentMessage,
+  ChatMessage,
+  extractTextFromNode,
+  rehypeCodeIndexPlugin,
+  isAgentMessage,
+} from '@utils';
 import { getMessageContent } from '../utils';
 
 type Props = {
-  message: ChatMessage;
+  message: ChatMessage | AgentMessage;
   onDelete: (id: string) => void;
   isLoading?: boolean;
 };
 
 export const Message: FC<Props> = ({ message }) => {
+  if (isAgentMessage(message)) return 'sssss';
   return (
     <div className={`message prose prose-invert ${message.from}`}>
       <div className="message-markdown">

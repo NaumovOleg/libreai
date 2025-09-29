@@ -1,5 +1,7 @@
 import { isValidElement, ReactNode } from 'react';
 import { visit } from 'unist-util-visit';
+
+import { AgentMessage } from './types';
 export const uuid = (length: number = 4): string => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   let result = '';
@@ -51,4 +53,8 @@ export function rehypeLineNumbers() {
       }
     });
   };
+}
+
+export function isAgentMessage(message: ChatMessage | AgentMessage): message is AgentMessage {
+  return !(message as ChatMessage).from;
 }

@@ -30,9 +30,7 @@ export class Editor {
 
     edit.replace(this.uri, new vscode.Range(start, end), instruction.content);
 
-    await vscode.workspace.applyEdit(edit);
-
-    return true;
+    return vscode.workspace.applyEdit(edit);
   }
 
   async applyRange(instruction: EditFileToolArgs = this.instruction) {

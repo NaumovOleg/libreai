@@ -18,7 +18,7 @@ export class CreateFileTool {
         await cb(args).catch(() => (status = 'error'));
         observer.emit(EDITOR_EVENTS.createFile, { status: 'done', ...event });
 
-        return JSON.stringify({ success: true, name: EDITOR_EVENTS.createFile });
+        return { success: true, name: EDITOR_EVENTS.createFile };
       },
       name: AGENT_TOOLS.createFile,
       description: 'Creates a new file with provided content.',

@@ -1,4 +1,11 @@
-import { AiConfigT, ChatMessage, COMMANDS, CONFIG_PARAGRAPH, Providers } from './types';
+import {
+  AgentMessage,
+  AiConfigT,
+  ChatMessage,
+  COMMANDS,
+  CONFIG_PARAGRAPH,
+  Providers,
+} from './types';
 
 export type ConfigContextType = {
   [CONFIG_PARAGRAPH.chatConfig]: AiConfigT;
@@ -15,7 +22,7 @@ export type ListenerContextType = {
 
 export type ChatContextType = {
   sessions: string[];
-  messages: ChatMessage[];
+  messages: (ChatMessage | AgentMessage)[];
   tmpMessage?: ChatMessage;
   session: string;
   isStreaming: boolean;

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { file } from './properties';
+
 export const ReadFileSchema = z.object({
-  file: z.string().describe('Full path to the file'),
+  file,
 });
