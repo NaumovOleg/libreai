@@ -188,6 +188,16 @@
           }
         }
       }
+      .planning {
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+      }
+      .icon {
+        width: 15px;
+        height: 15px;
+        color: var(--vscode-editor-foreground);
+      }
     }
     .message.user {
       background: var(--vscode-input-background);

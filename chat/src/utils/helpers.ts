@@ -1,7 +1,7 @@
 import { isValidElement, ReactNode } from 'react';
 import { visit } from 'unist-util-visit';
 
-import { AgentMessage } from './types';
+import { AgentMessage, ChatMessage } from './types';
 export const uuid = (length: number = 4): string => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   let result = '';

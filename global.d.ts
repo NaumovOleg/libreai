@@ -54,7 +54,15 @@ declare type ChatMessage = {
   session: string;
 };
 
-type ChatSession = { [key: string]: ChatMessage[] };
+declare type AgentMessage = {
+  id: string;
+  status: 'done' | 'pending' | 'error';
+  type: 'planning' | 'editing';
+  error?: string;
+  args: any;
+};
+
+type ChatSession = { [key: string]: (ChatMessage | AgentMessage)[] };
 
 type State = {
   chatSession: ChatSession;

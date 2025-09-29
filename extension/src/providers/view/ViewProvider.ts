@@ -59,11 +59,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     let html = fs.readFileSync(htmlPath, 'utf-8');
     const observer = EditorObserver.getInstance();
     observer.init(this.web);
-
+    const id = uuid(4);
     setTimeout(() => {
-      const id = uuid(4);
       observer.emit(EDITOR_EVENTS.planning, { status: 'pending', id });
-    }, 3000);
+    }, 2000);
+
+    // setTimeout(() => {
+    //   observer.emit(EDITOR_EVENTS.planning, { status: 'done', id });
+    // }, 6000);
 
     const iconsMap = this.icons.getIcons(this.web);
     html = html

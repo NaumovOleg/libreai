@@ -49,7 +49,7 @@ export enum Providers {
   agent = 'agent',
 }
 
-export type ChatSession = { [key: string]: ChatMessage[] };
+export type ChatSession = { [key: string]: (ChatMessage | AgentMessage)[] };
 
 export type State = {
   chatSession: ChatSession;
@@ -71,6 +71,7 @@ export type AgentMessage = {
   status: 'done' | 'pending' | 'error';
   type: 'planning' | 'editing';
   args: any;
+  error?: string;
 };
 
 export enum AGENT_ACTIONS {

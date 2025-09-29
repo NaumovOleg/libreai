@@ -29,6 +29,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [isAgentThinking, setIsAgentThinking] = useState(false);
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
+  const [tmpAgentMessage, setTmpAgentMessage] = useState<AgentMessage | undefined>();
 
   const [messages, setMessages] = useState<(ChatMessage | AgentMessage)[]>([]);
   const [session, setSessionId] = useState<string>(() => {
@@ -51,22 +52,21 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     setMessages((prev) => [...prev, message as ChatMessage]);
   };
 
-  useEffect(() => {
-    if (true) {
-    }
-  }, [messages]);
-
   const updateAgentMessages = (message: AgentMessage) => {
-    setMessages((prev) => {
-      if (message.status === 'pending') {
-        return prev.concat(message);
-      }
-      const found = prev.find(({ id }) => id === message.id);
-      if (!found) return prev;
-      return { ...prev, status: message.status };
+    if (message.status === 'pending') {
+      return setTmpAgentMessage(message);
+    }
+    const newMessage = { ...tmpAgentMessage, ...message };
+    setTmpAgentMessage(undefined);
+    setMessages((prev) => prev.concat(newMessage));
+    setSessions((chatSession) => {
+      const data = {
+        ...chatSession,
+        [sessionRef.current]: chatSession[sessionRef.current].concat(newMessage),
+      };
+      vscode.setState({ ...vscode.getState(), chatSession: data });
+      return data;
     });
-
-    console.log('Agent response ssssssss', message);
   };
 
   useEffect(() => {
@@ -84,7 +84,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
         setIsStreaming(true);
       }
       if (event.data.type === COMMANDS.agentResponse) {
-        updateAgentMessages(event.data as AgentMessage);
+        updateAgentMessages(event.data.payload as AgentMessage);
       }
     };
 
@@ -161,7 +161,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const sessionList = Object.keys(sessions)?.length ? Object.keys(sessions) : [session];
 
   const value = {
-    messages: messages.concat(tmpMessage || []),
+    messages: messages.concat(tmpMessage || []).concat(tmpAgentMessage || []),
     addSession,
     setSession,
     session,
@@ -174,8 +174,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     provider,
     isAgentThinking,
   };
-
-  console.log(messages);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };
