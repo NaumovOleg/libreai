@@ -57,9 +57,15 @@ declare type ChatMessage = {
 declare type AgentMessage = {
   id: string;
   status: 'done' | 'pending' | 'error';
-  type: 'planning' | 'editing';
+  type: 'planning' | 'editFile';
   error?: string;
-  args: any;
+  args: {
+    file?: string;
+    content?: string;
+    oldContent?: string;
+    command?: string;
+    newName?: string;
+  };
 };
 
 type ChatSession = { [key: string]: (ChatMessage | AgentMessage)[] };

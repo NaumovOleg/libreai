@@ -1,6 +1,6 @@
 import { FC } from 'react';
-import CircularProgress from '@mui/material/CircularProgress';
-import DoneAllIcon from '@mui/icons-material/DoneAll';
+
+import { Plan, Edit } from './steps';
 type Props = {
   message: AgentMessage;
 };
@@ -11,21 +11,19 @@ type Props = {
 // type: 'planning';
 
 export const AgentMessageContent: FC<Props> = ({ message }) => {
-  if (message.type === 'planning') {
-    return (
-      <div className={`message prose prose-invert agent`}>
-        <div className="planning">
-          Planning steps:{' '}
-          {message.status === 'pending' && <CircularProgress size={15} className="icon" />}
-          {message.status === 'done' && <DoneAllIcon className="icon" />}
-          {message.status === 'error' && message.error}
-        </div>
-      </div>
-    );
-  }
+  const renderContent = () => {
+    if (message.type === 'planning') {
+      return <Plan message={message} />;
+    }
+    if (message.type === 'editFile') {
+      return <Edit message={message} />;
+    }
+    return null;
+  };
+
   return (
     <div className={`message prose prose-invert agent`}>
-      <div className="message-markdown">{message.args}aaaa</div>
+      <div className="message-markdown">{renderContent()}</div>
     </div>
   );
 };

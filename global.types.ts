@@ -69,9 +69,15 @@ export type ChatMessage = {
 export type AgentMessage = {
   id: string;
   status: 'done' | 'pending' | 'error';
-  type: 'planning' | 'editing';
-  args: any;
+  type: 'planning' | 'editFile';
   error?: string;
+  args: {
+    file?: string;
+    content?: string;
+    command?: string;
+    newName?: string;
+    oldContent?: string;
+  };
 };
 
 export enum AGENT_ACTIONS {
@@ -89,7 +95,7 @@ export enum USER_ACTIONS_ON_MESSAGE {
 export type EditorObserverEventArgs = {
   [EDITOR_EVENTS.readFile]: { file: string; content: string };
   [EDITOR_EVENTS.renameFile]: { file: string; newName: string };
-  [EDITOR_EVENTS.editFile]: { file: string; content: string; error?: string };
+  [EDITOR_EVENTS.editFile]: { file: string; content?: string; oldContent?: string };
   [EDITOR_EVENTS.deleteFile]: string;
   [EDITOR_EVENTS.createFile]: string;
   [EDITOR_EVENTS.command]: string;

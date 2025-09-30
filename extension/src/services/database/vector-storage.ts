@@ -61,7 +61,7 @@ export class VectorizerClient {
       return el.node;
     });
 
-    return false;
+    return data.length;
   }
 
   async indexFiles(chunks: DbFile[]) {

@@ -61,7 +61,27 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     observer.init(this.web);
     const id = uuid(4);
     setTimeout(() => {
-      observer.emit(EDITOR_EVENTS.planning, { status: 'pending', id });
+      observer.emit(EDITOR_EVENTS.editFile, {
+        status: 'pending',
+        id,
+        args: {
+          file: 'services/userService.ts',
+          oldContent: `
+export const userService = {
+  removedUsers: [],
+  users: userList,
+
+  editUser(): void {
+    // console.log(args)
+  },
+};`,
+          content: `
+export const userService = {
+  removedUsers: [],
+  users: userList,
+};`,
+        },
+      });
     }, 2000);
 
     // setTimeout(() => {

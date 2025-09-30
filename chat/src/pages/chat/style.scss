@@ -193,6 +193,9 @@
         justify-content: flex-start;
         gap: 10px;
       }
+      .editFile {
+        flex-direction: column;
+      }
       .icon {
         width: 15px;
         height: 15px;
