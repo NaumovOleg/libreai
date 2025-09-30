@@ -1,0 +1,58 @@
+.accordion-section {
+  .accordion {
+    background-color: var(--vscode-editor-selectionBackground);
+    color: var(--vscode-button-foreground);
+    border: 1px solid var(--vscode-button-border);
+    border-radius: 6px;
+    box-shadow: none;
+    margin-bottom: 8px;
+
+    &::before {
+      display: none; // Remove the default divider
+    }
+
+    &.expanded {
+      background-color: var(--vscode-button-hoverBackground);
+      margin: 0;
+      margin-bottom: 8px;
+    }
+
+    &.disabled {
+      background-color: var(--vscode-button-disabledBackground);
+      color: var(--vscode-button-foreground);
+      opacity: 0.6;
+    }
+    .accordionSummary {
+      padding: 0 5px;
+      min-height: 0;
+      &:hover {
+        background-color: transparent;
+      }
+      span {
+        margin: 0;
+        padding: 0;
+      }
+
+      &.expanded {
+        min-height: 0;
+        border-bottom: 1px solid var(--vscode-button-border);
+      }
+
+      .content {
+        margin: 4px 0;
+        align-items: center;
+      }
+
+      .expandIconWrapper {
+        color: var(--vscode-button-foreground);
+
+        &.expanded {
+          transform: rotate(180deg);
+        }
+      }
+    }
+    .accordionDetails {
+      padding: 0;
+    }
+  }
+}

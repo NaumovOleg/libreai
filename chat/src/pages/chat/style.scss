@@ -106,8 +106,8 @@
   }
   .messages-container {
     overflow-y: scroll;
-    padding: 10px;
-    width: calc(100% - 10px);
+    padding: 5px;
+    width: calc(100% - 5px);
     height: 100%;
     .agent-spinner {
       display: flex;
@@ -193,9 +193,7 @@
         justify-content: flex-start;
         gap: 10px;
       }
-      .editFile {
-        flex-direction: column;
-      }
+
       .icon {
         width: 15px;
         height: 15px;

@@ -173,6 +173,17 @@ const theme = createTheme({
         },
       },
     },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          border: '1px solid var(--vscode-foreground);',
+          margin: '5px 1px',
+          display: 'block',
+          borderTop: '0.5px solid var(--vscode-foreground)',
+          borderBottom: 0,
+        },
+      },
+    },
   },
   typography: {
     fontSize: 14,

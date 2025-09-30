@@ -1,0 +1,42 @@
+.editFile {
+  flex-direction: column;
+  .info {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    flex-direction: column;
+    .done {
+      width: 100%;
+      .header-item {
+        display: flex;
+        gap: 10px;
+        font-size: 10px;
+      }
+      .accordion {
+        .accordionDetails {
+          pre {
+            margin: 0;
+            .code-block {
+              border-radius: 0;
+            }
+          }
+        }
+      }
+    }
+    .error {
+      display: flex;
+      justify-content: flex-start;
+      flex-direction: column;
+      .file-line {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+    }
+    .pending {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+  }
+}
