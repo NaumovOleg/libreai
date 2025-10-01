@@ -27,6 +27,7 @@ export type PlannerTask = { file: string; task: string } | { command?: string };
 export type EditFileToolArgs = {
   file: string;
   content: string;
+  oldContent?: string;
 };
 export type CreateToolArgs = {
   file: string;

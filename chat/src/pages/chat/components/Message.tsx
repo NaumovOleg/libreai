@@ -7,7 +7,7 @@ type Props = {
   isLoading?: boolean;
 };
 
-import { ChatMessageContent, AgentMessageContent } from './messagesContent';
+import { ChatMessageContent, AgentMessageContent } from './content';
 
 export const Message: FC<Props> = ({ message }) => {
   if (isAgentMessage(message)) return <AgentMessageContent message={message} />;

@@ -3,7 +3,6 @@ import { FC } from 'react';
 import { FileIcon } from '@elements';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
 import { getEditSummary } from '@utils';
 import { AgentMessage } from '@utils';
 
@@ -35,7 +34,6 @@ export const FileActions: FC<Props> = ({ message }) => {
           console.log(message);
         }}
       >
-        <Divider />
         <div className="info">
           {message.status === 'pending' && (
             <div className="pending">

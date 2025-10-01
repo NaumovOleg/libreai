@@ -52,6 +52,7 @@
     "@vitejs/plugin-react": "^5.0.2",
     "apache-arrow": "^21.0.0",
     "axios": "^1.11.0",
+    "diff": "^8.0.2",
     "globals": "^16.3.0",
     "llamaindex": "^0.12.0",
     "react": "^19.1.1",
