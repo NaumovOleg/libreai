@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { AIClient, SessionStorage } from './clients';
 import { Icons, InlineCompletionProvider, ViewProvider } from './providers';
-import { Context, PreviewManager } from './services';
+import { Context } from './services';
 import { VectorizerClient } from './services/database';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -32,7 +32,7 @@ export const userService = {
 };
 `;
 
-  const newContent = `const userList = [
+  const content = `const userList = [
   { id: 1, name: "User1", address: "" },
   { id: 2, name: "User2", address: "" },
   { id: 3, name: "User3", address: "" },
@@ -49,13 +49,6 @@ export const userService = {
   },
 };
 `;
-
-  const result = await PreviewManager.createPreview({
-    file: 'services/userService.ts',
-    oldContent,
-    newContent,
-  });
-  console.log(`User choice: ${result}`);
 
   const client = new AIClient();
   const storage = new SessionStorage(context);

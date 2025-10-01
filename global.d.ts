@@ -14,7 +14,14 @@ declare enum COMMANDS {
   removeChatSession = 'removeChatSession',
   agentResponse = 'agentResponse',
   editor = 'editor',
+  showPreview = 'showPreview',
 }
+
+declare type ShowPreviewMessage = {
+  file: string;
+  content: string;
+  old: string;
+};
 
 interface AiConfigT {
   provider: 'openai' | 'ollama' | 'deepseek' | 'openrouter';
@@ -28,7 +35,7 @@ interface AiConfigT {
 declare type MESSAGE = {
   command: COMMANDS;
   key?: CONFIG_PARAGRAPH;
-  value?: AiConfigT | ChatMessage | string;
+  value?: AiConfigT | ChatMessage | ShowPreviewMessage | string;
 };
 
 declare enum Providers {

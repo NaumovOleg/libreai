@@ -27,7 +27,7 @@ export type PlannerTask = { file: string; task: string } | { command?: string };
 export type EditFileToolArgs = {
   file: string;
   content: string;
-  oldContent?: string;
+  old?: string;
 };
 export type CreateToolArgs = {
   file: string;
@@ -59,7 +59,9 @@ export enum AGENT_TOOLS {
 }
 
 export type ToolCallbacks = {
-  [AGENT_TOOLS.editFile]: (args: EditFileToolArgs) => Promise<string | null>;
+  [AGENT_TOOLS.editFile]: (
+    args: EditFileToolArgs,
+  ) => Promise<{ old: string; content: string; file: string }>;
   [AGENT_TOOLS.command]: (args: CommandToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.renameFile]: (args: RenameFileToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.deleteFile]: (args: DeleteFileToolArgs) => Promise<string | null>;

@@ -60,14 +60,8 @@ export function isAgentMessage(message: ChatMessage | AgentMessage): message is 
   return !(message as ChatMessage).from;
 }
 
-export const getEditSummary = ({
-  content,
-  oldContent,
-}: {
-  content?: string;
-  oldContent?: string;
-}) => {
-  const diffs = diffLines(oldContent ?? '', content ?? '');
+export const getEditSummary = ({ content, old }: { content?: string; old?: string }) => {
+  const diffs = diffLines(old ?? '', content ?? '');
 
   let added = 0;
   let removed = 0;

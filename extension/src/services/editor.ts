@@ -2,12 +2,12 @@ import * as vscode from 'vscode';
 
 import { EditFileToolArgs, resolveFilePath } from '../utils';
 
-type Action = {
-  edit: vscode.WorkspaceEdit;
-  instruction: EditFileToolArgs;
-  document: vscode.TextDocument;
-  uri: vscode.Uri;
-};
+// type Action = {
+//   edit: vscode.WorkspaceEdit;
+//   instruction: EditFileToolArgs;
+//   document: vscode.TextDocument;
+//   uri: vscode.Uri;
+// };
 
 export class Editor {
   document!: vscode.TextDocument;
@@ -23,6 +23,7 @@ export class Editor {
 
     this.document = await vscode.workspace.openTextDocument(this.uri);
     const edit = new vscode.WorkspaceEdit();
+    const old = this.document.getText();
 
     // Заменяем весь документ целиком
     const start = new vscode.Position(0, 0);
@@ -30,86 +31,87 @@ export class Editor {
 
     edit.replace(this.uri, new vscode.Range(start, end), instruction.content);
 
-    return vscode.workspace.applyEdit(edit);
-  }
-
-  async applyRange(instruction: EditFileToolArgs = this.instruction) {
-    if (!vscode.workspace.workspaceFolders?.length) return null;
-    const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
-
-    this.uri = resolveFilePath(instruction.file, root);
-
-    this.document = await vscode.workspace.openTextDocument(this.uri);
-
-    const edit = new vscode.WorkspaceEdit();
-
-    const data = { instruction, edit, document: this.document, uri: this.uri };
-
-    if (this.instruction.insertMode === 'insert') {
-      return this.insert(data);
-    }
-    if (this.instruction.insertMode === 'replace') {
-      return this.replace(data);
-    }
-    return this.delete(data);
-  }
-
-  async insert(action: Action) {
-    const { instruction, document, edit, uri } = action;
-
-    const content = instruction.content;
-    const startLine = instruction.startLine ?? 0;
-
-    const lineText = document.lineAt(startLine).text; // получаем весь текст строки
-    const endCharacter = lineText.length;
-
-    const startPos = new vscode.Position(startLine, endCharacter ?? 0);
-    edit.insert(uri, startPos, content + '\n');
-
     await vscode.workspace.applyEdit(edit);
-
-    return instruction.content;
+    return { ...instruction, old };
   }
 
-  async replace(action: Action) {
-    const { instruction, document, edit, uri } = action;
+  // async applyRange(instruction: EditFileToolArgs = this.instruction) {
+  //   if (!vscode.workspace.workspaceFolders?.length) return null;
+  //   const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
 
-    const content = instruction.content;
-    const startLine = instruction.startLine ?? 0;
-    const endLine = instruction.endLine ?? startLine;
+  //   this.uri = resolveFilePath(instruction.file, root);
 
-    const endPos = new vscode.Position(
-      Math.min(endLine, document.lineCount - 1),
-      document.lineAt(Math.min(endLine, document.lineCount - 1)).text.length,
-    );
+  //   this.document = await vscode.workspace.openTextDocument(this.uri);
 
-    const startPos = new vscode.Position(startLine, 0);
+  //   const edit = new vscode.WorkspaceEdit();
 
-    const replaceRange = new vscode.Range(startPos, endPos);
-    edit.replace(uri, replaceRange, content);
+  //   const data = { instruction, edit, document: this.document, uri: this.uri };
 
-    await vscode.workspace.applyEdit(edit);
+  //   if (this.instruction.insertMode === 'insert') {
+  //     return this.insert(data);
+  //   }
+  //   if (this.instruction.insertMode === 'replace') {
+  //     return this.replace(data);
+  //   }
+  //   return this.delete(data);
+  // }
 
-    return instruction.content;
-  }
+  // async insert(action: Action) {
+  //   const { instruction, document, edit, uri } = action;
 
-  async delete(action: Action) {
-    const { instruction, document, edit, uri } = action;
-    const startLine = instruction.startLine ?? 0;
-    const endLine = instruction.endLine ?? startLine;
-    const startPos = new vscode.Position(startLine, 0);
-    const endPos = new vscode.Position(
-      Math.min(endLine, document.lineCount - 1),
-      document.lineAt(Math.min(endLine, document.lineCount - 1)).text.length,
-    );
+  //   const content = instruction.content;
+  //   const startLine = instruction.startLine ?? 0;
 
-    const deleteRange = new vscode.Range(startPos, endPos);
-    edit.delete(uri, deleteRange);
+  //   const lineText = document.lineAt(startLine).text; // получаем весь текст строки
+  //   const endCharacter = lineText.length;
 
-    await vscode.workspace.applyEdit(edit);
+  //   const startPos = new vscode.Position(startLine, endCharacter ?? 0);
+  //   edit.insert(uri, startPos, content + '\n');
 
-    return instruction.content;
-  }
+  //   await vscode.workspace.applyEdit(edit);
+
+  //   return instruction.content;
+  // }
+
+  // async replace(action: Action) {
+  //   const { instruction, document, edit, uri } = action;
+
+  //   const content = instruction.content;
+  //   const startLine = instruction.startLine ?? 0;
+  //   const endLine = instruction.endLine ?? startLine;
+
+  //   const endPos = new vscode.Position(
+  //     Math.min(endLine, document.lineCount - 1),
+  //     document.lineAt(Math.min(endLine, document.lineCount - 1)).text.length,
+  //   );
+
+  //   const startPos = new vscode.Position(startLine, 0);
+
+  //   const replaceRange = new vscode.Range(startPos, endPos);
+  //   edit.replace(uri, replaceRange, content);
+
+  //   await vscode.workspace.applyEdit(edit);
+
+  //   return instruction.content;
+  // }
+
+  // async delete(action: Action) {
+  //   const { instruction, document, edit, uri } = action;
+  //   const startLine = instruction.startLine ?? 0;
+  //   const endLine = instruction.endLine ?? startLine;
+  //   const startPos = new vscode.Position(startLine, 0);
+  //   const endPos = new vscode.Position(
+  //     Math.min(endLine, document.lineCount - 1),
+  //     document.lineAt(Math.min(endLine, document.lineCount - 1)).text.length,
+  //   );
+
+  //   const deleteRange = new vscode.Range(startPos, endPos);
+  //   edit.delete(uri, deleteRange);
+
+  //   await vscode.workspace.applyEdit(edit);
+
+  //   return instruction.content;
+  // }
 
   async save(instruction?: EditFileToolArgs) {
     await vscode.commands.executeCommand('editor.action.revert', this.uri);

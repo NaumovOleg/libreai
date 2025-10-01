@@ -1,5 +1,5 @@
 export * from './context';
 export * from './database';
+export * from './diffPreview';
 export * from './editor';
-export * from './preview';
 export * from './processors';

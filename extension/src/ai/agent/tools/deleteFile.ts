@@ -5,6 +5,7 @@ import {
   AGENT_TOOLS,
   DeleteFileToolArgs,
   EDITOR_EVENTS,
+  ObserverStatus,
   ToolCallbacks,
   uuid,
 } from '../../../utils';
@@ -20,7 +21,7 @@ export class DeleteFileTool {
         const event = { id: uuid(4), args: args.file };
         console.log('Deleting', args);
         observer.emit(EDITOR_EVENTS.deleteFile, { status: 'pending', ...event });
-        let status = 'success';
+        let status: ObserverStatus = 'success';
         await cb(args).catch(() => (status = 'error'));
 
         observer.emit(EDITOR_EVENTS.createFile, { status: 'done', ...event });

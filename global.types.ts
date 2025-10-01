@@ -24,12 +24,19 @@ export enum COMMANDS {
   removeChatSession = 'removeChatSession',
   agentResponse = 'agentResponse',
   editor = 'editor',
+  showPreview = 'showPreview',
 }
+
+export type ShowPreviewMessage = {
+  file: string;
+  content: string;
+  old: string;
+};
 
 export type MESSAGE = {
   command: COMMANDS;
   key?: CONFIG_PARAGRAPH;
-  value?: AiConfigT | ChatMessage | string;
+  value?: AiConfigT | ChatMessage | ShowPreviewMessage | string;
 };
 
 export type ProviderName = 'openai' | 'ollama' | 'deepseek' | 'openrouter';
@@ -76,7 +83,7 @@ export type AgentMessage = {
     content?: string;
     command?: string;
     newName?: string;
-    oldContent?: string;
+    old?: string;
   };
 };
 
@@ -95,7 +102,7 @@ export enum USER_ACTIONS_ON_MESSAGE {
 export type EditorObserverEventArgs = {
   [EDITOR_EVENTS.readFile]: { file: string; content: string };
   [EDITOR_EVENTS.renameFile]: { file: string; newName: string };
-  [EDITOR_EVENTS.editFile]: { file: string; content?: string; oldContent?: string };
+  [EDITOR_EVENTS.editFile]: { file: string; content?: string; old?: string };
   [EDITOR_EVENTS.deleteFile]: string;
   [EDITOR_EVENTS.createFile]: string;
   [EDITOR_EVENTS.command]: string;

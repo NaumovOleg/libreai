@@ -5,15 +5,15 @@ import * as vscode from 'vscode';
 import { Chat, Cursor } from '../../ai';
 import { SessionStorage } from '../../clients';
 import { EditorObserver } from '../../observer';
-import { callbacks, Context } from '../../services';
+import { callbacks, Context, showMemoryDiff } from '../../services';
 import {
   ChatMessage,
   COMMANDS,
   Conf,
   CONFIG_PARAGRAPH,
-  EDITOR_EVENTS,
   MESSAGE,
   Providers,
+  ShowPreviewMessage,
   uuid,
 } from '../../utils';
 import { Icons } from '../Icons';
@@ -59,34 +59,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     let html = fs.readFileSync(htmlPath, 'utf-8');
     const observer = EditorObserver.getInstance();
     observer.init(this.web);
-    const id = uuid(4);
-    setTimeout(() => {
-      observer.emit(EDITOR_EVENTS.editFile, {
-        status: 'pending',
-        id,
-        args: {
-          file: 'services/userService.ts',
-          oldContent: `
-export const userService = {
-  removedUsers: [],
-  users: userList,
-
-  editUser(): void {
-    // console.log(args)
-  },
-};`,
-          content: `
-export const userService = {
-  removedUsers: [],
-  users: userList,
-};`,
-        },
-      });
-    }, 2000);
-
-    // setTimeout(() => {
-    //   observer.emit(EDITOR_EVENTS.planning, { status: 'done', id });
-    // }, 6000);
 
     const iconsMap = this.icons.getIcons(this.web);
     html = html
@@ -140,6 +112,7 @@ export const userService = {
         id: uuid(7),
         session: message.session,
       };
+
       const ctx = await this.ctx.getContext(message.text);
       const history = this.storage.getSessionChatHistory(message.session);
 
@@ -157,6 +130,7 @@ export const userService = {
   }
 
   private async onDidReceiveMessage(message: MESSAGE) {
+    console.log(message);
     if (message.command === COMMANDS.changeConfig) {
       await Conf.updateConfig(message);
     }
@@ -166,6 +140,9 @@ export const userService = {
 
     if (message.command === COMMANDS.configListenerMounted) {
       await this.onStartMessages();
+    }
+    if (message.command === COMMANDS.showPreview) {
+      showMemoryDiff(message.value as ShowPreviewMessage);
     }
 
     const value = message.value as ChatMessage;

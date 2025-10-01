@@ -1,7 +1,14 @@
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
 import { EditorObserver } from '../../../observer';
-import { AGENT_TOOLS, EditFileToolArgs, EDITOR_EVENTS, ToolCallbacks, uuid } from '../../../utils';
+import {
+  AGENT_TOOLS,
+  EditFileToolArgs,
+  EDITOR_EVENTS,
+  ObserverStatus,
+  ToolCallbacks,
+  uuid,
+} from '../../../utils';
 import { Schemas } from './schemas';
 
 export class EditFileTool {
@@ -23,14 +30,14 @@ export class EditFileTool {
           },
         });
 
-        let status = 'done';
+        let status: ObserverStatus = 'done';
         let success = true;
 
-        await cb(args).catch(() => {
+        const editResponse = await cb(args).catch(() => {
           success = false;
           status = 'error';
         });
-        observer.emit(EDITOR_EVENTS.editFile, { status, id: taskid });
+        observer.emit(EDITOR_EVENTS.editFile, { status, id: taskid, ...editResponse });
         return JSON.stringify({ success, name: AGENT_TOOLS.editFile });
       },
 

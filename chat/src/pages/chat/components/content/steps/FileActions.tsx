@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import { getEditSummary } from '@utils';
 import { AgentMessage } from '@utils';
-
+import { vscode, COMMANDS } from '@utils';
 const fileActions = {
   editFile: 'edit',
   deleteFile: 'delete',
@@ -20,6 +20,16 @@ export const FileActions: FC<Props> = ({ message }) => {
   const type = fileActions[message.type as keyof typeof fileActions];
   const file = (
     <FileIcon
+      onClick={() => {
+        if (type === 'edit') {
+          const value = {
+            old: message.args.old ?? '',
+            content: message.args.content ?? '',
+            file: message.args.file ?? '',
+          };
+          vscode.postMessage({ command: COMMANDS.showPreview, value });
+        }
+      }}
       type={type as 'edit' | 'created' | 'deleted'}
       path={message.args.file ?? ''}
       changes={message.args.content ? getEditSummary(message.args) : undefined}
@@ -28,12 +38,7 @@ export const FileActions: FC<Props> = ({ message }) => {
 
   return (
     <div className={`message prose prose-invert agent`}>
-      <div
-        className="editFile"
-        onClick={() => {
-          console.log(message);
-        }}
-      >
+      <div className="editFile">
         <div className="info">
           {message.status === 'pending' && (
             <div className="pending">
@@ -44,10 +49,19 @@ export const FileActions: FC<Props> = ({ message }) => {
           {message.status === 'error' && (
             <div className="error">
               <div className="file-line">Error while editing</div>
-              <Typography color="error"> message.error</Typography>
+              <Typography color="error"> {message.error}</Typography>
             </div>
           )}
-          {message.status === 'done' && <div className="done">{file}</div>}
+          {message.status === 'done' && (
+            <div
+              onClick={() => {
+                console.log(message);
+              }}
+              className="done"
+            >
+              {file}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -118,6 +118,9 @@
     .message {
       font-size: 10px;
       .message-markdown {
+        p {
+          margin: 0;
+        }
         pre {
           // width: 100%;
           .code-block {
