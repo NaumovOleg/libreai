@@ -1,3 +1,4 @@
+import { diffLines } from 'diff';
 import { isValidElement, ReactNode } from 'react';
 import { visit } from 'unist-util-visit';
 
@@ -58,3 +59,29 @@ export function rehypeLineNumbers() {
 export function isAgentMessage(message: ChatMessage | AgentMessage): message is AgentMessage {
   return !(message as ChatMessage).from;
 }
+
+export const getEditSummary = ({
+  content,
+  oldContent,
+}: {
+  content?: string;
+  oldContent?: string;
+}) => {
+  const diffs = diffLines(oldContent ?? '', content ?? '');
+
+  let added = 0;
+  let removed = 0;
+
+  diffs.forEach((part) => {
+    if (part.added) {
+      const cnt = part.value.split('\n').filter((line) => line.trim() !== '').length;
+      added += cnt;
+    }
+    if (part.removed) {
+      const cnt = part.value.split('\n').filter((line) => line.trim() !== '').length;
+      removed += cnt;
+    }
+  });
+
+  return { added, removed };
+};

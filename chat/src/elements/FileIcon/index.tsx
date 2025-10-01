@@ -4,9 +4,11 @@ import { FC } from 'react';
 
 type Props = {
   path: string;
+  changes?: { added: number; removed: number };
+  type?: 'edit' | 'created' | 'deleted';
 };
 
-export const FileIcon: FC<Props> = ({ path }) => {
+export const FileIcon: FC<Props> = ({ path, changes, type = 'edit' }) => {
   const name = path.split('/').pop() ?? '';
   const ext = path.split('.').pop() ?? '';
 
@@ -15,7 +17,13 @@ export const FileIcon: FC<Props> = ({ path }) => {
   return (
     <div className="file-icon">
       {icon && <img src={icon} alt="icon" style={{ width: 15, height: 15 }} />}
-      <div className="name">{name}</div>
+      <div className={`name ${type}`}>{name}</div>
+      {changes && (
+        <>
+          <div className="added">+{changes.added}</div>
+          <div className="removed">-{changes.removed}</div>
+        </>
+      )}
     </div>
   );
 };

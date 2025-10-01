@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import { Plan, Edit } from './steps';
+import { Plan, FileActions } from './steps';
 type Props = {
   message: AgentMessage;
 };
@@ -16,7 +16,7 @@ export const AgentMessageContent: FC<Props> = ({ message }) => {
       return <Plan message={message} />;
     }
     if (message.type === 'editFile') {
-      return <Edit message={message} />;
+      return <FileActions message={message} />;
     }
     return null;
   };

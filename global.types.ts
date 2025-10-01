@@ -69,7 +69,7 @@ export type ChatMessage = {
 export type AgentMessage = {
   id: string;
   status: 'done' | 'pending' | 'error';
-  type: 'planning' | 'editFile';
+  type: 'planning' | 'editFile' | 'deleteFile' | 'createFile' | 'renameFile' | 'command';
   error?: string;
   args: {
     file?: string;
