@@ -1,32 +1,57 @@
-import { OpenAI, openai } from '@llamaindex/openai';
+import { deepseek } from '@llamaindex/deepseek';
+import { ollama } from '@llamaindex/ollama';
+import { openai } from '@llamaindex/openai';
+import { LLM, ToolCallLLM } from 'llamaindex';
 
+import { AiConfigT, AiProviders } from '../../../../global.types';
 import { Conf } from '../../utils';
 
 const constructors = {
-  openai: openai,
-  ollama: openai,
-  deepseek: openai,
-  openrouter: openai,
+  [AiProviders.openai]: openai,
+  [AiProviders.ollama]: ollama,
+  [AiProviders.deepseek]: deepseek,
+  [AiProviders.openrouter]: openai,
 };
-export class ModelFactory {
-  agent!: OpenAI;
 
-  constructor() {
-    this.buildAgentModel(Conf.agentConfig.provider);
+export class ModelFactory {
+  get agent(): ToolCallLLM {
+    return this.constryctModel(Conf.agentConfig, true);
   }
 
-  buildAgentModel(provider: 'openai' | 'ollama' | 'deepseek' | 'openrouter') {
-    const config = Conf.chatConfig;
-    const constructor = constructors[provider];
+  get planner(): ToolCallLLM {
+    return this.constryctModel(Conf.agentConfig);
+  }
 
-    this.agent = constructor({
-      apiKey: config.apiKey,
-      model: config.model,
-      supportToolCall: true,
+  get chat(): LLM {
+    return this.constryctModel(Conf.chatConfig);
+  }
 
-      additionalChatOptions: {
-        tool_choice: 'auto',
-      },
-    });
+  get autocomplete(): LLM {
+    return this.constryctModel(Conf.autoCompleteConfig);
+  }
+
+  constryctModel(config: AiConfigT, agent = false) {
+    const settings = { apiKey: config.apiKey, model: config.model } as any;
+    const temperature = config.temperature ?? 0;
+    const provider = config.provider;
+    if ([AiProviders.openai, AiProviders.openrouter].includes(provider)) {
+      settings.temperature = 1;
+      settings.baseURL = config.endpoint;
+      if (agent) {
+        settings.supportToolCall = true;
+        settings.additionalChatOptions = { tool_choice: 'auto' };
+      }
+    }
+    if (provider === AiProviders.deepseek) {
+      Object.assign(settings, { temperature });
+    }
+    if (provider === AiProviders.ollama) {
+      Object.assign(settings, {
+        config: { host: Conf.agentConfig.endpoint },
+        options: { temperature },
+      });
+    }
+    console.log('++++++++++', settings, config);
+    return constructors[provider](settings as any);
   }
 }

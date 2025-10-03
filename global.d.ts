@@ -23,8 +23,15 @@ declare type ShowPreviewMessage = {
   old: string;
 };
 
+declare enum AiProviders {
+  openai = 'openai',
+  ollama = 'ollama',
+  deepseek = 'deepseek',
+  openrouter = 'openrouter',
+}
+
 interface AiConfigT {
-  provider: 'openai' | 'ollama' | 'deepseek' | 'openrouter';
+  provider: AiProviders;
   model: string;
   endpoint: string;
   apiKey?: string;
@@ -64,7 +71,14 @@ declare type ChatMessage = {
 declare type AgentMessage = {
   id: string;
   status: 'done' | 'pending' | 'error';
-  type: 'planning' | 'editFile' | 'deleteFile' | 'createFile' | 'renameFile' | 'command';
+  type:
+    | 'planning'
+    | 'editFile'
+    | 'deleteFile'
+    | 'createFile'
+    | 'renameFile'
+    | 'command'
+    | 'readFile';
   error?: string;
   args: {
     file?: string;

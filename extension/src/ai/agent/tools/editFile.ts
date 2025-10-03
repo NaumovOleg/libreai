@@ -11,6 +11,13 @@ import {
 } from '../../../utils';
 import { Schemas } from './schemas';
 
+type Event = {
+  status: ObserverStatus;
+  id: string;
+  error?: string;
+  args: { file: string; content: string; old?: string };
+};
+
 export class EditFileTool {
   tool: FunctionTool<EditFileToolArgs, JSONValue | Promise<JSONValue>, object>;
 
@@ -18,29 +25,28 @@ export class EditFileTool {
     this.tool = tool({
       execute: async (args: EditFileToolArgs) => {
         const observer = EditorObserver.getInstance();
-        const taskid = uuid(4);
-        const event = { id: uuid(4), args: { file: args.file, content: args.content } };
-        console.log('Updating file:', args, cb);
-        observer.emit(EDITOR_EVENTS.editFile, {
-          status: 'pending',
-          id: taskid,
-          args: {
-            file: args.file,
-            content: args.content,
-          },
+
+        const event: Event = {
+          status: 'pending' as ObserverStatus,
+          id: uuid(4),
+          error: undefined,
+          args: { file: args.file, content: args.content },
+        };
+        console.log('Updating file:', args);
+        observer.emit(EDITOR_EVENTS.editFile, event);
+
+        event.status = 'done';
+
+        const editResponse = await cb(args).catch((err) => {
+          event.status = 'error';
+          event.error = err.message;
         });
 
-        let status: ObserverStatus = 'done';
-        let success = true;
+        event.args.old = editResponse?.old;
 
-        const editResponse = await cb(args).catch(() => {
-          success = false;
-          status = 'error';
-        });
-        observer.emit(EDITOR_EVENTS.editFile, { status, id: taskid, ...editResponse });
-        return JSON.stringify({ success, name: AGENT_TOOLS.editFile });
+        observer.emit(EDITOR_EVENTS.editFile, event);
+        return { success: event.status === 'done', name: AGENT_TOOLS.editFile };
       },
-
       name: AGENT_TOOLS.editFile,
       description: `Edit a file with content.
      IMPORTANT: Only call editFile if this content is DIFFERENT from the current file content.`,

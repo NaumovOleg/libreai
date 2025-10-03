@@ -5,7 +5,7 @@ import { FC } from 'react';
 type Props = {
   path: string;
   changes?: { added: number; removed: number };
-  type?: 'edit' | 'created' | 'deleted';
+  type?: 'edit' | 'created' | 'deleted' | 'read';
   onClick?: () => void;
 };
 
@@ -16,7 +16,7 @@ export const FileIcon: FC<Props> = ({ path, changes, type = 'edit', onClick }) =
   const icon = FILE_ICONS[name] ?? FILE_ICONS[ext];
 
   return (
-    <div className="file-icon" onClick={onClick}>
+    <div className={`file-icon ${changes ? 'clickable' : ''}`} onClick={onClick}>
       {icon && <img src={icon} alt="icon" style={{ width: 15, height: 15 }} />}
       <div className={`name ${type}`}>{name}</div>
       {changes && (

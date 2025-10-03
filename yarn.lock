@@ -861,6 +861,14 @@
     magic-bytes.js "^1.10.0"
     zod "^4.1.5"
 
+"@llamaindex/deepseek@^0.0.38":
+  version "0.0.38"
+  resolved "https://registry.yarnpkg.com/@llamaindex/deepseek/-/deepseek-0.0.38.tgz#97c8aa62e64001e013a8ba024161bff37990bf5f"
+  integrity sha512-vWFEOtWOQdnSsdvktjUMQQ1OfmGvyk//rmbMNdULuA9WHuOUK5clvrOpIaBINBDP43a+njgvx2w1ScoavT32jw==
+  dependencies:
+    "@llamaindex/env" "0.1.30"
+    "@llamaindex/openai" "0.4.20"
+
 "@llamaindex/env@0.1.30":
   version "0.1.30"
   resolved "https://registry.yarnpkg.com/@llamaindex/env/-/env-0.1.30.tgz#5576df71e5f8cb51e531ca2e1745797889d928df"

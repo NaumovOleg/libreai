@@ -29,6 +29,7 @@ export default [
       './cdk.out',
       './node_modules',
       './out',
+      './yarn.lock',
     ],
     files: ['**/*.{js,mjs,cjs,ts}'],
     plugins: {

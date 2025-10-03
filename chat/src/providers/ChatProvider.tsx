@@ -53,6 +53,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   };
 
   const updateAgentMessages = (message: AgentMessage) => {
+    console.log(message);
     if (message.status === 'pending') {
       return setTmpAgentMessage(message);
     }

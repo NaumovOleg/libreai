@@ -1,14 +1,12 @@
-import { ToolCallLLM } from 'llamaindex';
-
 import { PromptProps } from '../utils';
-import { chat } from './models';
+import { ModelFactory } from './models';
 import { CHAT_PROMPT } from './prompts';
 
 export class Chat {
-  private llm: ToolCallLLM;
+  modelFactory = new ModelFactory();
 
-  constructor() {
-    this.llm = chat;
+  get llm() {
+    return this.modelFactory.chat;
   }
 
   async chat(data: PromptProps) {
@@ -19,6 +17,7 @@ export class Chat {
 
   async *chatStream(data: PromptProps) {
     const messages = CHAT_PROMPT(data);
+    console.log({ messages, stream: true });
     const response = await this.llm.chat({ messages, stream: true });
     for await (const chunk of response) {
       yield chunk.delta;

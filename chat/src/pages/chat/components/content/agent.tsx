@@ -1,21 +1,18 @@
 import { FC } from 'react';
 
 import { Plan, FileActions } from './steps';
+import { AgentMessage } from '../../../../../../global.types';
+
 type Props = {
   message: AgentMessage;
 };
 
-// id: 'ZBZg';
-// session: 'WBjN';
-// status: 'pending';
-// type: 'planning';
-
 export const AgentMessageContent: FC<Props> = ({ message }) => {
   const renderContent = () => {
     if (message.type === 'planning') {
-      return <Plan message={message} />;
+      return <Plan message={message as AgentMessage<string>} />;
     }
-    if (message.type === 'editFile') {
+    if (['editFile', 'deleteFile', 'createFile', 'renameFile', 'readFile'].includes(message.type)) {
       return <FileActions message={message} />;
     }
     return null;
@@ -23,7 +20,7 @@ export const AgentMessageContent: FC<Props> = ({ message }) => {
 
   return (
     <div className={`message prose prose-invert agent`}>
-      <div className="message-markdown">{renderContent()}</div>
+      <div className="message-markdown agent-message">{renderContent()}</div>
     </div>
   );
 };

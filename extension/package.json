@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "@llamaindex/chroma": "^0.0.36",
+    "@llamaindex/deepseek": "^0.0.38",
     "@llamaindex/huggingface": "^0.1.30",
     "@llamaindex/ollama": "^0.1.23",
     "@llamaindex/openai": "^0.4.20",

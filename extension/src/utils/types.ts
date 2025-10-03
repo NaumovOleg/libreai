@@ -39,3 +39,17 @@ export type ContextT = {
 export type ContextData = ContextT & {
   userPrompt: string;
 };
+
+type ObserverArgsMap = {
+  readFile: { file: string };
+  editFile: { file: string; content: string };
+  deleteFile: { file: string };
+  renameFile: { old: string; newName: string };
+  runCommand: { command: string };
+};
+export type GlobalObserverEvent<T extends keyof ObserverArgsMap> = {
+  status: 'pending' | 'error' | 'done';
+  id: string;
+  error?: string;
+  args: ObserverArgsMap[T];
+};

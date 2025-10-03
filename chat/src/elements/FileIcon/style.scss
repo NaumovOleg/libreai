@@ -6,7 +6,6 @@
   border: 1px solid var(--vscode-chat-requestBorder);
   padding: 0 5px;
   border-radius: 5px;
-  cursor: pointer;
   .name {
     font-size: 10px;
     margin-left: 5px;
@@ -27,4 +26,7 @@
     font: weight 700px;
     color: var(--vscode-chat-linesAddedForeground);
   }
+}
+.clickable.file-icon {
+  cursor: pointer;
 }

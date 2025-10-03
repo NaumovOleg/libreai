@@ -1,4 +1,4 @@
-.editFile {
+.file-actions {
   flex-direction: column;
   .info {
     display: flex;
@@ -37,6 +37,11 @@
       display: flex;
       gap: 5px;
       align-items: center;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
   }
 }

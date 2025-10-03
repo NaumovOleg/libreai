@@ -1,7 +1,14 @@
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
 import { EditorObserver } from '../../../observer';
-import { AGENT_TOOLS, EDITOR_EVENTS, ReadFileToolArgs, ToolCallbacks, uuid } from '../../../utils';
+import {
+  AGENT_TOOLS,
+  EDITOR_EVENTS,
+  GlobalObserverEvent,
+  ReadFileToolArgs,
+  ToolCallbacks,
+  uuid,
+} from '../../../utils';
 import { Schemas } from './schemas';
 export class ReadFileTool {
   tool: FunctionTool<ReadFileToolArgs, JSONValue | Promise<JSONValue>, object>;
@@ -12,20 +19,29 @@ export class ReadFileTool {
         const observer = EditorObserver.getInstance();
         try {
           console.log('Reading file from disk:', { args, cb, observer });
-          const event = { id: uuid(4), args: args.file };
-          observer.emit(EDITOR_EVENTS.readFile, { status: 'pending', ...event });
-          let status = 'success';
-          const content = await cb(args.file).catch(() => (status = 'error'));
+          const event: GlobalObserverEvent<'readFile'> = {
+            status: 'pending',
+            id: uuid(4),
+            error: undefined,
+            args: { file: args.file },
+          };
+          observer.emit(EDITOR_EVENTS.readFile, event);
+          event.status = 'done';
+
+          const content = await cb(args.file).catch((err) => {
+            event.error = err.message;
+            event.status = 'error';
+          });
 
           const result = {
             name: AGENT_TOOLS.readFile,
             arguments: { file: args.file },
-            content,
-            success: status === 'success',
+            content: content ?? '',
+            success: event.status === 'done',
           };
 
           console.log('Reading file response :', args.file, content);
-          observer.emit(EDITOR_EVENTS.readFile, { status: 'done', ...event });
+          observer.emit(EDITOR_EVENTS.readFile, event);
           return result;
         } catch (err) {
           console.log(err);

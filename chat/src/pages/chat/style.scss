@@ -202,6 +202,14 @@
         height: 15px;
         color: var(--vscode-editor-foreground);
       }
+      .done-icon {
+        width: 15px;
+        height: 15px;
+        color: var(--vscode-chat-linesAddedForeground);
+      }
+      .agent-message {
+        margin: 3px 0;
+      }
     }
     .message.user {
       background: var(--vscode-input-background);

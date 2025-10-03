@@ -8,23 +8,25 @@ const DEFAULT_AI_CONFIG = {
 };
 
 class Configuration {
-  private config = vscode.workspace.getConfiguration();
-
   get chatConfig() {
-    return this.config.get(CONFIG_PARAGRAPH.chatConfig, DEFAULT_AI_CONFIG) as AiConfigT;
+    const config = vscode.workspace.getConfiguration();
+    return config.get(CONFIG_PARAGRAPH.chatConfig, DEFAULT_AI_CONFIG) as AiConfigT;
   }
 
   get autoCompleteConfig() {
-    return this.config.get(CONFIG_PARAGRAPH.autoCompleteConfig, DEFAULT_AI_CONFIG) as AiConfigT;
+    const config = vscode.workspace.getConfiguration();
+    return config.get(CONFIG_PARAGRAPH.autoCompleteConfig, DEFAULT_AI_CONFIG) as AiConfigT;
   }
 
   get agentConfig() {
-    return this.config.get(CONFIG_PARAGRAPH.agentConfig, DEFAULT_AI_CONFIG) as AiConfigT;
+    const config = vscode.workspace.getConfiguration();
+    return config.get(CONFIG_PARAGRAPH.agentConfig, DEFAULT_AI_CONFIG) as AiConfigT;
   }
 
   async updateAgentConfig(data: AiConfigT) {
+    const config = vscode.workspace.getConfiguration();
     const promises = Object.entries(data).map(([key, value]) => {
-      return this.config.update(
+      return config.update(
         `${CONFIG_PARAGRAPH.agentConfig}.${key}`,
         value,
         vscode.ConfigurationTarget.Global,
@@ -34,9 +36,9 @@ class Configuration {
   }
 
   async updateChatConfig(data: AiConfigT) {
-    console.log(data);
+    const config = vscode.workspace.getConfiguration();
     const promises = Object.entries(data).map(([key, value]) => {
-      return this.config.update(
+      return config.update(
         `${CONFIG_PARAGRAPH.chatConfig}.${key}`,
         value,
         vscode.ConfigurationTarget.Global,
@@ -46,8 +48,9 @@ class Configuration {
   }
 
   async updateAutoCompleteConfig(data: AiConfigT) {
+    const config = vscode.workspace.getConfiguration();
     const promises = Object.entries(data).map(([key, value]) => {
-      return this.config.update(
+      return config.update(
         `${CONFIG_PARAGRAPH.autoCompleteConfig}.${key}`,
         value,
         vscode.ConfigurationTarget.Global,

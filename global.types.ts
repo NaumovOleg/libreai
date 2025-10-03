@@ -39,10 +39,15 @@ export type MESSAGE = {
   value?: AiConfigT | ChatMessage | ShowPreviewMessage | string;
 };
 
-export type ProviderName = 'openai' | 'ollama' | 'deepseek' | 'openrouter';
+export enum AiProviders {
+  openai = 'openai',
+  ollama = 'ollama',
+  deepseek = 'deepseek',
+  openrouter = 'openrouter',
+}
 
 export interface AiConfigT {
-  provider: 'openai' | 'ollama' | 'deepseek' | 'openrouter';
+  provider: AiProviders;
   model: string;
   endpoint: string;
   apiKey?: string;
@@ -73,18 +78,27 @@ export type ChatMessage = {
   session: string;
 };
 
-export type AgentMessage = {
+type Args = {
+  file?: string;
+  content?: string;
+  command?: string;
+  newName?: string;
+  old?: string;
+};
+
+export type AgentMessage<T = Args> = {
   id: string;
   status: 'done' | 'pending' | 'error';
-  type: 'planning' | 'editFile' | 'deleteFile' | 'createFile' | 'renameFile' | 'command';
+  type:
+    | 'planning'
+    | 'editFile'
+    | 'deleteFile'
+    | 'createFile'
+    | 'renameFile'
+    | 'command'
+    | 'readFile';
   error?: string;
-  args: {
-    file?: string;
-    content?: string;
-    command?: string;
-    newName?: string;
-    old?: string;
-  };
+  args: T;
 };
 
 export enum AGENT_ACTIONS {
@@ -92,6 +106,7 @@ export enum AGENT_ACTIONS {
   updateFile = 'updateFile',
   deleteFile = 'deleteFile',
   renameFile = 'renameFile',
+  readFile = 'readFile',
   executeCommand = 'executeCommand',
 }
 
@@ -100,7 +115,7 @@ export enum USER_ACTIONS_ON_MESSAGE {
 }
 
 export type EditorObserverEventArgs = {
-  [EDITOR_EVENTS.readFile]: { file: string; content: string };
+  [EDITOR_EVENTS.readFile]: { file: string };
   [EDITOR_EVENTS.renameFile]: { file: string; newName: string };
   [EDITOR_EVENTS.editFile]: { file: string; content?: string; old?: string };
   [EDITOR_EVENTS.deleteFile]: string;

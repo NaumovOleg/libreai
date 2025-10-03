@@ -11,12 +11,52 @@ import {
   COMMANDS,
   Conf,
   CONFIG_PARAGRAPH,
+  EDITOR_EVENTS,
   MESSAGE,
   Providers,
   ShowPreviewMessage,
   uuid,
 } from '../../utils';
 import { Icons } from '../Icons';
+
+const data = {
+  status: 'done',
+  id: 'task',
+  args: {
+    file: 'services/userService.ts',
+    content: `const userList = [
+  { id: 1, name: "User1", address: "" },
+  { id: 2, name: "User2", address: "" },
+  { id: 3, name: "User3", address: "" },
+];
+
+export const userService = {
+  removedUsers: [],
+  users: userList,
+
+  getUserList(): any[] {
+    return this.users;
+  },
+  editUser(): any[] {
+    return this.users;
+  },
+};`,
+    old: `const userList = [
+  { id: 1, name: "User1", address: "" },
+  { id: 2, name: "User2", address: "" },
+  { id: 3, name: "User3", address: "" },
+];
+
+export const userService = {
+  removedUsers: [],
+  users: userList,
+
+  getUserList(): any[] {
+    return this.users;
+  }
+};`,
+  },
+};
 
 export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
@@ -59,6 +99,29 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     let html = fs.readFileSync(htmlPath, 'utf-8');
     const observer = EditorObserver.getInstance();
     observer.init(this.web);
+
+    const id = uuid();
+
+    setTimeout(() => {
+      observer.emit(EDITOR_EVENTS.readFile, {
+        status: 'pending',
+        args: {
+          file: 'services/userService.ts',
+        },
+        id,
+      });
+    }, 1000);
+    setTimeout(() => {
+      observer.emit(EDITOR_EVENTS.readFile, {
+        status: 'done',
+        args: {
+          file: 'services/userService.ts',
+        },
+        id,
+      });
+    }, 2000);
+
+    observer.emit(EDITOR_EVENTS.planning, { status: 'done', args: 'start processing', id });
 
     const iconsMap = this.icons.getIcons(this.web);
     html = html

@@ -25,7 +25,6 @@ export class Editor {
     const edit = new vscode.WorkspaceEdit();
     const old = this.document.getText();
 
-    // Заменяем весь документ целиком
     const start = new vscode.Position(0, 0);
     const end = this.document.lineAt(this.document.lineCount - 1).range.end;
 
