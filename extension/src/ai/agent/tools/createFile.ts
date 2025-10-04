@@ -1,7 +1,15 @@
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
 import { EditorObserver } from '../../../observer';
-import { AGENT_TOOLS, CreateToolArgs, EDITOR_EVENTS, ToolCallbacks, uuid } from '../../../utils';
+import {
+  AGENT_TOOLS,
+  AgentMessagePayload,
+  CreateToolArgs,
+  EDITOR_EVENTS,
+  ObserverStatus,
+  ToolCallbacks,
+  uuid,
+} from '../../../utils';
 import { Schemas } from './schemas';
 
 export class CreateFileTool {
@@ -11,14 +19,26 @@ export class CreateFileTool {
     this.tool = tool({
       execute: async (args: CreateToolArgs) => {
         const observer = EditorObserver.getInstance();
-        const event = { id: uuid(4), args: args.file };
+        const event: Omit<AgentMessagePayload<'createFile'>, 'type'> = {
+          id: uuid(4),
+          args: { file: args.file, content: args.content },
+          status: ObserverStatus.pending,
+        };
         console.log('Creating', args);
-        observer.emit(EDITOR_EVENTS.createFile, { status: 'pending', ...event });
-        let status = 'success';
-        await cb(args).catch(() => (status = 'error'));
-        observer.emit(EDITOR_EVENTS.createFile, { status: 'done', ...event });
+        observer.emit(EDITOR_EVENTS.createFile, event);
+        event.status = ObserverStatus.done;
+        await cb(args).catch((err) => {
+          event.error = err.message;
+          event.status = ObserverStatus.error;
+        });
 
-        return { success: true, name: EDITOR_EVENTS.createFile };
+        observer.emit(EDITOR_EVENTS.createFile, event);
+
+        return {
+          success: (event.status = ObserverStatus.done),
+          name: EDITOR_EVENTS.createFile,
+          file: args.file,
+        };
       },
       name: AGENT_TOOLS.createFile,
       description: 'Creates a new file with provided content.',

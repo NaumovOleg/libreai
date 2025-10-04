@@ -1,0 +1,22 @@
+.command {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  .command-line {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-self: flex-start;
+    border: 1px solid var(--vscode-chat-requestBorder);
+    padding: 0 5px;
+    border-radius: 5px;
+  }
+  .item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    flex-direction: row;
+    gap: 5px;
+  }
+}

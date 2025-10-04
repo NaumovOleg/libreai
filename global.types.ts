@@ -78,29 +78,6 @@ export type ChatMessage = {
   session: string;
 };
 
-type Args = {
-  file?: string;
-  content?: string;
-  command?: string;
-  newName?: string;
-  old?: string;
-};
-
-export type AgentMessage<T = Args> = {
-  id: string;
-  status: 'done' | 'pending' | 'error';
-  type:
-    | 'planning'
-    | 'editFile'
-    | 'deleteFile'
-    | 'createFile'
-    | 'renameFile'
-    | 'command'
-    | 'readFile';
-  error?: string;
-  args: T;
-};
-
 export enum AGENT_ACTIONS {
   createFile = 'createFile',
   updateFile = 'updateFile',
@@ -115,27 +92,40 @@ export enum USER_ACTIONS_ON_MESSAGE {
 }
 
 export type EditorObserverEventArgs = {
-  [EDITOR_EVENTS.readFile]: { file: string };
-  [EDITOR_EVENTS.renameFile]: { file: string; newName: string };
-  [EDITOR_EVENTS.editFile]: { file: string; content?: string; old?: string };
-  [EDITOR_EVENTS.deleteFile]: string;
-  [EDITOR_EVENTS.createFile]: string;
-  [EDITOR_EVENTS.command]: string;
-  [EDITOR_EVENTS.planning]: string;
+  readFile: { file: string };
+  renameFile: { file: string; newName: string };
+  editFile: { file: string; content?: string; old?: string };
+  deleteFile: { file: string };
+  createFile: { file: string; content: string };
+  command: { command: string };
+  planning: string;
 };
 
-export type ObserverStatus = 'pending' | 'done' | 'error';
+export enum ObserverStatus {
+  pending = 'pending',
+  done = 'done',
+  error = 'error',
+}
 
-export type ObserverPayloads<E extends keyof EditorObserverEventArgs> = {
-  type?: E;
+export type AgentMessagePayload<E extends keyof EditorObserverEventArgs> = {
+  type: E;
   status: ObserverStatus;
   error?: string;
   id: string;
-  args?: EditorObserverEventArgs[E];
+  args: EditorObserverEventArgs[E];
 };
 
+export type AgentMessage =
+  | AgentMessagePayload<'planning'>
+  | AgentMessagePayload<'editFile'>
+  | AgentMessagePayload<'deleteFile'>
+  | AgentMessagePayload<'createFile'>
+  | AgentMessagePayload<'renameFile'>
+  | AgentMessagePayload<'command'>
+  | AgentMessagePayload<'readFile'>;
+
 export type EditorObserverHandler<E extends keyof EditorObserverEventArgs> = (
-  payload: ObserverPayloads<E>,
+  payload: AgentMessagePayload<E>,
 ) => void;
 
 export type EditorObserverHandlers =

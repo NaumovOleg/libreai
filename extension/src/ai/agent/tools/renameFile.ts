@@ -3,7 +3,9 @@ import { FunctionTool, JSONValue, tool } from 'llamaindex';
 import { EditorObserver } from '../../../observer';
 import {
   AGENT_TOOLS,
+  AgentMessagePayload,
   EDITOR_EVENTS,
+  ObserverStatus,
   RenameFileToolArgs,
   ToolCallbacks,
   uuid,
@@ -16,13 +18,27 @@ export class RenameFileTool {
     this.tool = tool({
       execute: async (args: RenameFileToolArgs) => {
         const observer = EditorObserver.getInstance();
-        const event = { id: uuid(4), args: { file: args.file, newName: args.newName } };
+        const event: Omit<AgentMessagePayload<'renameFile'>, 'type'> = {
+          id: uuid(4),
+          args: { file: args.file, newName: args.newName },
+          status: ObserverStatus.pending,
+        };
         console.log('Renamin file', args);
-        observer.emit(EDITOR_EVENTS.renameFile, { status: 'pending', ...event });
-        let status = 'success';
-        await cb(args).catch(() => (status = 'error'));
-        observer.emit(EDITOR_EVENTS.renameFile, { status: 'done', ...event });
-        return { success: true, name: EDITOR_EVENTS.renameFile };
+        observer.emit(EDITOR_EVENTS.renameFile, event);
+        event.status = ObserverStatus.done;
+
+        await cb(args).catch((err) => {
+          event.error = err.message;
+          event.status = ObserverStatus.error;
+        });
+
+        observer.emit(EDITOR_EVENTS.renameFile, event);
+        return {
+          success: event.status === ObserverStatus.done,
+          name: EDITOR_EVENTS.renameFile,
+          file: args.file,
+          newName: args.newName,
+        };
       },
 
       name: AGENT_TOOLS.renameFile,

@@ -1,10 +1,10 @@
 import { FC } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
-import { AgentMessage } from '../../../../../../../global.types';
+import { AgentMessagePayload } from '../../../../../../../global.types';
 
 type Props = {
-  message: AgentMessage<string>;
+  message: AgentMessagePayload<'planning'>;
 };
 
 export const Plan: FC<Props> = ({ message }) => {

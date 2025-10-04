@@ -1,7 +1,15 @@
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
 import { EditorObserver } from '../../../observer';
-import { AGENT_TOOLS, CommandToolArgs, EDITOR_EVENTS, ToolCallbacks, uuid } from '../../../utils';
+import {
+  AGENT_TOOLS,
+  AgentMessagePayload,
+  CommandToolArgs,
+  EDITOR_EVENTS,
+  ObserverStatus,
+  ToolCallbacks,
+  uuid,
+} from '../../../utils';
 import { Schemas } from './schemas';
 
 export class CommandTool {
@@ -14,20 +22,23 @@ export class CommandTool {
       parameters: Schemas[AGENT_TOOLS.command],
       execute: async (args: CommandToolArgs) => {
         const observer = EditorObserver.getInstance();
-        const event = { id: uuid(4), args: args.command };
-        observer.emit(EDITOR_EVENTS.command, { status: 'pending', ...event });
+        const event: Omit<AgentMessagePayload<'command'>, 'type'> = {
+          id: uuid(4),
+          args: { command: args.command },
+          status: ObserverStatus.pending,
+        };
+        observer.emit(EDITOR_EVENTS.command, event);
         console.log(`Executing command: ${args.command}`);
+        event.status = ObserverStatus.done;
 
-        let status = 'success';
-        await cb(args).catch(() => {
-          status = 'error';
-          observer.emit(EDITOR_EVENTS.command, { status: 'error', ...event });
+        await cb(args).catch((error) => {
+          event.error = error.message;
+          event.status = ObserverStatus.error;
         });
-        if (status === 'success') {
-          observer.emit(EDITOR_EVENTS.command, { status: 'done', ...event });
-        }
 
-        return { success: true, name: AGENT_TOOLS.command };
+        observer.emit(EDITOR_EVENTS.command, event);
+
+        return { success: event.status === ObserverStatus.done, name: AGENT_TOOLS.command };
       },
     });
   }

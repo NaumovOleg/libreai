@@ -3,6 +3,7 @@ import { FunctionTool, JSONValue, tool } from 'llamaindex';
 import { EditorObserver } from '../../../observer';
 import {
   AGENT_TOOLS,
+  AgentMessagePayload,
   DeleteFileToolArgs,
   EDITOR_EVENTS,
   ObserverStatus,
@@ -18,15 +19,26 @@ export class DeleteFileTool {
     this.tool = tool({
       execute: async (args: DeleteFileToolArgs) => {
         const observer = EditorObserver.getInstance();
-        const event = { id: uuid(4), args: args.file };
+        const event: Omit<AgentMessagePayload<'deleteFile'>, 'type'> = {
+          id: uuid(4),
+          args: { file: args.file },
+          status: ObserverStatus.pending,
+        };
         console.log('Deleting', args);
-        observer.emit(EDITOR_EVENTS.deleteFile, { status: 'pending', ...event });
-        let status: ObserverStatus = 'success';
-        await cb(args).catch(() => (status = 'error'));
+        observer.emit(EDITOR_EVENTS.deleteFile, event);
+        event.status = ObserverStatus.done;
+        await cb(args).catch((err) => {
+          event.error = err.message;
+          event.status = ObserverStatus.error;
+        });
 
-        observer.emit(EDITOR_EVENTS.createFile, { status: 'done', ...event });
+        observer.emit(EDITOR_EVENTS.deleteFile, event);
 
-        return JSON.stringify({ success: true, name: EDITOR_EVENTS.deleteFile });
+        return JSON.stringify({
+          success: (event.status = ObserverStatus.done),
+          name: EDITOR_EVENTS.deleteFile,
+          file: args.file,
+        });
       },
       name: AGENT_TOOLS.deleteFile,
       description: 'Deletes existed file.',

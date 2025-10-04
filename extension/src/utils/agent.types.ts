@@ -31,7 +31,7 @@ export type EditFileToolArgs = {
 };
 export type CreateToolArgs = {
   file: string;
-  content?: string;
+  content: string;
 };
 export type CommandToolArgs = {
   command: string;

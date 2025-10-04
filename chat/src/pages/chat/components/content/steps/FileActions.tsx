@@ -4,9 +4,9 @@ import { FileIcon } from '@elements';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import { getEditSummary } from '@utils';
-import { AgentMessage } from '@utils';
 import { vscode, COMMANDS } from '@utils';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
+
 const fileActions = {
   editFile: 'edit',
   deleteFile: 'delete',
@@ -24,25 +24,34 @@ const messages = {
   command: '',
 };
 
-type Props = { message: AgentMessage };
+type Props = {
+  message: AgentMessagePayload<
+    'editFile' | 'deleteFile' | 'createFile' | 'renameFile' | 'readFile'
+  >;
+};
 
 export const FileActions: FC<Props> = ({ message }) => {
   const type = fileActions[message.type as keyof typeof fileActions];
+  let changes;
+  const editArgs = (message as AgentMessagePayload<'editFile'>).args;
+  if (message.type === 'editFile') {
+    changes = getEditSummary(editArgs);
+  }
   const file = (
     <FileIcon
       onClick={() => {
-        if (type === 'edit') {
+        if (message.type === 'editFile') {
           const value = {
-            old: message.args.old ?? '',
-            content: message.args.content ?? '',
-            file: message.args.file ?? '',
+            old: editArgs.old ?? '',
+            content: editArgs.content ?? '',
+            file: editArgs.file ?? '',
           };
           vscode.postMessage({ command: COMMANDS.showPreview, value });
         }
       }}
       type={type as 'edit' | 'created' | 'deleted' | 'read'}
       path={message.args.file ?? ''}
-      changes={message.args.content ? getEditSummary(message.args) : undefined}
+      changes={changes}
     />
   );
 

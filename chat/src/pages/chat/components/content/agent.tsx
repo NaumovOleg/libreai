@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
-import { Plan, FileActions } from './steps';
-import { AgentMessage } from '../../../../../../global.types';
+import { Plan, FileActions, Command } from './steps';
+import { AgentMessage, AgentMessagePayload } from '../../../../../../global.types';
 
 type Props = {
   message: AgentMessage;
@@ -10,11 +10,24 @@ type Props = {
 export const AgentMessageContent: FC<Props> = ({ message }) => {
   const renderContent = () => {
     if (message.type === 'planning') {
-      return <Plan message={message as AgentMessage<string>} />;
+      return <Plan message={message as AgentMessagePayload<'planning'>} />;
     }
     if (['editFile', 'deleteFile', 'createFile', 'renameFile', 'readFile'].includes(message.type)) {
-      return <FileActions message={message} />;
+      return (
+        <FileActions
+          message={
+            message as AgentMessagePayload<
+              'editFile' | 'deleteFile' | 'createFile' | 'renameFile' | 'readFile'
+            >
+          }
+        />
+      );
     }
+
+    if (message.type === 'command') {
+      return <Command message={message as AgentMessagePayload<'command'>} />;
+    }
+
     return null;
   };
 

@@ -3,6 +3,7 @@ import { FunctionTool, JSONValue, tool } from 'llamaindex';
 import { EditorObserver } from '../../../observer';
 import {
   AGENT_TOOLS,
+  AgentMessagePayload,
   EditFileToolArgs,
   EDITOR_EVENTS,
   ObserverStatus,
@@ -10,13 +11,6 @@ import {
   uuid,
 } from '../../../utils';
 import { Schemas } from './schemas';
-
-type Event = {
-  status: ObserverStatus;
-  id: string;
-  error?: string;
-  args: { file: string; content: string; old?: string };
-};
 
 export class EditFileTool {
   tool: FunctionTool<EditFileToolArgs, JSONValue | Promise<JSONValue>, object>;
@@ -26,8 +20,8 @@ export class EditFileTool {
       execute: async (args: EditFileToolArgs) => {
         const observer = EditorObserver.getInstance();
 
-        const event: Event = {
-          status: 'pending' as ObserverStatus,
+        const event: Omit<AgentMessagePayload<'editFile'>, 'type'> = {
+          status: ObserverStatus.pending,
           id: uuid(4),
           error: undefined,
           args: { file: args.file, content: args.content },
@@ -35,17 +29,17 @@ export class EditFileTool {
         console.log('Updating file:', args);
         observer.emit(EDITOR_EVENTS.editFile, event);
 
-        event.status = 'done';
+        event.status = ObserverStatus.done;
 
         const editResponse = await cb(args).catch((err) => {
-          event.status = 'error';
+          event.status = ObserverStatus.error;
           event.error = err.message;
         });
 
         event.args.old = editResponse?.old;
 
         observer.emit(EDITOR_EVENTS.editFile, event);
-        return { success: event.status === 'done', name: AGENT_TOOLS.editFile };
+        return { success: event.status === 'done', name: AGENT_TOOLS.editFile, file: args.file };
       },
       name: AGENT_TOOLS.editFile,
       description: `Edit a file with content.

@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 
 import {
+  AgentMessagePayload,
   COMMANDS,
   EDITOR_EVENTS,
   EditorObserverEventArgs,
   EditorObserverHandler,
-  ObserverPayloads,
 } from '../../../global.types';
 import { Observer } from './observer';
 
@@ -28,7 +28,10 @@ export class EditorObserver {
     this.observe();
   }
 
-  emit<E extends keyof EditorObserverEventArgs>(event: E, payload: ObserverPayloads<E>) {
+  emit<E extends keyof EditorObserverEventArgs>(
+    event: E,
+    payload: Omit<AgentMessagePayload<E>, 'type'>,
+  ) {
     this.observer.emit(event, payload);
   }
 

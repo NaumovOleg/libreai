@@ -68,26 +68,38 @@ declare type ChatMessage = {
   session: string;
 };
 
-declare type AgentMessage = {
-  id: string;
-  status: 'done' | 'pending' | 'error';
-  type:
-    | 'planning'
-    | 'editFile'
-    | 'deleteFile'
-    | 'createFile'
-    | 'renameFile'
-    | 'command'
-    | 'readFile';
-  error?: string;
-  args: {
-    file?: string;
-    content?: string;
-    oldContent?: string;
-    command?: string;
-    newName?: string;
-  };
+declare type EditorObserverEventArgs = {
+  readFile: { file: string };
+  renameFile: { file: string; newName: string };
+  editFile: { file: string; content?: string; old?: string };
+  deleteFile: { file: string };
+  createFile: { file: string; content: string };
+  command: { command: string };
+  planning: string;
 };
+
+declare enum ObserverStatus {
+  pending = 'pending',
+  done = 'done',
+  error = 'error',
+}
+
+declare type AgentMessagePayload<E extends keyof EditorObserverEventArgs> = {
+  type: E;
+  status: ObserverStatus;
+  error?: string;
+  id: string;
+  args: EditorObserverEventArgs[E];
+};
+
+declare type AgentMessage =
+  | AgentMessagePayload<'planning'>
+  | AgentMessagePayload<'editFile'>
+  | AgentMessagePayload<'deleteFile'>
+  | AgentMessagePayload<'createFile'>
+  | AgentMessagePayload<'renameFile'>
+  | AgentMessagePayload<'command'>
+  | AgentMessagePayload<'readFile'>;
 
 type ChatSession = { [key: string]: (ChatMessage | AgentMessage)[] };
 

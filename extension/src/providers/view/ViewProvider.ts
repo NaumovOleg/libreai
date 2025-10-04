@@ -103,25 +103,19 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     const id = uuid();
 
     setTimeout(() => {
-      observer.emit(EDITOR_EVENTS.readFile, {
+      observer.emit(EDITOR_EVENTS.command, {
         status: 'pending',
-        args: {
-          file: 'services/userService.ts',
-        },
+        args: { command: 'npm install new-package' },
         id,
       });
     }, 1000);
     setTimeout(() => {
-      observer.emit(EDITOR_EVENTS.readFile, {
+      observer.emit(EDITOR_EVENTS.command, {
         status: 'done',
-        args: {
-          file: 'services/userService.ts',
-        },
+        args: { command: 'npm install new-package' },
         id,
       });
-    }, 2000);
-
-    observer.emit(EDITOR_EVENTS.planning, { status: 'done', args: 'start processing', id });
+    }, 4000);
 
     const iconsMap = this.icons.getIcons(this.web);
     html = html
