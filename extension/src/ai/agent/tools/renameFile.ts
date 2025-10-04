@@ -5,7 +5,6 @@ import {
   AGENT_TOOLS,
   AgentMessagePayload,
   EDITOR_EVENTS,
-  ObserverStatus,
   RenameFileToolArgs,
   ToolCallbacks,
   uuid,
@@ -21,20 +20,20 @@ export class RenameFileTool {
         const event: Omit<AgentMessagePayload<'renameFile'>, 'type'> = {
           id: uuid(4),
           args: { file: args.file, newName: args.newName },
-          status: ObserverStatus.pending,
+          status: 'pending',
         };
         console.log('Renamin file', args);
         observer.emit(EDITOR_EVENTS.renameFile, event);
-        event.status = ObserverStatus.done;
+        event.status = 'done';
 
         await cb(args).catch((err) => {
           event.error = err.message;
-          event.status = ObserverStatus.error;
+          event.status = 'error';
         });
 
         observer.emit(EDITOR_EVENTS.renameFile, event);
         return {
-          success: event.status === ObserverStatus.done,
+          success: event.status === 'done',
           name: EDITOR_EVENTS.renameFile,
           file: args.file,
           newName: args.newName,

@@ -25,7 +25,7 @@ export class Executor {
     });
   }
 
-  async run(tasks: PlannerTask[], language?: string): Promise<unknown> {
+  async run(tasks: PlannerTask[], language?: string) {
     const data = { language, tasks };
 
     return this.agent.run(JSON.stringify(data));

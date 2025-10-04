@@ -43,9 +43,14 @@ export class EditorObserver {
     this.observer.subscribe(EDITOR_EVENTS.createFile, this.createFile.bind(this));
     this.observer.subscribe(EDITOR_EVENTS.command, this.command.bind(this));
     this.observer.subscribe(EDITOR_EVENTS.planning, this.planning.bind(this));
+    this.observer.subscribe(EDITOR_EVENTS.agentResponse, this.agentResponse.bind(this));
   }
   readFile: EditorObserverHandler<EDITOR_EVENTS.readFile> = (data) => {
     const payload = { ...data, type: EDITOR_EVENTS.readFile };
+    this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
+  };
+  agentResponse: EditorObserverHandler<EDITOR_EVENTS.agentResponse> = (data) => {
+    const payload = { ...data, type: EDITOR_EVENTS.agentResponse };
     this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
   };
   renameFile: EditorObserverHandler<EDITOR_EVENTS.renameFile> = (data) => {

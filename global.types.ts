@@ -12,6 +12,7 @@ export enum EDITOR_EVENTS {
   createFile = 'createFile',
   command = 'command',
   planning = 'planning',
+  agentResponse = 'agentResponse',
 }
 
 export enum COMMANDS {
@@ -99,17 +100,12 @@ export type EditorObserverEventArgs = {
   createFile: { file: string; content: string };
   command: { command: string };
   planning: string;
+  agentResponse: { content?: string };
 };
-
-export enum ObserverStatus {
-  pending = 'pending',
-  done = 'done',
-  error = 'error',
-}
 
 export type AgentMessagePayload<E extends keyof EditorObserverEventArgs> = {
   type: E;
-  status: ObserverStatus;
+  status: 'pending' | 'done' | 'error';
   error?: string;
   id: string;
   args: EditorObserverEventArgs[E];
@@ -122,7 +118,8 @@ export type AgentMessage =
   | AgentMessagePayload<'createFile'>
   | AgentMessagePayload<'renameFile'>
   | AgentMessagePayload<'command'>
-  | AgentMessagePayload<'readFile'>;
+  | AgentMessagePayload<'readFile'>
+  | AgentMessagePayload<'agentResponse'>;
 
 export type EditorObserverHandler<E extends keyof EditorObserverEventArgs> = (
   payload: AgentMessagePayload<E>,

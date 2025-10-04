@@ -1,5 +1,5 @@
 import { EditorObserver } from '../observer';
-import { EDITOR_EVENTS, PlannerQuery, ToolCallbacks, uuid } from '../utils';
+import { AgentMessagePayload, EDITOR_EVENTS, PlannerQuery, ToolCallbacks, uuid } from '../utils';
 import { Executor, Planner } from './agent/executors';
 import { ToolFactory2 } from './agent/tools';
 
@@ -15,25 +15,23 @@ export class Cursor {
 
   async exec(input: PlannerQuery) {
     const observer = EditorObserver.getInstance();
-    const planningId = uuid(4);
-    const processingId = uuid(4);
-    observer.emit(EDITOR_EVENTS.planning, { status: 'pending', args: 'Planning', id: planningId });
     const tasks = await this.planner.run(input);
-    observer.emit(EDITOR_EVENTS.planning, { status: 'done', args: 'Planning', id: planningId });
-    observer.emit(EDITOR_EVENTS.planning, {
-      status: 'pending',
-      args: 'Thinking',
-      id: processingId,
-    });
-
     console.log('planner output--------------------', tasks);
-
-    const executor = await this.executor.run(tasks, input.language);
-    observer.emit(EDITOR_EVENTS.planning, {
+    const resultEvent: Omit<AgentMessagePayload<'agentResponse'>, 'type'> = {
       status: 'done',
-      args: 'Thinking',
-      id: processingId,
-    });
-    return executor;
+      id: uuid(),
+      args: {},
+    };
+
+    try {
+      const response = await this.executor.run(tasks, input.language);
+      resultEvent.args.content = response.data.message.content.toString();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      resultEvent.error = err.message;
+    }
+
+    observer.emit(EDITOR_EVENTS.agentResponse, resultEvent);
+    return 'done';
   }
 }

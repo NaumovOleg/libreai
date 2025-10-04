@@ -6,7 +6,6 @@ import {
   AgentMessagePayload,
   EditFileToolArgs,
   EDITOR_EVENTS,
-  ObserverStatus,
   ToolCallbacks,
   uuid,
 } from '../../../utils';
@@ -21,7 +20,7 @@ export class EditFileTool {
         const observer = EditorObserver.getInstance();
 
         const event: Omit<AgentMessagePayload<'editFile'>, 'type'> = {
-          status: ObserverStatus.pending,
+          status: 'pending',
           id: uuid(4),
           error: undefined,
           args: { file: args.file, content: args.content },
@@ -29,10 +28,10 @@ export class EditFileTool {
         console.log('Updating file:', args);
         observer.emit(EDITOR_EVENTS.editFile, event);
 
-        event.status = ObserverStatus.done;
+        event.status = 'done';
 
         const editResponse = await cb(args).catch((err) => {
-          event.status = ObserverStatus.error;
+          event.status = 'error';
           event.error = err.message;
         });
 

@@ -1,4 +1,4 @@
-import './edit.style.scss';
+import './steps.style.scss';
 import { FC } from 'react';
 import { FileIcon } from '@elements';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -57,28 +57,26 @@ export const FileActions: FC<Props> = ({ message }) => {
 
   return (
     <div className={`message prose prose-invert agent`}>
-      <div className="file-actions">
-        <div className="info">
-          {message.status === 'pending' && (
-            <div className="pending item">
-              {messages[message.type]} {file}
-              <CircularProgress size={15} className="icon" />
-            </div>
-          )}
-          {message.status === 'error' && (
-            <div className="error item">
-              <div className="file-line">{messages[message.type]} Error</div>
-              <Typography color="error"> {message.error}</Typography>
-            </div>
-          )}
-          {message.status === 'done' && (
-            <div className="done item">
-              {messages[message.type]}
-              {file}
-              <DoneAllIcon className="done-icon" />
-            </div>
-          )}
-        </div>
+      <div className="file-actions container">
+        {message.status === 'pending' && (
+          <div className="pending item">
+            {messages[message.type]} {file}
+            <CircularProgress size={15} className="icon" />
+          </div>
+        )}
+        {message.status === 'error' && (
+          <div className="error item">
+            <div className="file-line">{messages[message.type]} Error</div>
+            <Typography color="error"> {message.error}</Typography>
+          </div>
+        )}
+        {message.status === 'done' && (
+          <div className="done item">
+            {messages[message.type]}
+            {file}
+            <DoneAllIcon className="done-icon" />
+          </div>
+        )}
       </div>
     </div>
   );

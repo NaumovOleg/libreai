@@ -76,17 +76,12 @@ declare type EditorObserverEventArgs = {
   createFile: { file: string; content: string };
   command: { command: string };
   planning: string;
+  agentResponse: { content?: string };
 };
-
-declare enum ObserverStatus {
-  pending = 'pending',
-  done = 'done',
-  error = 'error',
-}
 
 declare type AgentMessagePayload<E extends keyof EditorObserverEventArgs> = {
   type: E;
-  status: ObserverStatus;
+  status: 'pending' | 'done' | 'error';
   error?: string;
   id: string;
   args: EditorObserverEventArgs[E];
@@ -99,7 +94,8 @@ declare type AgentMessage =
   | AgentMessagePayload<'createFile'>
   | AgentMessagePayload<'renameFile'>
   | AgentMessagePayload<'command'>
-  | AgentMessagePayload<'readFile'>;
+  | AgentMessagePayload<'readFile'>
+  | AgentMessagePayload<'agentResponse'>;
 
 type ChatSession = { [key: string]: (ChatMessage | AgentMessage)[] };
 

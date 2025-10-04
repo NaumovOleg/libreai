@@ -1,4 +1,4 @@
-import './command.style.scss';
+import './steps.style.scss';
 import { FC } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
@@ -13,7 +13,7 @@ export const Command: FC<Props> = ({ message }) => {
   const command = <span className="command-line">{message.args.command}</span>;
   return (
     <div className={`message prose prose-invert agent`}>
-      <div className="command">
+      <div className="command container">
         {message.status === 'error' && (
           <div className="error item">
             <div className="command-line">Error while executing command {command}</div>

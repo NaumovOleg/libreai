@@ -53,7 +53,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   };
 
   const updateAgentMessages = (message: AgentMessage) => {
-    console.log(message);
     if (message.status === 'pending') {
       return setTmpAgentMessage(message);
     }
@@ -68,10 +67,14 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
       vscode.setState({ ...vscode.getState(), chatSession: data });
       return data;
     });
+    if (message.status === 'done' && message.type === 'agentResponse') {
+      setIsAgentThinking(false);
+    }
   };
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
+      console.log(event.data);
       if (event.data.type === COMMANDS.chatStream) {
         setIsStreaming(true);
         seTemporaryMessage(event.data.payload);

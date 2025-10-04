@@ -5,7 +5,6 @@ import {
   AGENT_TOOLS,
   AgentMessagePayload,
   EDITOR_EVENTS,
-  ObserverStatus,
   ReadFileToolArgs,
   ToolCallbacks,
   uuid,
@@ -21,24 +20,24 @@ export class ReadFileTool {
         try {
           console.log('Reading file from disk:', { args, cb, observer });
           const event: Omit<AgentMessagePayload<'readFile'>, 'type'> = {
-            status: ObserverStatus.pending,
+            status: 'pending',
             id: uuid(4),
             error: undefined,
             args: { file: args.file },
           };
           observer.emit(EDITOR_EVENTS.readFile, event);
-          event.status = ObserverStatus.done;
+          event.status = 'done';
 
           const content = await cb(args.file).catch((err) => {
             event.error = err.message;
-            event.status = ObserverStatus.error;
+            event.status = 'error';
           });
 
           const result = {
             name: AGENT_TOOLS.readFile,
             file: args.file,
             content: content ?? '',
-            success: event.status === ObserverStatus.done,
+            success: event.status === 'done',
           };
 
           console.log('Reading file response :', args.file, content);

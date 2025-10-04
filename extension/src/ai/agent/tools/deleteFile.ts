@@ -6,7 +6,6 @@ import {
   AgentMessagePayload,
   DeleteFileToolArgs,
   EDITOR_EVENTS,
-  ObserverStatus,
   ToolCallbacks,
   uuid,
 } from '../../../utils';
@@ -22,20 +21,20 @@ export class DeleteFileTool {
         const event: Omit<AgentMessagePayload<'deleteFile'>, 'type'> = {
           id: uuid(4),
           args: { file: args.file },
-          status: ObserverStatus.pending,
+          status: 'pending',
         };
         console.log('Deleting', args);
         observer.emit(EDITOR_EVENTS.deleteFile, event);
-        event.status = ObserverStatus.done;
+        event.status = 'done';
         await cb(args).catch((err) => {
           event.error = err.message;
-          event.status = ObserverStatus.error;
+          event.status = 'error';
         });
 
         observer.emit(EDITOR_EVENTS.deleteFile, event);
 
         return JSON.stringify({
-          success: (event.status = ObserverStatus.done),
+          success: (event.status = 'done'),
           name: EDITOR_EVENTS.deleteFile,
           file: args.file,
         });

@@ -6,7 +6,6 @@ import {
   AgentMessagePayload,
   CommandToolArgs,
   EDITOR_EVENTS,
-  ObserverStatus,
   ToolCallbacks,
   uuid,
 } from '../../../utils';
@@ -25,20 +24,20 @@ export class CommandTool {
         const event: Omit<AgentMessagePayload<'command'>, 'type'> = {
           id: uuid(4),
           args: { command: args.command },
-          status: ObserverStatus.pending,
+          status: 'pending',
         };
         observer.emit(EDITOR_EVENTS.command, event);
         console.log(`Executing command: ${args.command}`);
-        event.status = ObserverStatus.done;
+        event.status = 'done';
 
         await cb(args).catch((error) => {
           event.error = error.message;
-          event.status = ObserverStatus.error;
+          event.status = 'error';
         });
 
         observer.emit(EDITOR_EVENTS.command, event);
 
-        return { success: event.status === ObserverStatus.done, name: AGENT_TOOLS.command };
+        return { success: event.status === 'done', name: AGENT_TOOLS.command };
       },
     });
   }

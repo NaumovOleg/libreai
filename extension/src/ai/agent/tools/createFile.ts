@@ -6,7 +6,6 @@ import {
   AgentMessagePayload,
   CreateToolArgs,
   EDITOR_EVENTS,
-  ObserverStatus,
   ToolCallbacks,
   uuid,
 } from '../../../utils';
@@ -22,20 +21,20 @@ export class CreateFileTool {
         const event: Omit<AgentMessagePayload<'createFile'>, 'type'> = {
           id: uuid(4),
           args: { file: args.file, content: args.content },
-          status: ObserverStatus.pending,
+          status: 'pending',
         };
         console.log('Creating', args);
         observer.emit(EDITOR_EVENTS.createFile, event);
-        event.status = ObserverStatus.done;
+        event.status = 'done';
         await cb(args).catch((err) => {
           event.error = err.message;
-          event.status = ObserverStatus.error;
+          event.status = 'error';
         });
 
         observer.emit(EDITOR_EVENTS.createFile, event);
 
         return {
-          success: (event.status = ObserverStatus.done),
+          success: (event.status = 'done'),
           name: EDITOR_EVENTS.createFile,
           file: args.file,
         };
