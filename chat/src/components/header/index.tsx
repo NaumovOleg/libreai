@@ -6,7 +6,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import Box from '@mui/material/Box';
 import { useNavigate, useLocation } from 'react-router-dom';
-
+import { BsFillDatabaseFill } from 'react-icons/bs';
 export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -18,11 +18,22 @@ export const Header = () => {
       <Toolbar className="toolbar">
         <Box sx={{ flexGrow: 1 }}>
           {showBackButton && (
-            <IconButton onClick={() => navigate('/')} className="button-container" color="inherit">
+            <IconButton
+              onClick={() => navigate('/')}
+              className="arrow-back button-container"
+              color="inherit"
+            >
               <ArrowBack />
             </IconButton>
           )}
         </Box>
+        <IconButton
+          onClick={() => navigate('/indexing')}
+          className="button-container"
+          color="inherit"
+        >
+          <BsFillDatabaseFill />
+        </IconButton>
         <IconButton
           onClick={() => navigate('/settings')}
           className="button-container"

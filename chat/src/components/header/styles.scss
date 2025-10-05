@@ -1,16 +1,26 @@
 header.header {
   background: transparent;
-  height: 30px;
+  height: 25px;
   position: relative;
   margin-bottom: 5px;
+  padding: 3px 0;
   .toolbar {
     padding: 0 5px;
-    height: 30px;
-    min-height: 0;
+    height: 100%;
+    min-height: unset;
+    display: flex;
+    gap: 5px;
     .button-container {
-      height: 20px;
+      height: 100%;
       padding: 0;
       color: var(--vscode-icon-foreground);
+      svg {
+        width: auto;
+        height: 100%;
+      }
+    }
+    .arrow-back {
+      width: 20px;
     }
   }
 }
