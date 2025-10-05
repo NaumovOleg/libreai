@@ -1,1 +1,1 @@
-export * from './editorObserver';
+export * from './global';

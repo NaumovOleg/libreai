@@ -1,5 +1,5 @@
-import { EditorObserver } from '../observer';
-import { AgentMessagePayload, EDITOR_EVENTS, PlannerQuery, ToolCallbacks, uuid } from '../utils';
+import { Observer } from '../observer';
+import { AgentMessagePayload, PlannerQuery, ToolCallbacks, uuid } from '../utils';
 import { Executor, Planner } from './agent/executors';
 import { ToolFactory2 } from './agent/tools';
 
@@ -14,13 +14,14 @@ export class Cursor {
   }
 
   async exec(input: PlannerQuery) {
-    const observer = EditorObserver.getInstance();
+    const observer = Observer.getInstance();
     const tasks = await this.planner.run(input);
     console.log('planner output--------------------', tasks);
-    const resultEvent: Omit<AgentMessagePayload<'agentResponse'>, 'type'> = {
+    const resultEvent: AgentMessagePayload<'agentResponse'> = {
       status: 'done',
       id: uuid(),
       args: {},
+      type: 'agentResponse',
     };
 
     try {
@@ -31,7 +32,7 @@ export class Cursor {
       resultEvent.error = err.message;
     }
 
-    observer.emit(EDITOR_EVENTS.agentResponse, resultEvent);
+    observer.emit('agent', resultEvent);
     return 'done';
   }
 }

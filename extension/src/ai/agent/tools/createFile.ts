@@ -1,6 +1,6 @@
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
-import { EditorObserver } from '../../../observer';
+import { Observer } from '../../../observer';
 import {
   AGENT_TOOLS,
   AgentMessagePayload,
@@ -17,21 +17,22 @@ export class CreateFileTool {
   constructor(cb: ToolCallbacks[AGENT_TOOLS.createFile]) {
     this.tool = tool({
       execute: async (args: CreateToolArgs) => {
-        const observer = EditorObserver.getInstance();
-        const event: Omit<AgentMessagePayload<'createFile'>, 'type'> = {
+        const observer = Observer.getInstance();
+        const event: AgentMessagePayload<'createFile'> = {
           id: uuid(4),
           args: { file: args.file, content: args.content },
           status: 'pending',
+          type: 'createFile',
         };
         console.log('Creating', args);
-        observer.emit(EDITOR_EVENTS.createFile, event);
+        observer.emit('agent', event);
         event.status = 'done';
         await cb(args).catch((err) => {
           event.error = err.message;
           event.status = 'error';
         });
 
-        observer.emit(EDITOR_EVENTS.createFile, event);
+        observer.emit('agent', event);
 
         return {
           success: (event.status = 'done'),

@@ -1,11 +1,10 @@
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
-import { EditorObserver } from '../../../observer';
+import { Observer } from '../../../observer';
 import {
   AGENT_TOOLS,
   AgentMessagePayload,
   EditFileToolArgs,
-  EDITOR_EVENTS,
   ToolCallbacks,
   uuid,
 } from '../../../utils';
@@ -17,16 +16,17 @@ export class EditFileTool {
   constructor(cb: ToolCallbacks[AGENT_TOOLS.editFile]) {
     this.tool = tool({
       execute: async (args: EditFileToolArgs) => {
-        const observer = EditorObserver.getInstance();
+        const observer = Observer.getInstance();
 
-        const event: Omit<AgentMessagePayload<'editFile'>, 'type'> = {
+        const event: AgentMessagePayload<'editFile'> = {
           status: 'pending',
           id: uuid(4),
           error: undefined,
           args: { file: args.file, content: args.content },
+          type: 'editFile',
         };
         console.log('Updating file:', args);
-        observer.emit(EDITOR_EVENTS.editFile, event);
+        observer.emit('agent', event);
 
         event.status = 'done';
 
@@ -37,7 +37,7 @@ export class EditFileTool {
 
         event.args.old = editResponse?.old;
 
-        observer.emit(EDITOR_EVENTS.editFile, event);
+        observer.emit('agent', event);
         return { success: event.status === 'done', name: AGENT_TOOLS.editFile, file: args.file };
       },
       name: AGENT_TOOLS.editFile,

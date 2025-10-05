@@ -1,6 +1,6 @@
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
-import { EditorObserver } from '../../../observer';
+import { Observer } from '../../../observer';
 import {
   AGENT_TOOLS,
   AgentMessagePayload,
@@ -17,21 +17,22 @@ export class DeleteFileTool {
   constructor(cb: ToolCallbacks[AGENT_TOOLS.deleteFile]) {
     this.tool = tool({
       execute: async (args: DeleteFileToolArgs) => {
-        const observer = EditorObserver.getInstance();
-        const event: Omit<AgentMessagePayload<'deleteFile'>, 'type'> = {
+        const observer = Observer.getInstance();
+        const event: AgentMessagePayload<'deleteFile'> = {
           id: uuid(4),
           args: { file: args.file },
           status: 'pending',
+          type: 'deleteFile',
         };
         console.log('Deleting', args);
-        observer.emit(EDITOR_EVENTS.deleteFile, event);
+        observer.emit('agent', event);
         event.status = 'done';
         await cb(args).catch((err) => {
           event.error = err.message;
           event.status = 'error';
         });
 
-        observer.emit(EDITOR_EVENTS.deleteFile, event);
+        observer.emit('agent', event);
 
         return JSON.stringify({
           success: (event.status = 'done'),

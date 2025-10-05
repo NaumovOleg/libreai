@@ -1,10 +1,9 @@
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
-import { EditorObserver } from '../../../observer';
+import { Observer } from '../../../observer';
 import {
   AGENT_TOOLS,
   AgentMessagePayload,
-  EDITOR_EVENTS,
   ReadFileToolArgs,
   ToolCallbacks,
   uuid,
@@ -16,16 +15,17 @@ export class ReadFileTool {
   constructor(cb: ToolCallbacks[AGENT_TOOLS.readFile]) {
     this.tool = tool({
       execute: async (args: ReadFileToolArgs) => {
-        const observer = EditorObserver.getInstance();
+        const observer = Observer.getInstance();
         try {
           console.log('Reading file from disk:', { args, cb, observer });
-          const event: Omit<AgentMessagePayload<'readFile'>, 'type'> = {
+          const event: AgentMessagePayload<'readFile'> = {
             status: 'pending',
             id: uuid(4),
             error: undefined,
             args: { file: args.file },
+            type: 'readFile',
           };
-          observer.emit(EDITOR_EVENTS.readFile, event);
+          observer.emit('agent', event);
           event.status = 'done';
 
           const content = await cb(args.file).catch((err) => {
@@ -41,7 +41,7 @@ export class ReadFileTool {
           };
 
           console.log('Reading file response :', args.file, content);
-          observer.emit(EDITOR_EVENTS.readFile, event);
+          observer.emit('agent', event);
           return result;
         } catch (err) {
           console.log(err);

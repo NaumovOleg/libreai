@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 
+import { Observer } from '../observer';
 import {
   ContextT,
   DbFile,
@@ -14,6 +15,8 @@ import {
 import { VectorizerClient } from './database/vector-storage';
 
 export class Context {
+  private observer = Observer.getInstance();
+
   constructor(
     private database: VectorizerClient,
     private maxFiles = 500,
@@ -68,7 +71,17 @@ export class Context {
 
   async indexWorkspace() {
     const isWorkspaceIndexed = await this.database.isWorkspaceIndexed();
-    if (!vscode.workspace.workspaceFolders?.length || isWorkspaceIndexed) return [];
+    this.observer.emit('indexing', {
+      status: 'pending',
+      process: '0',
+    });
+    if (!vscode.workspace.workspaceFolders?.length || isWorkspaceIndexed) {
+      this.observer.emit('indexing', {
+        status: 'done',
+        process: '100%',
+      });
+      return [];
+    }
     let uris: vscode.Uri[] = [];
 
     for (const pattern of filePatterns) {
@@ -79,6 +92,10 @@ export class Context {
 
     uris = uris.slice(0, this.maxFiles);
     await Promise.all(uris.map((uri) => this.indexFile(uri)));
+    this.observer.emit('indexing', {
+      status: 'done',
+      process: '100%',
+    });
 
     return uris.length;
   }

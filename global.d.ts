@@ -15,6 +15,7 @@ declare enum COMMANDS {
   agentResponse = 'agentResponse',
   editor = 'editor',
   showPreview = 'showPreview',
+  indexing = 'indexing',
 }
 
 declare type ShowPreviewMessage = {
@@ -68,7 +69,7 @@ declare type ChatMessage = {
   session: string;
 };
 
-declare type EditorObserverEventArgs = {
+declare type ObserverEditorEventArgs = {
   readFile: { file: string };
   renameFile: { file: string; newName: string };
   editFile: { file: string; content?: string; old?: string };
@@ -79,12 +80,12 @@ declare type EditorObserverEventArgs = {
   agentResponse: { content?: string };
 };
 
-declare type AgentMessagePayload<E extends keyof EditorObserverEventArgs> = {
+declare type AgentMessagePayload<E extends keyof ObserverEditorEventArgs> = {
   type: E;
   status: 'pending' | 'done' | 'error';
   error?: string;
   id: string;
-  args: EditorObserverEventArgs[E];
+  args: ObserverEditorEventArgs[E];
 };
 
 declare type AgentMessage =

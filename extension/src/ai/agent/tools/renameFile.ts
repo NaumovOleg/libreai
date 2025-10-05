@@ -1,6 +1,6 @@
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
-import { EditorObserver } from '../../../observer';
+import { Observer } from '../../../observer';
 import {
   AGENT_TOOLS,
   AgentMessagePayload,
@@ -16,14 +16,15 @@ export class RenameFileTool {
   constructor(cb: ToolCallbacks[AGENT_TOOLS.renameFile]) {
     this.tool = tool({
       execute: async (args: RenameFileToolArgs) => {
-        const observer = EditorObserver.getInstance();
-        const event: Omit<AgentMessagePayload<'renameFile'>, 'type'> = {
+        const observer = Observer.getInstance();
+        const event: AgentMessagePayload<'renameFile'> = {
           id: uuid(4),
           args: { file: args.file, newName: args.newName },
           status: 'pending',
+          type: 'renameFile',
         };
         console.log('Renamin file', args);
-        observer.emit(EDITOR_EVENTS.renameFile, event);
+        observer.emit('agent', event);
         event.status = 'done';
 
         await cb(args).catch((err) => {
@@ -31,7 +32,7 @@ export class RenameFileTool {
           event.status = 'error';
         });
 
-        observer.emit(EDITOR_EVENTS.renameFile, event);
+        observer.emit('agent', event);
         return {
           success: event.status === 'done',
           name: EDITOR_EVENTS.renameFile,

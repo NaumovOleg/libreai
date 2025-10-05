@@ -2,7 +2,7 @@
 
 type Listener = (...args: any) => void;
 
-export class Observer {
+export class PubSub {
   private listeners: { [key: string]: Listener[] } = {};
 
   subscribe(event: string, listener: Listener) {

@@ -14,14 +14,18 @@
         "strict": true,
         "skipLibCheck": true,
         "allowSyntheticDefaultImports": true,
+        "paths": {
+            "@util": [
+                "./src/utils/index.ts"
+            ]
+        }
     },
     "include": [
         "../global.d.ts",
-        "../global.types.ts",
+        "../global.types.ts"
     ],
     "exclude": [
         "node_modules",
-        ".vscode-test",
         "out"
     ]
 }

@@ -1,11 +1,10 @@
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
-import { EditorObserver } from '../../../observer';
+import { Observer } from '../../../observer';
 import {
   AGENT_TOOLS,
   AgentMessagePayload,
   CommandToolArgs,
-  EDITOR_EVENTS,
   ToolCallbacks,
   uuid,
 } from '../../../utils';
@@ -20,13 +19,14 @@ export class CommandTool {
       description: 'Executes terminal command',
       parameters: Schemas[AGENT_TOOLS.command],
       execute: async (args: CommandToolArgs) => {
-        const observer = EditorObserver.getInstance();
-        const event: Omit<AgentMessagePayload<'command'>, 'type'> = {
+        const observer = Observer.getInstance();
+        const event: AgentMessagePayload<'command'> = {
           id: uuid(4),
           args: { command: args.command },
           status: 'pending',
+          type: 'command',
         };
-        observer.emit(EDITOR_EVENTS.command, event);
+        observer.emit('agent', event);
         console.log(`Executing command: ${args.command}`);
         event.status = 'done';
 
@@ -35,7 +35,7 @@ export class CommandTool {
           event.status = 'error';
         });
 
-        observer.emit(EDITOR_EVENTS.command, event);
+        observer.emit('agent', event);
 
         return { success: event.status === 'done', name: AGENT_TOOLS.command };
       },

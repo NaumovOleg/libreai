@@ -4,59 +4,19 @@ import * as vscode from 'vscode';
 
 import { Chat, Cursor } from '../../ai';
 import { SessionStorage } from '../../clients';
-import { EditorObserver } from '../../observer';
+import { Observer } from '../../observer';
 import { callbacks, Context, showMemoryDiff } from '../../services';
 import {
   ChatMessage,
   COMMANDS,
   Conf,
   CONFIG_PARAGRAPH,
-  EDITOR_EVENTS,
   MESSAGE,
   Providers,
   ShowPreviewMessage,
   uuid,
 } from '../../utils';
 import { Icons } from '../Icons';
-
-const data = {
-  status: 'done',
-  id: 'task',
-  args: {
-    file: 'services/userService.ts',
-    content: `const userList = [
-  { id: 1, name: "User1", address: "" },
-  { id: 2, name: "User2", address: "" },
-  { id: 3, name: "User3", address: "" },
-];
-
-export const userService = {
-  removedUsers: [],
-  users: userList,
-
-  getUserList(): any[] {
-    return this.users;
-  },
-  editUser(): any[] {
-    return this.users;
-  },
-};`,
-    old: `const userList = [
-  { id: 1, name: "User1", address: "" },
-  { id: 2, name: "User2", address: "" },
-  { id: 3, name: "User3", address: "" },
-];
-
-export const userService = {
-  removedUsers: [],
-  users: userList,
-
-  getUserList(): any[] {
-    return this.users;
-  }
-};`,
-  },
-};
 
 export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
@@ -97,25 +57,25 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     const htmlPath = path.join(this.extensionUri.fsPath, 'out', 'view', 'index.html');
     let html = fs.readFileSync(htmlPath, 'utf-8');
-    const observer = EditorObserver.getInstance();
+    const observer = Observer.getInstance();
     observer.init(this.web);
 
-    const id = uuid();
+    // const id = uuid();
 
-    setTimeout(() => {
-      observer.emit(EDITOR_EVENTS.command, {
-        status: 'pending',
-        args: { command: 'npm install new-package' },
-        id,
-      });
-    }, 1000);
-    setTimeout(() => {
-      observer.emit(EDITOR_EVENTS.command, {
-        status: 'done',
-        args: { command: 'npm install new-package' },
-        id,
-      });
-    }, 4000);
+    // setTimeout(() => {
+    //   observer.emit(EDITOR_EVENTS.command, {
+    //     status: 'pending',
+    //     args: { command: 'npm install new-package' },
+    //     id,
+    //   });
+    // }, 1000);
+    // setTimeout(() => {
+    //   observer.emit(EDITOR_EVENTS.command, {
+    //     status: 'done',
+    //     args: { command: 'npm install new-package' },
+    //     id,
+    //   });
+    // }, 4000);
 
     const iconsMap = this.icons.getIcons(this.web);
     html = html

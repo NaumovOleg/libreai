@@ -7,49 +7,6 @@ import { VectorizerClient } from './services/database';
 
 export async function activate(context: vscode.ExtensionContext) {
   const vectorizer = new VectorizerClient(context);
-
-  const oldContent = `const userList = [
-  { id: 1, name: "User1", address: "" },
-  { id: 2, name: "User2", address: "" },
-  { id: 3, name: "User3", address: "" },
-];
-
-export const userService = {
-  removedUsers: [],
-  users: userList,
-
-  editUser(): void {
-    // console.log(args)
-  },
-
-  getUserList(): any[] {
-    return this.users;
-  },
-
-  getUser(id: number): any | undefined {
-    return this.users.find((user) => user.id === id);
-  },
-};
-`;
-
-  const content = `const userList = [
-  { id: 1, name: "User1", address: "" },
-  { id: 2, name: "User2", address: "" },
-  { id: 3, name: "User3", address: "" },
-];
-
-const name = {}
-
-export const userService = {
-  removedUsers: [],
-  users: userList,
-
-  getUser(id: number): any | undefined {
-    return this.users.find((user) => user.id === id);
-  },
-};
-`;
-
   const client = new AIClient();
   const storage = new SessionStorage(context);
   const icons = new Icons();

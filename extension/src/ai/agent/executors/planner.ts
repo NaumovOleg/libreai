@@ -1,13 +1,7 @@
 import { z } from 'zod';
 
-import { EditorObserver } from '../../../observer';
-import {
-  AgentMessagePayload,
-  EDITOR_EVENTS,
-  PlannerQuery,
-  PlannerTask,
-  uuid,
-} from '../../../utils';
+import { Observer } from '../../../observer';
+import { AgentMessagePayload, PlannerQuery, PlannerTask, uuid } from '../../../utils';
 import { ModelFactory } from '../../models';
 import { PLANNER_SYSTEM_PROMPT, PLANNER_USER_PROMPT } from '../../prompts';
 export class Planner {
@@ -35,13 +29,14 @@ export class Planner {
 
   async run(query: PlannerQuery): Promise<PlannerTask[]> {
     const planningId = uuid(4);
-    const event: Omit<AgentMessagePayload<'planning'>, 'type'> = {
+    const event: AgentMessagePayload<'planning'> = {
       status: 'pending',
       args: 'Planning',
       id: planningId,
+      type: 'planning',
     };
-    const observer = EditorObserver.getInstance();
-    observer.emit(EDITOR_EVENTS.planning, event);
+    const observer = Observer.getInstance();
+    observer.emit('agent', event);
     try {
       const response = await this.llm.chat({
         // responseFormat: this.parser,
@@ -59,7 +54,7 @@ export class Planner {
       event.error = err.message;
       throw new Error(err);
     } finally {
-      observer.emit(EDITOR_EVENTS.planning, event);
+      observer.emit('agent', event);
     }
   }
 }

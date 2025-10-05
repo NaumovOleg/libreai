@@ -26,6 +26,7 @@ export enum COMMANDS {
   agentResponse = 'agentResponse',
   editor = 'editor',
   showPreview = 'showPreview',
+  indexing = 'indexing',
 }
 
 export type ShowPreviewMessage = {
@@ -92,7 +93,7 @@ export enum USER_ACTIONS_ON_MESSAGE {
   runInstructions = 'runInstructions',
 }
 
-export type EditorObserverEventArgs = {
+export type ObserverEditorEventArgs = {
   readFile: { file: string };
   renameFile: { file: string; newName: string };
   editFile: { file: string; content?: string; old?: string };
@@ -103,12 +104,12 @@ export type EditorObserverEventArgs = {
   agentResponse: { content?: string };
 };
 
-export type AgentMessagePayload<E extends keyof EditorObserverEventArgs> = {
+export type AgentMessagePayload<E extends keyof ObserverEditorEventArgs> = {
   type: E;
   status: 'pending' | 'done' | 'error';
   error?: string;
   id: string;
-  args: EditorObserverEventArgs[E];
+  args: ObserverEditorEventArgs[E];
 };
 
 export type AgentMessage =
@@ -121,16 +122,22 @@ export type AgentMessage =
   | AgentMessagePayload<'readFile'>
   | AgentMessagePayload<'agentResponse'>;
 
-export type EditorObserverHandler<E extends keyof EditorObserverEventArgs> = (
+export type ObserverEditorHandler<E extends keyof ObserverEditorEventArgs> = (
   payload: AgentMessagePayload<E>,
 ) => void;
 
-export type EditorObserverHandlers =
-  | EditorObserverHandler<EDITOR_EVENTS.readFile>
-  | EditorObserverHandler<EDITOR_EVENTS.renameFile>
-  | EditorObserverHandler<EDITOR_EVENTS.createFile>
-  | EditorObserverHandler<EDITOR_EVENTS.editFile>
-  | EditorObserverHandler<EDITOR_EVENTS.command>
-  | EditorObserverHandler<EDITOR_EVENTS.deleteFile>;
+export type ObserverEditorHandlers =
+  | ObserverEditorHandler<EDITOR_EVENTS.readFile>
+  | ObserverEditorHandler<EDITOR_EVENTS.renameFile>
+  | ObserverEditorHandler<EDITOR_EVENTS.createFile>
+  | ObserverEditorHandler<EDITOR_EVENTS.editFile>
+  | ObserverEditorHandler<EDITOR_EVENTS.command>
+  | ObserverEditorHandler<EDITOR_EVENTS.deleteFile>;
 
-export type EditorObserverListener<E extends EDITOR_EVENTS> = EditorObserverHandler<E>;
+export type IndexingPayload = {
+  status: 'done' | 'pending';
+  process: string;
+  error?: string;
+};
+
+export type ObserverEvents = 'agentResponse' | 'indexing';
