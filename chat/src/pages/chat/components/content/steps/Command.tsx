@@ -12,7 +12,7 @@ type Props = {
 export const Command: FC<Props> = ({ message }) => {
   const command = <span className="command-line">{message.args.command}</span>;
   return (
-    <div className={`message prose prose-invert agent`}>
+    <div>
       <div className="command container">
         {message.status === 'error' && (
           <div className="error item">

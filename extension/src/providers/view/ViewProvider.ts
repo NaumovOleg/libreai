@@ -175,14 +175,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     const context = await this.ctx.getContext(message.text);
     // const history = this.storage.getSessionChatHistory(message.session);
 
-    const instructions = await this.cursor.exec({
+    return this.cursor.exec({
       fileTree: context.fileTree,
       workspaceContext: context.workspaceContext,
       language: context.language,
       request: message.text,
     });
-
-    console.log('AGENT_RUN-----------', instructions);
 
     // historyToUpdate.push(payload);
 

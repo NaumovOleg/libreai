@@ -11,7 +11,7 @@ type Props = {
 
 export const Plan: FC<Props> = ({ message }) => {
   return (
-    <div className={`message prose prose-invert agent`}>
+    <div>
       <div className="planning container">
         {message.status === 'pending' && (
           <div className="pending item">

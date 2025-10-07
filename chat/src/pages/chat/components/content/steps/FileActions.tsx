@@ -56,7 +56,7 @@ export const FileActions: FC<Props> = ({ message }) => {
   );
 
   return (
-    <div className={`message prose prose-invert agent`}>
+    <div>
       <div className="file-actions container">
         {message.status === 'pending' && (
           <div className="pending item">

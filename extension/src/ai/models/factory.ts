@@ -51,7 +51,6 @@ export class ModelFactory {
         options: { temperature },
       });
     }
-    console.log('++++++++++', settings, config);
     return constructors[provider](settings as any);
   }
 }

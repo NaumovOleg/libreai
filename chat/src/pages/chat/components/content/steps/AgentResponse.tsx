@@ -9,7 +9,7 @@ type Props = {
 
 export const AgentResponse: FC<Props> = ({ message }) => {
   return (
-    <div className={`message prose prose-invert agent`}>
+    <div>
       <div className="agent-response container">
         {message.status === 'error' && (
           <div className="error item">
