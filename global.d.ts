@@ -104,6 +104,14 @@ type State = {
   chatSession: ChatSession;
   lastSession?: string;
   provider?: Providers;
+  indexing: {
+    status: 'done' | 'pending' | 'error';
+    progress: number;
+    indexed: number;
+    currentFile?: string;
+    error?: string;
+    total: number;
+  };
 };
 
 declare const acquireVsCodeApi: () => {

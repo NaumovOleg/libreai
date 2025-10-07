@@ -69,19 +69,18 @@ export class Context {
     return this.database.deleteFiles(uriStrings);
   }
 
+  async isWorkspaceIndexed() {
+    return this.database.isWorkspaceIndexed();
+  }
+
   async indexWorkspace() {
-    const isWorkspaceIndexed = await this.database.isWorkspaceIndexed();
     this.observer.emit('indexing', {
       status: 'pending',
-      process: '0',
+      progress: 0,
+      indexed: 0,
+      total: 0,
     });
-    if (!vscode.workspace.workspaceFolders?.length || isWorkspaceIndexed) {
-      this.observer.emit('indexing', {
-        status: 'done',
-        process: '100%',
-      });
-      return [];
-    }
+
     let uris: vscode.Uri[] = [];
 
     for (const pattern of filePatterns) {
@@ -91,13 +90,45 @@ export class Context {
     }
 
     uris = uris.slice(0, this.maxFiles);
-    await Promise.all(uris.map((uri) => this.indexFile(uri)));
+
+    const total = uris.length;
+    let indexed = 0;
+
+    for (const uri of uris) {
+      try {
+        await this.indexFile(uri);
+        indexed++;
+      } catch (err: any) {
+        console.error(`❌ Failed to index ${uri.fsPath}:`, err);
+        this.observer.emit('indexing', {
+          status: 'pending',
+          progress: 0,
+          indexed,
+          total,
+          error: err.message,
+          currentFile: uri.fsPath,
+        });
+      }
+
+      const progress = Math.round((indexed / total) * 100);
+
+      this.observer.emit('indexing', {
+        status: 'pending',
+        progress,
+        indexed,
+        total,
+        currentFile: uri.fsPath,
+      });
+    }
+
     this.observer.emit('indexing', {
       status: 'done',
-      process: '100%',
+      progress: 100,
+      indexed: total,
+      total,
     });
 
-    return uris.length;
+    return total;
   }
 
   async getWorkspaceFileTree(): Promise<string> {

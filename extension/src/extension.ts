@@ -13,13 +13,12 @@ export async function activate(context: vscode.ExtensionContext) {
   await Promise.all([icons.initIcons(), vectorizer.init()]);
 
   const ctx = new Context(vectorizer);
-  await ctx.indexWorkspace();
 
+  const chatProvider = new ViewProvider(context.extensionUri, storage, ctx, icons);
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },
     new InlineCompletionProvider(client, ctx),
   );
-  const chatProvider = new ViewProvider(context.extensionUri, storage, ctx, icons);
   const chatView = vscode.window.registerWebviewViewProvider(ViewProvider.viewType, chatProvider);
   context.subscriptions.push(
     vscode.commands.registerCommand('libreChat.openChat', () => {

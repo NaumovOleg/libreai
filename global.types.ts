@@ -136,8 +136,11 @@ export type ObserverEditorHandlers =
 
 export type IndexingPayload = {
   status: 'done' | 'pending';
-  process: string;
+  progress: number;
+  indexed: number;
+  currentFile?: string;
   error?: string;
+  total: number;
 };
 
 export type ObserverEvents = 'agentResponse' | 'indexing';

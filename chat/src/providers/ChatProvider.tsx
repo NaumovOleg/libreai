@@ -19,7 +19,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [sessions, setSessions] = useState(() => {
     if (vsCodeState?.chatSession) return vsCodeState?.chatSession;
     const newSession = { [uuid()]: [] };
-    vscode.setState({ chatSession: newSession });
+    vscode.setState({ ...vscode.getState(), chatSession: newSession });
     return newSession;
   });
   const [isStreaming, setIsStreaming] = useState(false);
@@ -178,8 +178,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     provider,
     isAgentThinking,
   };
-
-  console.log(value.messages);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };
