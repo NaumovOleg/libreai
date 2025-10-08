@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 
-import { AIClient, SessionStorage } from './clients';
+import { SessionStorage } from './clients';
 import { Icons, InlineCompletionProvider, ViewProvider } from './providers';
 import { Context } from './services';
 import { VectorizerClient } from './services/database';
 
 export async function activate(context: vscode.ExtensionContext) {
   const vectorizer = new VectorizerClient(context);
-  const client = new AIClient();
+
   const storage = new SessionStorage(context);
   const icons = new Icons();
   await Promise.all([icons.initIcons(), vectorizer.init()]);
@@ -17,7 +17,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const chatProvider = new ViewProvider(context.extensionUri, storage, ctx, icons);
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },
-    new InlineCompletionProvider(client, ctx),
+    new InlineCompletionProvider(ctx),
   );
   const chatView = vscode.window.registerWebviewViewProvider(ViewProvider.viewType, chatProvider);
   context.subscriptions.push(

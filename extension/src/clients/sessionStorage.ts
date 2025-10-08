@@ -20,18 +20,7 @@ export class SessionStorage {
         this.chatHistory[message.session].shift();
       }
 
-      let content = message.text;
-      if (message.instructions?.length) {
-        content = '';
-        message.instructions.forEach((instruction, index) => {
-          const paragraph = `${index}. Instruction id: ${instruction.id}.`;
-          if (instruction.executedResponse) {
-            content += paragraph + ` Execution response: ${instruction.executedResponse} \n`;
-          } else {
-            content += paragraph + ` Content: ${instruction.content} \n`;
-          }
-        });
-      }
+      const content = message.text;
 
       this.chatHistory[message.session].push(`From: ${message.from}. Content: ${content}`);
     }, this.chatHistory);

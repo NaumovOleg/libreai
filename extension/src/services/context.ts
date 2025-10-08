@@ -29,6 +29,11 @@ export class Context {
     return uri.fsPath.replace(root + '/', '');
   }
 
+  get language() {
+    const editor = vscode.window.activeTextEditor;
+    return editor?.document.languageId;
+  }
+
   async indexFile(uri: vscode.Uri, chunkSize = 10) {
     if (!vscode.workspace.workspaceFolders?.length) return [];
 

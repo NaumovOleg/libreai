@@ -40,3 +40,9 @@ export type ContextT = {
 export type ContextData = ContextT & {
   userPrompt: string;
 };
+
+export type SuggestionPromptParams = {
+  language?: string;
+  before: string;
+  after: string;
+};
