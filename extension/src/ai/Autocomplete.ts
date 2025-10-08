@@ -1,5 +1,6 @@
-import { SuggestionPromptParams } from '../utils';
-import { LLMFactory } from './llm';
+import { SuggestionPromptParams } from '@utils';
+
+import { LLMFactory } from './LLM';
 import { INLINE_SUGGESTION_PROMPT } from './prompts';
 
 export class Autocomplete {

@@ -6,6 +6,7 @@
             "ES2020",
             "DOM.AsyncIterable"
         ],
+        "baseUrl": ".",
         "outDir": "out",
         "rootDir": "src",
         "moduleResolution": "node",
@@ -15,12 +16,28 @@
         "skipLibCheck": true,
         "allowSyntheticDefaultImports": true,
         "paths": {
-            "@util": [
+            "@utils": [
                 "./src/utils/index.ts"
-            ]
+            ],
+            "@services": [
+                "./src/services/index.ts"
+            ],
+            "@ai": [
+                "./src/ai/index.ts"
+            ],
+            "@observer": [
+                "./src/observer/index.ts"
+            ],
+            "@llm": [
+                "./src/ai/LLM.ts"
+            ],
+            "@global/types": [
+                "../global.types.ts"
+            ],
         }
     },
     "include": [
+        "src/**/*",
         "../global.d.ts",
         "../global.types.ts"
     ],

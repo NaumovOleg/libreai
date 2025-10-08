@@ -1,6 +1,3 @@
-import { FunctionTool, JSONValue, tool } from 'llamaindex';
-
-import { Observer } from '../../../observer';
 import {
   AGENT_TOOLS,
   AgentMessagePayload,
@@ -8,7 +5,10 @@ import {
   RenameFileToolArgs,
   ToolCallbacks,
   uuid,
-} from '../../../utils';
+} from '@utils';
+import { FunctionTool, JSONValue, tool } from 'llamaindex';
+
+import { Observer } from '../../../observer';
 import { Schemas } from './schemas';
 export class RenameFileTool {
   tool: FunctionTool<RenameFileToolArgs, JSONValue | Promise<JSONValue>, object>;

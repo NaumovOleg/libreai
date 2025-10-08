@@ -19,7 +19,7 @@ const messages = {
   deleteFile: 'Delete:',
   createFile: 'Create:',
   readFile: 'Read:',
-  renameFile: 'Read:',
+  renameFile: 'Renamed:',
   planning: '',
   command: '',
 };

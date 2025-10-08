@@ -1,8 +1,8 @@
 import { agent } from '@llamaindex/workflow';
+import { LLMFactory } from '@llm';
+import { PlannerTask } from '@utils';
 import { FunctionTool, JSONValue } from 'llamaindex';
 
-import { PlannerTask } from '../../../utils';
-import { LLMFactory } from '../../llm';
 import { SYSTEM_EXECUTOR_PROMPT } from '../../prompts';
 
 export class Executor {

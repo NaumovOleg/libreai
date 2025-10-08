@@ -1,5 +1,6 @@
+import { LLMFactory } from '@llm';
+
 import { PromptProps } from '../utils';
-import { LLMFactory } from './llm';
 import { CHAT_PROMPT } from './prompts';
 
 export class Chat {
