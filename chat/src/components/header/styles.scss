@@ -18,6 +18,16 @@ header.header {
         width: auto;
         height: 100%;
       }
+      .db.error {
+        fill: var(--vscode-activityErrorBadge-background);
+      }
+      .db.indexed {
+        fill: var(--vscode-chat-linesAddedForeground);
+      }
+      .db.in-progress,
+      db.not-indexed {
+        fill: var(--vscode-editorWarning-foreground);
+      }
     }
     .arrow-back {
       width: 20px;

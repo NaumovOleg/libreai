@@ -4,6 +4,7 @@ import {
   ChatMessage,
   COMMANDS,
   CONFIG_PARAGRAPH,
+  IndexingPayload,
   Providers,
 } from './types';
 
@@ -14,6 +15,12 @@ export type ConfigContextType = {
   setConfig: (type: CONFIG_PARAGRAPH, conf: Partial<AiConfigT>) => void;
   applyChanges: (type: CONFIG_PARAGRAPH) => void;
 };
+
+export type IndexingContextType = {
+  payload: IndexingPayload;
+  startIndexing: () => void;
+};
+
 export type ListenerContextType = {
   command: COMMANDS;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

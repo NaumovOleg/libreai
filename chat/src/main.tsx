@@ -4,15 +4,17 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import theme from './theme.tsx';
 import { ThemeProvider } from '@emotion/react';
-import { ConfigProvider, ChatProvider } from '@providers';
+import { ConfigProvider, ChatProvider, IndexingProvider } from '@providers';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
       <ConfigProvider>
-        <ChatProvider>
-          <App />
-        </ChatProvider>
+        <IndexingProvider>
+          <ChatProvider>
+            <App />
+          </ChatProvider>
+        </IndexingProvider>
       </ConfigProvider>
     </ThemeProvider>
   </StrictMode>,
