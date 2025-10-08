@@ -3,8 +3,8 @@ import { ollama } from '@llamaindex/ollama';
 import { openai } from '@llamaindex/openai';
 import { LLM, ToolCallLLM } from 'llamaindex';
 
-import { AiConfigT, AiProviders } from '../../../../global.types';
-import { Conf } from '../../utils';
+import { AiConfigT, AiProviders } from '../../../global.types';
+import { Conf } from '../utils';
 
 const constructors = {
   [AiProviders.openai]: openai,
@@ -13,7 +13,7 @@ const constructors = {
   [AiProviders.openrouter]: openai,
 };
 
-export class ModelFactory {
+export class LLMFactory {
   get agent(): ToolCallLLM {
     return this.constryctModel(Conf.agentConfig, true);
   }

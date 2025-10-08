@@ -1,12 +1,12 @@
 import { PromptProps } from '../utils';
-import { ModelFactory } from './models';
+import { LLMFactory } from './llm';
 import { CHAT_PROMPT } from './prompts';
 
 export class Chat {
-  modelFactory = new ModelFactory();
+  LLMFactory = new LLMFactory();
 
   get llm() {
-    return this.modelFactory.chat;
+    return this.LLMFactory.chat;
   }
 
   async chat(data: PromptProps) {

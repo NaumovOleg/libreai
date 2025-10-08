@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
 
-import { SessionStorage } from './clients';
 import { Icons, InlineCompletionProvider, ViewProvider } from './providers';
-import { Context } from './services';
+import { Context, SessionStorage } from './services';
 import { VectorizerClient } from './services/database';
 
 export async function activate(context: vscode.ExtensionContext) {

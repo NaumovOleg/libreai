@@ -2,17 +2,17 @@ import { agent } from '@llamaindex/workflow';
 import { FunctionTool, JSONValue } from 'llamaindex';
 
 import { PlannerTask } from '../../../utils';
-import { ModelFactory } from '../../models';
+import { LLMFactory } from '../../llm';
 import { SYSTEM_EXECUTOR_PROMPT } from '../../prompts';
 
 export class Executor {
-  modelFactory = new ModelFactory();
+  LLMFactory = new LLMFactory();
 
   constructor(private tools: FunctionTool<JSONValue, JSONValue | Promise<JSONValue>, object>[]) {}
 
   get agent() {
     return agent({
-      llm: this.modelFactory.agent,
+      llm: this.LLMFactory.agent,
       tools: this.tools,
       systemPrompt: SYSTEM_EXECUTOR_PROMPT,
       verbose: true,

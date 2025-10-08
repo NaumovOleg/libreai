@@ -1,12 +1,12 @@
 import { SuggestionPromptParams } from '../utils';
-import { ModelFactory } from './models';
+import { LLMFactory } from './llm';
 import { INLINE_SUGGESTION_PROMPT } from './prompts';
 
 export class Autocomplete {
-  modelFactory = new ModelFactory();
+  LLMFactory = new LLMFactory();
 
   get llm() {
-    return this.modelFactory.autocomplete;
+    return this.LLMFactory.autocomplete;
   }
 
   async run(data: SuggestionPromptParams) {

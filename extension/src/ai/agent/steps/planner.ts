@@ -2,10 +2,10 @@ import { z } from 'zod';
 
 import { Observer } from '../../../observer';
 import { AgentMessagePayload, PlannerQuery, PlannerTask, uuid } from '../../../utils';
-import { ModelFactory } from '../../models';
+import { LLMFactory } from '../../llm';
 import { PLANNER_SYSTEM_PROMPT, PLANNER_USER_PROMPT } from '../../prompts';
 export class Planner {
-  modelFactory = new ModelFactory();
+  LLMFactory = new LLMFactory();
   private parser = z.array(
     z.object({
       file: z
@@ -24,7 +24,7 @@ export class Planner {
   );
 
   get llm() {
-    return this.modelFactory.planner;
+    return this.LLMFactory.planner;
   }
 
   async run(query: PlannerQuery): Promise<PlannerTask[]> {
