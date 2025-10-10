@@ -37,10 +37,6 @@ export async function activate(context: vscode.ExtensionContext) {
   if (!(await ctx.isWorkspaceIndexed())) {
     ctx.indexWorkspace();
   }
-
-  setTimeout(() => {
-    ctx.isWorkspaceIndexed();
-  }, 3000);
 }
 
 export function deactivate() {}

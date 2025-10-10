@@ -17,6 +17,9 @@ export class Executor {
       systemPrompt: SYSTEM_EXECUTOR_PROMPT,
       verbose: true,
       name: 'Code copilot',
+      description:
+        // eslint-disable-next-line max-len
+        'An AI coding copilot that executes coding tasks, edits files, creates new files, and runs commands based on structured instructions. It strictly follows the system prompt rules, ensuring only necessary file changes and tool calls are made, without providing explanations or plain text output.',
       logger: {
         log: (...args) => console.log('📝 AGENT LOG:', args),
         error: (...args) => console.error('❌ AGENT ERROR:', args),
@@ -26,10 +29,6 @@ export class Executor {
   }
 
   async run(tasks: PlannerTask[], fileTree: string[]) {
-    const data = JSON.stringify({ fileTree, tasks });
-
-    console.log('++++++++sssssss', data);
-
-    return this.agent.run(data);
+    return this.agent.run(JSON.stringify({ fileTree, tasks }));
   }
 }

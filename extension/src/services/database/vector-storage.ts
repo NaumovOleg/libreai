@@ -25,6 +25,7 @@ export class VectorStorage {
     await vscode.workspace.fs.createDirectory(this.context.globalStorageUri);
 
     this.db = await lancedb.connect(this.dbPath);
+
     register(FileEmbedder.name)(FileEmbedder);
     const fileEmbedderFn = getRegistry().get(FileEmbedder.name)?.create();
     if (!fileEmbedderFn) {
@@ -39,11 +40,14 @@ export class VectorStorage {
       workspace: new Utf8(),
     });
 
-    this.fileTable = await this.db.createEmptyTable(this.fileTableName, schema, {
-      mode: 'overwrite',
-      existOk: true,
-    });
-    console.log(`Created table: ${this.fileTableName}`);
+    const tables = await this.db.tableNames();
+    if (tables.includes(this.fileTableName)) {
+      this.fileTable = await this.db.openTable(this.fileTableName);
+      console.log(`Opened existing table: ${this.fileTableName}`);
+    } else {
+      this.fileTable = await this.db.createEmptyTable(this.fileTableName, schema);
+      console.log(`Created new table: ${this.fileTableName}`);
+    }
   }
 
   async isWorkspaceIndexed() {
@@ -52,8 +56,6 @@ export class VectorStorage {
       .where(`workspace = '${getWorkspaceName()}'`)
       .limit(1)
       .toArray()) as DbFile[];
-
-    console.log('++++++++SSaaaaaaaaaaaaaaaaaSS', existed);
 
     return !!existed.length;
   }

@@ -37,6 +37,7 @@ export class Planner {
     };
     const observer = Observer.getInstance();
     observer.emit('agent', event);
+
     try {
       const response = await this.llm.chat({
         // responseFormat: this.parser,

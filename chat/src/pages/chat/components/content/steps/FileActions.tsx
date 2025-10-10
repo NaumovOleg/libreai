@@ -33,16 +33,17 @@ type Props = {
 export const FileActions: FC<Props> = ({ message }) => {
   const type = fileActions[message.type as keyof typeof fileActions];
   let changes;
-  const editArgs = (message as AgentMessagePayload<'editFile'>).args;
-  if (message.type === 'editFile') {
+  const editArgs = (message as AgentMessagePayload<'editFile' | 'createFile'>).args;
+  if (['editFile', 'createFile'].includes(message.type)) {
     changes = getEditSummary(editArgs);
   }
   const file = (
     <FileIcon
       onClick={() => {
-        if (message.type === 'editFile') {
+        if (['editFile', 'createFile'].includes(message.type)) {
           const value = {
-            old: editArgs.old ?? '',
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            old: (editArgs as any).old ?? '',
             content: editArgs.content ?? '',
             file: editArgs.file ?? '',
           };
