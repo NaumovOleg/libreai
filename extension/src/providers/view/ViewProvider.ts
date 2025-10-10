@@ -7,12 +7,12 @@ import { Chat, Cursor } from '../../ai';
 import { Observer } from '../../observer';
 import { callbacks, Context, showMemoryDiff } from '../../services';
 import {
+  Author,
   ChatMessage,
   COMMANDS,
   Conf,
   CONFIG_PARAGRAPH,
   MESSAGE,
-  Providers,
   ShowPreviewMessage,
   uuid,
 } from '../../utils';
@@ -97,10 +97,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   private onReceiveUserMessage(message: ChatMessage) {
-    if (message.to == Providers.ai) {
+    if (message.to == Author.chat) {
       return this.useChat(message);
     }
-    if (message.to == Providers.agent) {
+    if (message.to == Author.agent) {
       return this.useAgent(message);
     }
   }
@@ -108,18 +108,27 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   private async useChat(message: ChatMessage) {
     try {
       const payload = {
-        from: Providers.ai,
-        to: Providers.user,
+        from: Author.chat,
+        to: Author.user,
         time: new Date(),
         text: '',
         id: uuid(7),
         session: message.session,
       };
 
-      const ctx = await this.ctx.getContext(message.text);
+      const [ctx, files] = await Promise.all([
+        this.ctx.getContext(message.text),
+        this.ctx.getFilesContent(message.files),
+      ]);
       const history = this.storage.getSessionChatHistory(message.session);
+      const chatGenerator = this.chat.chatStream({
+        ...ctx,
+        text: message.text,
+        history,
+        files,
+      });
 
-      for await (const chunk of this.chat.chatStream({ ...ctx, text: message.text, history })) {
+      for await (const chunk of chatGenerator) {
         payload.text += chunk;
         this.web.webview.postMessage({ type: COMMANDS.chatStream, payload });
       }
@@ -143,7 +152,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async onDidReceiveMessage(message: MESSAGE) {
-    console.log(message);
+    console.log('VIEW PROVIDER MESSAGE', message);
     if (message.command === COMMANDS.changeConfig) {
       await Conf.updateConfig(message);
     }
@@ -179,14 +188,18 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   public async useAgent(message: ChatMessage) {
     console.log('RECEIVED_MESSAGE BACKEND--------------', message);
 
-    const context = await this.ctx.getContext(message.text);
+    const [ctx, files] = await Promise.all([
+      this.ctx.getContext(message.text),
+      this.ctx.getFilesContent(message.files),
+    ]);
     // const history = this.storage.getSessionChatHistory(message.session);
 
     return this.cursor.exec({
-      fileTree: context.fileTree,
-      workspaceContext: context.workspaceContext,
-      language: context.language,
+      fileTree: ctx.fileTree,
+      workspaceContext: ctx.workspaceContext,
+      language: ctx.language,
       request: message.text,
+      files,
     });
 
     // historyToUpdate.push(payload);

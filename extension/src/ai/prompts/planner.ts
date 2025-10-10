@@ -43,5 +43,6 @@ Use this information to generate accurate responses:
     - File Tree: <***>${data.fileTree}}<***>.
     - Project Context: <***> ${data.workspaceContext} <***>.
     - Language: <***>${data.language}<***>.
+    - Files: <***>${JSON.stringify(data.files, null, 1.5)}<***>.
     - User request: <***>${data.request}<***>.`;
 };

@@ -6,7 +6,7 @@ import {
   vscode,
   uuid,
   COMMANDS,
-  Providers,
+  Author,
   globalListener,
   AgentMessage,
 } from '@utils';
@@ -28,9 +28,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     return newSession;
   });
   const [isStreaming, setIsStreaming] = useState(false);
-  const [provider, setCatProvider] = useState<Providers>(
-    () => vsCodeState.provider ?? Providers.ai,
-  );
+  const [provider, setCatProvider] = useState<Author>(() => vsCodeState.provider ?? Author.chat);
   const [files, setFiles] = useState<string[]>([]);
   const [isAgentThinking, setIsAgentThinking] = useState(false);
 
@@ -144,7 +142,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     const message: ChatMessage = {
       ...data,
       id: uuid(7),
-      from: Providers.user,
+      from: Author.user,
       to: provider,
       time: new Date(),
       session,
@@ -163,12 +161,12 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
       return sessionData;
     });
-    if (provider === Providers.agent) {
+    if (provider === Author.agent) {
       setIsAgentThinking(true);
     }
   };
 
-  const setProvider = (provider: Providers) => {
+  const setProvider = (provider: Author) => {
     setCatProvider(provider);
     vscode.setState({ ...vscode.getState(), provider });
   };

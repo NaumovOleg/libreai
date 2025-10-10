@@ -58,9 +58,9 @@ export interface AiConfigT {
   temperature?: number;
 }
 
-export enum Providers {
+export enum Author {
   user = 'user',
-  ai = 'ai',
+  chat = 'chat',
   agent = 'agent',
 }
 
@@ -69,12 +69,12 @@ export type ChatSession = { [key: string]: (ChatMessage | AgentMessage)[] };
 export type State = {
   chatSession: ChatSession;
   lastSession?: string;
-  provider?: Providers;
+  provider?: Author;
 };
 
 export type ChatMessage = {
-  from: Providers;
-  to: Providers;
+  from: Author;
+  to: Author;
   text: string;
   files?: string[];
   time?: Date;

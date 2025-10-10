@@ -1,11 +1,11 @@
 import {
   AgentMessage,
   AiConfigT,
+  Author,
   ChatMessage,
   COMMANDS,
   CONFIG_PARAGRAPH,
   IndexingPayload,
-  Providers,
 } from './types';
 
 export type ConfigContextType = {
@@ -35,8 +35,8 @@ export type ChatContextType = {
   session: string;
   isStreaming: boolean;
   isAgentThinking: boolean;
-  provider: Providers;
-  setProvider: (provider: Providers) => void;
+  provider: Author;
+  setProvider: (provider: Author) => void;
   sendMessage: (message: Omit<ChatMessage, 'id' | 'session' | 'from' | 'time' | 'to'>) => void;
   setSession: (session: string) => void;
   removeSession: (session: string) => void;

@@ -7,7 +7,7 @@ import { BottomNavigation } from './BottomNavigation';
 
 export const TextArea = () => {
   const { files, sendMessage } = useChat();
-  const [message, setMessage] = useState<string | undefined>();
+  const [text, setText] = useState<string>('');
   const onOpenContextSelect = () => {
     vscode.postMessage({ command: COMMANDS.selectContext });
   };
@@ -28,20 +28,20 @@ export const TextArea = () => {
         minRows={6}
         className="text-field"
         placeholder="Ask ai copilot"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
-            sendMessage({ text: message ?? '' });
-            setMessage(undefined);
+            sendMessage({ text });
+            setText('');
           }
         }}
       />
 
       <BottomNavigation
         sendMessage={() => {
-          sendMessage({ text: message ?? '' });
-          setMessage(undefined);
+          sendMessage({ text });
+          setText('');
         }}
       />
     </div>

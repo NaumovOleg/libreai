@@ -20,8 +20,6 @@ export const IndexingProvider: FC<{ children: ReactElement }> = ({ children }) =
   };
 
   useEffect(() => {
-    vscode.postMessage({ command: COMMANDS.configListenerMounted });
-
     globalListener.subscribe([COMMANDS.indexing], handler);
     return () => {
       globalListener.unsubscribe([COMMANDS.indexing], handler);

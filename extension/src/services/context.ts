@@ -186,4 +186,16 @@ export class Context {
 
     return { editor, selection, workspaceContext, currentFilePath, language, fileTree };
   }
+
+  async getFilesContent(urls?: string[]) {
+    if (!urls || !urls.length) return [];
+    const data = urls.map((url) => {
+      const uri = vscode.Uri.file(url);
+      return vscode.workspace.fs.readFile(uri).then((data) => ({
+        file: uri.path,
+        content: Buffer.from(data).toString('utf8'),
+      }));
+    });
+    return Promise.all(data);
+  }
 }

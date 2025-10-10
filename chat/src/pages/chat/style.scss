@@ -15,7 +15,7 @@
       background-color: var(--vscode-input-background);
       color: var(--vscode-input-foreground);
       padding: 5px;
-      z-index: 1;
+      z-index: auto;
       .chat-input {
         display: flex;
         align-items: flex-start;
@@ -69,7 +69,7 @@
     }
   }
   .navigation {
-    height: 30px;
+    height: 20px;
     display: flex;
     justify-content: flex-end;
     .MuiIconButton-root {
@@ -78,6 +78,9 @@
       &:hover {
         background-color: var(--vscode-button-hoverBackground);
       }
+    }
+    button {
+      padding: 0;
     }
   }
   .navigation.top-navigation {
@@ -130,6 +133,12 @@
   }
   .navigation.bottom-navigation {
     justify-content: space-between;
+    .left-side-block {
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      gap: 5px;
+    }
   }
   .messages-container {
     overflow-y: scroll;
@@ -244,6 +253,35 @@
       padding: 5px;
       margin: 10px 0;
       border: 1px solid var(--vscode-commandCenter-inactiveBorder, #555555);
+    }
+  }
+}
+
+.state-toggle {
+  .item {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 5px;
+    button {
+      background: transparent;
+      width: 35px;
+      color: var(--vscode-editor-foreground);
+    }
+    &:hover {
+      background: var(--vscode-titleBar-inactiveForeground);
+    }
+    .icon {
+      display: none;
+      fill: var(--vscode-editor-foreground);
+    }
+  }
+  .item.active {
+    justify-content: space-around;
+    .icon {
+      display: block;
+      width: 15px;
+      height: 15px;
     }
   }
 }

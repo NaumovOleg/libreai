@@ -47,9 +47,9 @@ declare type MESSAGE = {
   value?: AiConfigT | ChatMessage | ShowPreviewMessage | string;
 };
 
-declare enum Providers {
+declare enum Author {
   user = 'user',
-  ai = 'ai',
+  chat = 'chat',
   agent = 'agent',
 }
 
@@ -62,8 +62,8 @@ declare enum AGENT_ACTIONS {
 }
 
 declare type ChatMessage = {
-  from: Providers;
-  to: Providers;
+  from: Author;
+  to: Author;
   text: string;
   time?: Date;
   id: string;
@@ -105,7 +105,7 @@ type ChatSession = { [key: string]: (ChatMessage | AgentMessage)[] };
 type State = {
   chatSession: ChatSession;
   lastSession?: string;
-  provider?: Providers;
+  provider?: Author;
   indexing: {
     status: 'done' | 'pending' | 'error';
     progress: number;
