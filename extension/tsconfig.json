@@ -9,7 +9,7 @@
         "baseUrl": ".",
         "outDir": "out",
         "rootDir": "src",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
@@ -29,7 +29,7 @@
                 "./src/observer/index.ts"
             ],
             "@llm": [
-                "./src/ai/LLM.ts"
+                "./src/ai/llm.ts"
             ],
             "@global/types": [
                 "../global.types.ts"

@@ -13,7 +13,6 @@ Use the following context:
   - **Language:** <***>${data.language}<***>
   ${data.files ? '- **Files Content:** ' + JSON.stringify(data.files, null, 2) : ''}
     
-
 ***RULES***
   1. Return ONLY a JSON array (no prose, no markdown).
   2. Each task must follow the schema below.
@@ -52,7 +51,5 @@ Do not add extra fields or guess outside the workspace.
 Keep tasks actionable, conservative, and minimal.
 Use this information to generate accurate responses:
   - User request: <***>${data.request}<***>.
- .
-  - Project Context: <***> ${data.workspaceContext} <***>.
- `;
+  - Project Context: <***> ${data.workspaceContext} <***>.`;
 };

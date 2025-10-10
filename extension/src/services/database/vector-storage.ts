@@ -1,168 +1,104 @@
-import { HuggingFaceEmbedding } from '@llamaindex/huggingface';
-import {
-  MetadataFilter,
-  NodeRelationship,
-  Settings,
-  SimpleVectorStore,
-  StorageContext,
-  storageContextFromDefaults,
-  TextNode,
-  VectorStoreIndex,
-} from 'llamaindex';
-import path from 'path';
+/* eslint-disable max-len */
+import * as lancedb from '@lancedb/lancedb';
+import { Table } from '@lancedb/lancedb';
+import { getRegistry, LanceSchema, register } from '@lancedb/lancedb/embedding';
+import { DbFile, FileChunk, getWorkspaceName } from '@utils';
+import { Utf8 } from 'apache-arrow';
 import * as vscode from 'vscode';
 
-import { DbFile, FileChunk, getWorkspaceName } from '../../utils';
-Settings.embedModel = new HuggingFaceEmbedding({ modelType: 'BAAI/bge-small-en-v1.5' });
+import { FileEmbedder } from './embedder';
 
-export class VectorizerClient {
-  private storagePath: string;
-  private storageContext!: StorageContext;
-  private index!: VectorStoreIndex;
-  private parent!: TextNode;
-  private storage!: SimpleVectorStore;
+export class VectorStorage {
+  private dbPath: string;
+  private db!: lancedb.Connection;
+  private fileTable!: Table;
+  private fileTableName = 'files';
+  private embedder: FileEmbedder;
 
   constructor(private context: vscode.ExtensionContext) {
-    this.storagePath = path.join(context?.globalStorageUri?.fsPath, 'vectors-storage-index');
+    this.embedder = new FileEmbedder();
+    this.dbPath = this.context.globalStorageUri.fsPath;
   }
 
   async init() {
-    await vscode.workspace.fs.createDirectory(vscode.Uri.file(this.storagePath));
-    this.storage = await SimpleVectorStore.fromPersistDir(this.storagePath);
+    this.dbPath = this.context.globalStorageUri.fsPath;
+    await vscode.workspace.fs.createDirectory(this.context.globalStorageUri);
 
-    this.storageContext = await storageContextFromDefaults({
-      persistDir: this.storagePath,
-      vectorStore: this.storage,
+    this.db = await lancedb.connect(this.dbPath);
+    register(FileEmbedder.name)(FileEmbedder);
+    const fileEmbedderFn = getRegistry().get(FileEmbedder.name)?.create();
+    if (!fileEmbedderFn) {
+      throw new Error('Embedder not found');
+    }
+
+    const schema = LanceSchema({
+      text: fileEmbedderFn.sourceField(new Utf8()),
+      vector: fileEmbedderFn.vectorField(),
+      path: new Utf8(),
+      id: new Utf8(),
+      workspace: new Utf8(),
     });
 
-    try {
-      this.index = await VectorStoreIndex.init({ storageContext: this.storageContext });
-
-      console.log('Loaded existing index from storage');
-    } catch (err) {
-      console.log('Creating new ');
-      const metadata = { path: '', workspace: getWorkspaceName(), parent: 'root' };
-      this.parent = new TextNode({ text: '', metadata });
-      this.index = await VectorStoreIndex.fromDocuments([this.parent], {
-        storageContext: this.storageContext,
-      });
-      console.log(err);
-    }
+    this.fileTable = await this.db.createEmptyTable(this.fileTableName, schema, {
+      mode: 'overwrite',
+      existOk: true,
+    });
+    console.log(`Created table: ${this.fileTableName}`);
   }
 
   async isWorkspaceIndexed() {
-    const queryEngine = this.index.asRetriever({
-      filters: { filters: [{ key: 'workspace', value: getWorkspaceName(), operator: '==' }] },
-      similarityTopK: 10,
-    });
+    const existed = (await this.fileTable
+      .search('*')
+      .where(`workspace = '${getWorkspaceName()}'`)
+      .limit(1)
+      .toArray()) as DbFile[];
 
-    const response = await queryEngine.retrieve({ query: '*' });
-    const data = response.map((el) => {
-      return el.node;
-    });
+    console.log('++++++++SSaaaaaaaaaaaaaaaaaSS', existed);
 
-    return data.length;
+    return !!existed.length;
   }
 
-  async indexFiles(chunks: DbFile[]) {
-    const filesMap = chunks.reduce(
-      (acc, chunk) => {
-        if (!acc[chunk.path]) {
-          acc[chunk.path] = [];
-        }
-        acc[chunk.path].push(chunk);
-        return acc;
-      },
-      {} as { [key: string]: DbFile[] },
-    );
-
-    const paths = Object.keys(filesMap);
-    await this.deleteFiles(paths);
-    let documents: TextNode[] = [];
-
-    for (const entrie of Object.entries(filesMap)) {
-      const [path, chunks] = entrie;
-
-      const parent = new TextNode({
-        text: '',
-        metadata: { path, workspace: getWorkspaceName(), parent: 'root' },
-      });
-      const metadata = { path, workspace: getWorkspaceName(), parent: parent.id_ };
-      const relationships = {
-        [NodeRelationship.SOURCE]: { nodeId: parent.id_, metadata },
-      };
-      const nodes = chunks.map(
-        (chunk) =>
-          new TextNode({
-            text: chunk.text,
-            relationships,
-            endCharIdx: chunk.endLine,
-            startCharIdx: chunk.startLine,
-            metadata,
-          }),
-      );
-
-      documents = nodes.concat(parent);
+  async putFileChunks(chunks: DbFile[], deleteFiles = true) {
+    const workspace = getWorkspaceName();
+    if (!this.fileTable) throw new Error('Table not initialized. Call init().');
+    if (!chunks.length) {
+      return [];
     }
 
-    await this.index.insertNodes(documents);
+    const paths = chunks.map((c) => c.path);
+    if (deleteFiles) {
+      await this.fileTable.delete(
+        `path IN (${paths.map((fp) => `'${fp.replace(/'/g, "''")}'`).join(',')}) AND workspace = '${workspace}'`,
+      );
+    }
+
+    return this.fileTable.add(chunks);
   }
 
   async deleteFiles(paths: string[]) {
-    const queryEngine = this.index.asRetriever({
-      filters: {
-        filters: [
-          { key: 'workspace', value: getWorkspaceName(), operator: '==' },
-          { key: 'path', value: paths, operator: 'in' },
-        ],
-      },
-      similarityTopK: 0,
-    });
-
-    const chunks = await queryEngine.retrieve({ query: ' ' });
-
-    return Promise.all(chunks.map((el) => this.storage.delete(el.node.metadata.parent)));
+    return this.fileTable.delete(`path IN (${paths.map((p) => `'${p}'`).join(',')})`);
   }
 
-  async clearWorkspace() {
-    const queryEngine = this.index.asRetriever({
-      filters: { filters: [{ key: 'workspace', value: getWorkspaceName(), operator: '==' }] },
-      similarityTopK: 0,
-    });
-
-    const chunks = await queryEngine.retrieve({ query: ' ' });
-
-    return Promise.all(chunks.map((el) => this.storage.delete(el.node.metadata.parent)));
+  async clearWorkspace(workspace: string) {
+    return this.fileTable.delete(`workspace = '${workspace}'`);
   }
 
   async searchKNN(
     search: string,
-    filters?: { workspace: string; path?: string },
-    similarityTopK = 5,
+    filters: { workspace: string; path?: string },
+    limit = 5,
   ): Promise<FileChunk[]> {
-    const filter: Array<MetadataFilter> = [
-      { key: 'workspace', value: filters?.workspace ?? getWorkspaceName(), operator: '==' },
-    ];
-    if (filters?.path) {
-      filter.push({ key: 'path', value: filters.path, operator: 'in' });
-    }
-    const queryEngine = this.index.asRetriever({
-      filters: { filters: filter },
-      similarityTopK,
-    });
+    if (!this.fileTableName) throw new Error('Table not initialized. Call init().');
+    if (!this.embedder) throw new Error('Embedder not initialized.');
 
-    const response = await queryEngine.retrieve({
-      query: search,
-    });
+    const queryEmbedding = (await this.embedder.embed([search]))[0];
 
-    return response.map((el) => ({
-      path: el.node.metadata.path,
-      text: el.node.text,
-      workspace: el.node.metadata.workspace,
-      startLine: el.node.startCharIdx,
-      endLine: el.node.endCharIdx,
-      id: el.node.id_,
-      type: el.node.metadata.type,
-    }));
+    const query = this.fileTable
+      .search(queryEmbedding)
+      .where(`workspace = '${filters.workspace}'`)
+      .limit(limit);
+
+    const results = await query.toArray();
+    return Array.from(new Map(results.map((r) => [r.id, r])).values()) as FileChunk[];
   }
 }

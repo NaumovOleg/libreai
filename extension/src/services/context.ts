@@ -12,13 +12,13 @@ import {
   replaceLast,
   uuid,
 } from '../utils';
-import { VectorizerClient } from './database/vector-storage';
+import { VectorStorage } from './database/vector-storage';
 
 export class Context {
   private observer = Observer.getInstance();
 
   constructor(
-    private database: VectorizerClient,
+    private database: VectorStorage,
     private maxFiles = 500,
     private maxChars = 5000,
   ) {}
@@ -34,7 +34,7 @@ export class Context {
     return editor?.document.languageId;
   }
 
-  async indexFile(uri: vscode.Uri, chunkSize = 10) {
+  async chunckFile(uri: vscode.Uri, chunkSize = 10) {
     if (!vscode.workspace.workspaceFolders?.length) return [];
 
     const bytes = await vscode.workspace.fs.readFile(uri);
@@ -57,12 +57,15 @@ export class Context {
         text: numberedLines,
         workspace: getWorkspaceName(),
         id: uuid(),
-        startLine,
-        endLine: endLine - 1,
       });
     }
 
-    return this.database.indexFiles(chunks);
+    return chunks;
+  }
+
+  async indexFile(uri: vscode.Uri, chunkSize = 10, deleteFiles = true) {
+    const chunks = await this.chunckFile(uri, chunkSize);
+    return this.database.putFileChunks(chunks, deleteFiles);
   }
 
   async searchRelevant(search: string, limit?: number) {
@@ -72,10 +75,6 @@ export class Context {
   async deleteFiles(uris: vscode.Uri[]) {
     const uriStrings = uris.map(Context.getStringUri);
     return this.database.deleteFiles(uriStrings);
-  }
-
-  clearWorkspace() {
-    return this.database.clearWorkspace();
   }
 
   async isWorkspaceIndexed() {
@@ -90,7 +89,7 @@ export class Context {
       total: 0,
     });
 
-    await this.clearWorkspace();
+    await this.database.clearWorkspace(getWorkspaceName());
 
     const uris: vscode.Uri[] = await vscode.workspace.findFiles(
       filePattern,
@@ -103,7 +102,7 @@ export class Context {
 
     for (const uri of uris) {
       try {
-        await this.indexFile(uri);
+        await this.indexFile(uri, 10, false);
         indexed++;
       } catch (err: any) {
         console.error(`❌ Failed to index ${uri.fsPath}:`, err);

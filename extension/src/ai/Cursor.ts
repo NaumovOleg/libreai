@@ -1,4 +1,5 @@
-import { PlannerQuery, ToolCallbacks } from '../utils';
+import { Observer } from '../observer';
+import { AgentMessagePayload, PlannerQuery, ToolCallbacks, uuid } from '../utils';
 import { Executor, Planner } from './agent/steps';
 import { ToolFactory2 } from './agent/tools';
 
@@ -13,29 +14,27 @@ export class Cursor {
   }
 
   async exec(input: PlannerQuery) {
-    // const observer = Observer.getInstance();
+    const observer = Observer.getInstance();
 
-    const tasks = await this.planner.run(input);
+    const resultEvent: AgentMessagePayload<'agentResponse'> = {
+      status: 'done',
+      id: uuid(),
+      args: {},
+      type: 'agentResponse',
+    };
 
-    console.log('planner output--------------------', tasks);
+    try {
+      const tasks = await this.planner.run(input);
 
-    return '';
-    // const resultEvent: AgentMessagePayload<'agentResponse'> = {
-    //   status: 'done',
-    //   id: uuid(),
-    //   args: {},
-    //   type: 'agentResponse',
-    // };
+      console.log('planner output--------------------', tasks);
+      const response = await this.executor.run(tasks, input.fileTree);
+      resultEvent.args.content = response.data.message.content.toString();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      resultEvent.error = err.message;
+    }
 
-    // try {
-    //   const response = await this.executor.run(tasks, input.language);
-    //   resultEvent.args.content = response.data.message.content.toString();
-    //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // } catch (err: any) {
-    //   resultEvent.error = err.message;
-    // }
-
-    // observer.emit('agent', resultEvent);
-    // return 'done';
+    observer.emit('agent', resultEvent);
+    return 'done';
   }
 }

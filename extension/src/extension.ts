@@ -2,16 +2,15 @@ import * as vscode from 'vscode';
 
 import { ContextSelector, Icons, InlineCompletionProvider, ViewProvider } from './providers';
 import { Context, SessionStorage } from './services';
-import { VectorizerClient } from './services/database';
+import { VectorStorage } from './services/database';
 
 export async function activate(context: vscode.ExtensionContext) {
-  const vectorizer = new VectorizerClient(context);
+  const vectorizer = new VectorStorage(context);
   const storage = new SessionStorage(context);
   const icons = new Icons();
   const contextSelector = new ContextSelector();
   const ctx = new Context(vectorizer);
   await Promise.all([icons.initIcons(), vectorizer.init()]);
-
   const chatProvider = new ViewProvider(context.extensionUri, storage, ctx, icons, contextSelector);
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },
@@ -38,6 +37,10 @@ export async function activate(context: vscode.ExtensionContext) {
   if (!(await ctx.isWorkspaceIndexed())) {
     ctx.indexWorkspace();
   }
+
+  setTimeout(() => {
+    ctx.isWorkspaceIndexed();
+  }, 3000);
 }
 
 export function deactivate() {}

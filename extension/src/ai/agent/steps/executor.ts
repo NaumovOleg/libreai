@@ -25,9 +25,11 @@ export class Executor {
     });
   }
 
-  async run(tasks: PlannerTask[], language?: string) {
-    const data = { language, tasks };
+  async run(tasks: PlannerTask[], fileTree: string[]) {
+    const data = JSON.stringify({ fileTree, tasks });
 
-    return this.agent.run(JSON.stringify(data));
+    console.log('++++++++sssssss', data);
+
+    return this.agent.run(data);
   }
 }
