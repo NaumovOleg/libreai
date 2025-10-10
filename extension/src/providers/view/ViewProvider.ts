@@ -117,7 +117,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       };
 
       const [ctx, files] = await Promise.all([
-        this.ctx.getContext(message.text),
+        this.ctx.getContext(message.text, { contextLimit: 5 }),
         this.ctx.getFilesContent(message.files),
       ]);
       const history = this.storage.getSessionChatHistory(message.session);
@@ -189,9 +189,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     console.log('RECEIVED_MESSAGE BACKEND--------------', message);
 
     const [ctx, files] = await Promise.all([
-      this.ctx.getContext(message.text),
+      this.ctx.getContext(message.text, { contextLimit: 10 }),
       this.ctx.getFilesContent(message.files),
     ]);
+
+    console.log('AGENT CONTEXT', ctx);
     // const history = this.storage.getSessionChatHistory(message.session);
 
     return this.cursor.exec({

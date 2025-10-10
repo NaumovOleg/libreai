@@ -74,6 +74,10 @@ export class Context {
     return this.database.deleteFiles(uriStrings);
   }
 
+  clearWorkspace() {
+    return this.database.clearWorkspace();
+  }
+
   async isWorkspaceIndexed() {
     return this.database.isWorkspaceIndexed();
   }
@@ -85,6 +89,8 @@ export class Context {
       indexed: 0,
       total: 0,
     });
+
+    await this.clearWorkspace();
 
     const uris: vscode.Uri[] = await vscode.workspace.findFiles(
       filePattern,
@@ -149,12 +155,14 @@ export class Context {
       lookUpFileTree?: boolean;
     },
   ): Promise<ContextT> {
-    const { contextLimit = 1000, lookUpFileTree = true } = params ?? {};
+    const { contextLimit = 10, lookUpFileTree = true } = params ?? {};
 
     const [chunks, fileTree] = await Promise.all([
       this.searchRelevant(message, contextLimit),
       lookUpFileTree ? getWorkspaceFileTree() : [''],
     ]);
+
+    console.log(chunks);
 
     const ctx = chunks.reduce(
       (acc, chunk) => {

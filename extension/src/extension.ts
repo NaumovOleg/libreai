@@ -23,8 +23,10 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.commands.executeCommand('libreChatView.focus');
     }),
   );
-  vscode.workspace.onDidChangeWorkspaceFolders(() => {
-    ctx.indexWorkspace();
+  vscode.workspace.onDidChangeWorkspaceFolders(async () => {
+    if (!(await ctx.isWorkspaceIndexed())) {
+      ctx.indexWorkspace();
+    }
   });
   vscode.workspace.onDidSaveTextDocument((ev) => {
     ctx.indexFile(ev.uri);

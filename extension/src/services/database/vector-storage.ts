@@ -121,11 +121,18 @@ export class VectorizerClient {
 
     const chunks = await queryEngine.retrieve({ query: ' ' });
 
-    return Promise.all(
-      chunks.map((el) => {
-        return this.storage.delete(el.node.metadata.parent);
-      }),
-    );
+    return Promise.all(chunks.map((el) => this.storage.delete(el.node.metadata.parent)));
+  }
+
+  async clearWorkspace() {
+    const queryEngine = this.index.asRetriever({
+      filters: { filters: [{ key: 'workspace', value: getWorkspaceName(), operator: '==' }] },
+      similarityTopK: 0,
+    });
+
+    const chunks = await queryEngine.retrieve({ query: ' ' });
+
+    return Promise.all(chunks.map((el) => this.storage.delete(el.node.metadata.parent)));
   }
 
   async searchKNN(

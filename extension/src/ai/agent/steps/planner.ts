@@ -41,7 +41,7 @@ export class Planner {
       const response = await this.llm.chat({
         // responseFormat: this.parser,
         messages: [
-          { role: 'system', content: PLANNER_SYSTEM_PROMPT },
+          { role: 'system', content: PLANNER_SYSTEM_PROMPT(query) },
           { role: 'user', content: PLANNER_USER_PROMPT(query) },
         ],
       });
