@@ -1,16 +1,14 @@
 import './style.scss';
-import { useState } from 'react';
 import Box from '@mui/material/Box';
 import { useChat } from '@hooks';
 import { RiRobot3Line } from 'react-icons/ri';
 import Icon from '@mui/material/Icon';
-import { BottomNavigation, TopNavigation, TextArea, Message } from './components';
+import { TopNavigation, TextArea, Message } from './components';
 import { TypingDots } from '@elements';
 
 export const Chat = () => {
-  const [input, setInput] = useState<string | undefined>();
-  const { sendMessage, messages, isAgentThinking } = useChat();
-  
+  const { messages, isAgentThinking } = useChat();
+
   return (
     <section className="chat-section">
       <TopNavigation />
@@ -29,20 +27,7 @@ export const Chat = () => {
       </Box>
 
       <Box className="send-container">
-        <TextArea
-          onPressEnter={() => {
-            setInput('');
-            sendMessage({ text: input ?? '' });
-          }}
-          value={input}
-          onChange={(val) => setInput(val)}
-        />
-        <BottomNavigation
-          sendMessage={() => {
-            setInput('');
-            sendMessage({ text: input ?? '' });
-          }}
-        />
+        <TextArea />
       </Box>
     </section>
   );

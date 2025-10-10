@@ -29,6 +29,7 @@ export type ListenerContextType = {
 
 export type ChatContextType = {
   sessions: string[];
+  files: string[];
   messages: (ChatMessage | AgentMessage)[];
   tmpMessage?: ChatMessage;
   session: string;

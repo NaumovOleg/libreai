@@ -1,38 +1,48 @@
-import { FC } from 'react';
+import { useState } from 'react';
 import TextareaAutosize from '@mui/material/TextareaAutosize';
-import { Switch } from '@elements';
+import { FileIcon } from '@elements';
 import { useChat } from '@hooks';
-import { Providers } from '@utils';
+import { vscode, COMMANDS } from '@utils';
+import { BottomNavigation } from './BottomNavigation';
 
-type Props = {
-  value?: string;
-  onChange: (message: string) => void;
-  onPressEnter?: () => void;
-};
-
-export const TextArea: FC<Props> = ({ value, onChange, onPressEnter }) => {
-  const { provider, setProvider } = useChat();
+export const TextArea = () => {
+  const { files, sendMessage } = useChat();
+  const [message, setMessage] = useState<string | undefined>();
+  const onOpenContextSelect = () => {
+    vscode.postMessage({ command: COMMANDS.selectContext });
+  };
   return (
     <div className="ai-input">
+      <div className="chat-input">
+        <button onClick={onOpenContextSelect} className="add-context-button">
+          📎 add files
+        </button>
+        <div className="files">
+          {files.map((el) => (
+            <FileIcon path={el} />
+          ))}
+        </div>
+      </div>
       <TextareaAutosize
         maxRows={6}
         minRows={6}
         className="text-field"
         placeholder="Ask ai copilot"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
-            onPressEnter?.();
+            sendMessage({ text: message ?? '' });
+            setMessage(undefined);
           }
         }}
       />
-      <Switch
-        onChange={(checked) => {
-          setProvider(checked ? Providers.agent : Providers.ai);
+
+      <BottomNavigation
+        sendMessage={() => {
+          sendMessage({ text: message ?? '' });
+          setMessage(undefined);
         }}
-        checked={provider === Providers.agent}
-        label={provider === Providers.agent ? 'Agent' : 'Chat'}
       />
     </div>
   );

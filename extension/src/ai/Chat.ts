@@ -18,7 +18,6 @@ export class Chat {
 
   async *chatStream(data: PromptProps) {
     const messages = CHAT_PROMPT(data);
-    console.log({ messages, stream: true });
     const response = await this.llm.chat({ messages, stream: true });
     for await (const chunk of response) {
       yield chunk.delta;

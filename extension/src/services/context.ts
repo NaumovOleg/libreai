@@ -5,7 +5,7 @@ import { Observer } from '../observer';
 import {
   ContextT,
   DbFile,
-  filePatterns,
+  filePattern,
   foldersPattern,
   getWorkspaceFileTree,
   getWorkspaceName,
@@ -86,15 +86,11 @@ export class Context {
       total: 0,
     });
 
-    let uris: vscode.Uri[] = [];
-
-    for (const pattern of filePatterns) {
-      const found = await vscode.workspace.findFiles(pattern, foldersPattern, this.maxFiles * 3);
-      uris.push(...found);
-      if (uris.length >= this.maxFiles) break;
-    }
-
-    uris = uris.slice(0, this.maxFiles);
+    const uris: vscode.Uri[] = await vscode.workspace.findFiles(
+      filePattern,
+      foldersPattern,
+      this.maxFiles && this.maxFiles * 3,
+    );
 
     const total = uris.length;
     let indexed = 0;

@@ -1,19 +1,18 @@
 import * as vscode from 'vscode';
 
-import { Icons, InlineCompletionProvider, ViewProvider } from './providers';
+import { ContextSelector, Icons, InlineCompletionProvider, ViewProvider } from './providers';
 import { Context, SessionStorage } from './services';
 import { VectorizerClient } from './services/database';
 
 export async function activate(context: vscode.ExtensionContext) {
   const vectorizer = new VectorizerClient(context);
-
   const storage = new SessionStorage(context);
   const icons = new Icons();
+  const contextSelector = new ContextSelector();
+  const ctx = new Context(vectorizer);
   await Promise.all([icons.initIcons(), vectorizer.init()]);
 
-  const ctx = new Context(vectorizer);
-
-  const chatProvider = new ViewProvider(context.extensionUri, storage, ctx, icons);
+  const chatProvider = new ViewProvider(context.extensionUri, storage, ctx, icons, contextSelector);
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },
     new InlineCompletionProvider(ctx),
@@ -25,7 +24,6 @@ export async function activate(context: vscode.ExtensionContext) {
     }),
   );
   vscode.workspace.onDidChangeWorkspaceFolders(() => {
-    console.log('workpsace filder change ');
     ctx.indexWorkspace();
   });
   vscode.workspace.onDidSaveTextDocument((ev) => {
@@ -34,7 +32,10 @@ export async function activate(context: vscode.ExtensionContext) {
   vscode.workspace.onDidDeleteFiles((ev) => {
     ctx.deleteFiles(Array.from(ev.files));
   });
-  context.subscriptions.push(inlineProvider, chatView);
+  context.subscriptions.push(inlineProvider, chatView, contextSelector.subscription);
+  if (!(await ctx.isWorkspaceIndexed())) {
+    ctx.indexWorkspace();
+  }
 }
 
 export function deactivate() {}

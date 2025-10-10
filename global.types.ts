@@ -27,6 +27,7 @@ export enum COMMANDS {
   editor = 'editor',
   showPreview = 'showPreview',
   indexing = 'indexing',
+  selectContext = 'selectContext',
 }
 
 export type ShowPreviewMessage = {
@@ -75,6 +76,7 @@ export type ChatMessage = {
   from: Providers;
   to: Providers;
   text: string;
+  files?: string[];
   time?: Date;
   id: string;
   session: string;

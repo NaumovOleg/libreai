@@ -11,7 +11,12 @@ import {
   AgentMessage,
 } from '@utils';
 
-const commands = [COMMANDS.agentResponse, COMMANDS.chatStreamEnd, COMMANDS.chatStream];
+const commands = [
+  COMMANDS.agentResponse,
+  COMMANDS.chatStreamEnd,
+  COMMANDS.chatStream,
+  COMMANDS.selectContext,
+];
 
 export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const vsCodeState = vscode.getState() as State;
@@ -26,6 +31,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [provider, setCatProvider] = useState<Providers>(
     () => vsCodeState.provider ?? Providers.ai,
   );
+  const [files, setFiles] = useState<string[]>([]);
   const [isAgentThinking, setIsAgentThinking] = useState(false);
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
@@ -74,7 +80,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
-      console.log(event.data);
+      console.log('RECEIVED_MESSSAGE chat provider 86', event.data);
       if (event.data.type === COMMANDS.chatStream) {
         setIsStreaming(true);
         seTemporaryMessage(event.data.payload);
@@ -89,6 +95,10 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
       }
       if (event.data.type === COMMANDS.agentResponse) {
         updateAgentMessages(event.data.payload as AgentMessage);
+      }
+      if (event.data.type === COMMANDS.selectContext) {
+        const files = event.data.payload as { path: string }[];
+        setFiles(files.map((el) => el.path));
       }
     };
 
@@ -138,6 +148,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
       to: provider,
       time: new Date(),
       session,
+      files,
     };
 
     setSessions((s) => {
@@ -177,9 +188,8 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     setProvider,
     provider,
     isAgentThinking,
+    files,
   };
-
-  console.log(value.messages);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

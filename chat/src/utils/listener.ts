@@ -6,7 +6,6 @@ class GlobalListener {
 
   constructor() {
     window.addEventListener('message', (event: MessageEvent) => {
-      console.log(event.data);
       const type = event.data.type as COMMANDS;
       this.subscribers[type]?.forEach((fn) => fn(event));
     });

@@ -16,6 +16,7 @@ declare enum COMMANDS {
   editor = 'editor',
   showPreview = 'showPreview',
   indexing = 'indexing',
+  selectContext = 'selectContext',
 }
 
 declare type ShowPreviewMessage = {
@@ -67,6 +68,7 @@ declare type ChatMessage = {
   time?: Date;
   id: string;
   session: string;
+  files?: string[];
 };
 
 declare type ObserverEditorEventArgs = {

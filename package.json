@@ -51,6 +51,10 @@
         "command": "libreChat.openChat",
         "title": "Open AI Chat",
         "icon": "media/icon.svg"
+      },
+      {
+        "command": "myExtension.addContextFiles",
+        "title": "Add context"
       }
     ],
     "menus": {

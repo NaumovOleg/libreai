@@ -1,9 +1,9 @@
+import { SessionStorage } from '@services';
 import fs from 'fs';
 import path from 'path';
 import * as vscode from 'vscode';
 
 import { Chat, Cursor } from '../../ai';
-import { SessionStorage } from '../../clients';
 import { Observer } from '../../observer';
 import { callbacks, Context, showMemoryDiff } from '../../services';
 import {
@@ -16,6 +16,7 @@ import {
   ShowPreviewMessage,
   uuid,
 } from '../../utils';
+import { ContextSelector } from '../ContextSelector';
 import { Icons } from '../Icons';
 
 export class ViewProvider implements vscode.WebviewViewProvider {
@@ -30,6 +31,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     private storage: SessionStorage,
     private ctx: Context,
     private icons: Icons,
+    private contextSelector: ContextSelector,
   ) {
     this.cursor = new Cursor(callbacks);
     this.chat = new Chat();
@@ -59,23 +61,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     let html = fs.readFileSync(htmlPath, 'utf-8');
     const observer = Observer.getInstance();
     observer.init(this.web);
-
-    // const id = uuid();
-
-    // setTimeout(() => {
-    //   observer.emit(EDITOR_EVENTS.command, {
-    //     status: 'pending',
-    //     args: { command: 'npm install new-package' },
-    //     id,
-    //   });
-    // }, 1000);
-    // setTimeout(() => {
-    //   observer.emit(EDITOR_EVENTS.command, {
-    //     status: 'done',
-    //     args: { command: 'npm install new-package' },
-    //     id,
-    //   });
-    // }, 4000);
 
     const iconsMap = this.icons.getIcons(this.web);
     html = html
@@ -175,12 +160,20 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     if (message.command === COMMANDS.indexing) {
       this.startIndexingWorkspace(true);
     }
+    if (message.command === COMMANDS.selectContext) {
+      this.selectContextFiles();
+    }
 
     const value = message.value as ChatMessage;
 
     if (message.command === COMMANDS.sendMessage) {
       await this.onReceiveUserMessage(value);
     }
+  }
+
+  public async selectContextFiles() {
+    const payload = await this.contextSelector.openContextSelector();
+    this.web.webview.postMessage({ type: COMMANDS.selectContext, payload });
   }
 
   public async useAgent(message: ChatMessage) {
