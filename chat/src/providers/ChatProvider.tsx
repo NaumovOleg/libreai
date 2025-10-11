@@ -60,7 +60,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
     if (message.status === 'done' && message.type === 'agentResponse') {
       setIsAgentThinking(false);
-      vscode.setState({ ...vsCodeState, isAgentThinking: false });
+      vscode.setState({ ...vscode.getState(), isAgentThinking: false });
     }
   };
 
@@ -92,9 +92,10 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   }, []);
 
   const clearSession = () => {
-    if (isStreaming || isAgentThinking) return;
     setMessages([]);
-    vscode.setState({ ...vscode.getState(), session: [] });
+    setIsAgentThinking(false);
+
+    vscode.setState({ ...vscode.getState(), session: [], isAgentThinking: false });
     vscode.postMessage({ command: COMMANDS.removeChatSession });
   };
 

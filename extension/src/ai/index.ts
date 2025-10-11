@@ -1,3 +1,3 @@
 export * from './Autocomplete';
 export * from './Chat';
-export * from './Cursor';
+export * from './Workflow';

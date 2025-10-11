@@ -1,4 +1,4 @@
-import { Chat, Cursor } from '@ai';
+import { Chat, Workflow } from '@ai';
 import { Observer } from '@observer';
 import { callbacks, Context, SessionStorage, showMemoryDiff } from '@services';
 import {
@@ -22,7 +22,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'libreChatView';
   private mediaFolder = 'out/view';
   private web!: vscode.WebviewView;
-  private cursor: Cursor;
+  private workflow: Workflow;
   private chat: Chat;
 
   constructor(
@@ -32,7 +32,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     private icons: Icons,
     private contextSelector: ContextSelector,
   ) {
-    this.cursor = new Cursor(callbacks);
+    this.workflow = new Workflow(callbacks);
     this.chat = new Chat();
   }
 
@@ -204,7 +204,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     console.log('AGENT CONTEXT', ctx);
     // const history = this.storage.getSessionChatHistory(message.session);
 
-    return this.cursor.exec({
+    return this.workflow.run({
       fileTree: ctx.fileTree,
       workspaceContext: ctx.workspaceContext,
       language: ctx.language,

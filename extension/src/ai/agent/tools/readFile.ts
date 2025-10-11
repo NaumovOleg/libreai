@@ -11,7 +11,7 @@ export class ReadFileTool {
       execute: async (args: ReadFileToolArgs) => {
         const observer = Observer.getInstance();
         try {
-          console.log('Reading file from disk:', { args, cb, observer });
+          console.log('Reading file from disk:', args.file);
           const event: AgentMessagePayload<'readFile'> = {
             status: 'pending',
             id: uuid(4),
@@ -34,7 +34,7 @@ export class ReadFileTool {
             success: event.status === 'done',
           };
 
-          console.log('Reading file response :', args.file, content);
+          console.log('Reading file response :', args.file);
           observer.emit('agent', event);
           return result;
         } catch (err) {

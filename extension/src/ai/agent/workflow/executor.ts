@@ -15,9 +15,8 @@ export class Executor {
       llm: this.LLMFactory.agent,
       tools: this.tools,
       systemPrompt: SYSTEM_EXECUTOR_PROMPT,
-      verbose: true,
+      verbose: false,
       name: 'Code copilot',
-
       description:
         // eslint-disable-next-line max-len
         'An AI coding copilot that executes coding tasks, edits files, creates new files, and runs commands based on structured instructions. It strictly follows the system prompt rules, ensuring only necessary file changes and tool calls are made, without providing explanations or plain text output.',
@@ -29,7 +28,8 @@ export class Executor {
     });
   }
 
-  async run(tasks: PlannerTask[], fileTree: string[]) {
-    return this.agent.run(JSON.stringify({ fileTree, tasks }));
+  async run(instruction: PlannerTask, fileTree?: string[]) {
+    const data = JSON.stringify({ fileTree, instruction }, null, 1.5);
+    return this.agent.run(data);
   }
 }

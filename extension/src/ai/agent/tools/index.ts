@@ -9,7 +9,7 @@ import { EditFileTool } from './editFile';
 import { ReadFileTool } from './readFile';
 import { RenameFileTool } from './renameFile';
 
-export class ToolFactory2 {
+export class ToolFactory {
   tools: FunctionTool<any, any, any>[];
 
   constructor(cbks: ToolCallbacks) {

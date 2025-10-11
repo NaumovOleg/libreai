@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { Observer } from '../../../observer';
 import { PLANNER_SYSTEM_PROMPT, PLANNER_USER_PROMPT } from '../../prompts';
+
 export class Planner {
   LLMFactory = new LLMFactory();
   private parser = z.object({
@@ -50,7 +51,7 @@ export class Planner {
       event.status = 'done';
 
       const parsed = JSON.parse(response.message.content.toString());
-
+      console.log('PLANNER OUTPUT+++++++++++++++++++++++++++++', parsed);
       return parsed.tasks;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
