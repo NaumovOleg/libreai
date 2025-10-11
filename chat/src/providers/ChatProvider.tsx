@@ -30,15 +30,16 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [provider, setCatProvider] = useState<Author>(() => vsCodeState.provider ?? Author.chat);
   const [files, setFiles] = useState<string[]>([]);
-  const [isAgentThinking, setIsAgentThinking] = useState(false);
+  const [isAgentThinking, setIsAgentThinking] = useState(
+    () => !!vsCodeState.isAgentThinking?.[vsCodeState.lastSession ?? ''],
+  );
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
 
   const [messages, setMessages] = useState<(ChatMessage | AgentMessage)[]>([]);
-  const [session, setSessionId] = useState<string>(() => {
-    const { lastSession } = vscode.getState() as State;
-    return lastSession ?? Object.keys(sessions ?? {})[0];
-  });
+  const [session, setSessionId] = useState<string>(
+    () => vsCodeState.lastSession ?? Object.keys(sessions ?? {})[0],
+  );
 
   const sessionRef = useRef(session);
 
@@ -78,6 +79,10 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
     if (message.status === 'done' && message.type === 'agentResponse') {
       setIsAgentThinking(false);
+      vscode.setState({
+        ...vsCodeState,
+        isAgentThinking: { ...vsCodeState.isAgentThinking, [session]: false },
+      });
     }
   };
 
@@ -107,12 +112,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     globalListener.subscribe(commands, handler);
     return () => globalListener.unsubscribe(commands, handler);
   }, [session]);
-
-  useEffect(() => {
-    return () => {
-      console.log('DESTROY-----------------');
-    };
-  });
 
   useEffect(() => {
     setMessages(sessions[session] ?? []);
@@ -173,6 +172,10 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     });
     if (provider === Author.agent) {
       setIsAgentThinking(true);
+      vscode.setState({
+        ...vsCodeState,
+        isAgentThinking: { ...vsCodeState.isAgentThinking, [session]: true },
+      });
     }
   };
 

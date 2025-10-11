@@ -7,7 +7,7 @@ import {
   COMMANDS,
   Conf,
   CONFIG_PARAGRAPH,
-  interactCommandPayload,
+  ExecCommandPayload,
   MESSAGE,
   ShowPreviewMessage,
   uuid,
@@ -151,7 +151,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private interactCommand(payload: interactCommandPayload) {
+  private interactCommand(payload: ExecCommandPayload) {
     const observer = Observer.getInstance();
     const event = ('interact-command-' + payload.id) as `interact-command-${string}`;
     console.log(event);
@@ -180,7 +180,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       this.selectContextFiles();
     }
     if (message.command === COMMANDS.interactCommand) {
-      this.interactCommand(message.value as interactCommandPayload);
+      this.interactCommand(message.value as ExecCommandPayload);
     }
 
     const value = message.value as ChatMessage;

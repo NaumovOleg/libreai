@@ -111,6 +111,9 @@ type State = {
   chatSession: ChatSession;
   lastSession?: string;
   provider?: Author;
+  isAgentThinking: {
+    [session: string]: boolean;
+  };
   indexing: {
     status: 'done' | 'pending' | 'error';
     progress: number;
