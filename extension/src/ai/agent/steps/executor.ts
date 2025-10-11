@@ -16,7 +16,9 @@ export class Executor {
       tools: this.tools,
       systemPrompt: SYSTEM_EXECUTOR_PROMPT,
       verbose: true,
+
       name: 'Code copilot',
+
       description:
         // eslint-disable-next-line max-len
         'An AI coding copilot that executes coding tasks, edits files, creates new files, and runs commands based on structured instructions. It strictly follows the system prompt rules, ensuring only necessary file changes and tool calls are made, without providing explanations or plain text output.',

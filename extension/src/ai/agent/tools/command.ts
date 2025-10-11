@@ -1,9 +1,9 @@
+import { Observer } from '@observer';
+import { waitForUserConfirmation } from '@services';
 import { AGENT_TOOLS, AgentMessagePayload, CommandToolArgs, ToolCallbacks, uuid } from '@utils';
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
-import { Observer } from '../../../observer';
 import { Schemas } from './schemas';
-
 export class CommandTool {
   tool: FunctionTool<CommandToolArgs, JSONValue | Promise<JSONValue>, object>;
 
@@ -23,6 +23,16 @@ export class CommandTool {
         observer.emit('agent', event);
         console.log(`Executing command: ${args.command}`);
         event.status = 'done';
+
+        const isConfirmed = await waitForUserConfirmation(event.id);
+        event.args.state = isConfirmed ? 'confirmed' : 'declined';
+
+        if (!isConfirmed) {
+          event.status = 'done';
+          event.args.state = 'declined';
+          observer.emit('agent', event);
+          return { success: false, name: AGENT_TOOLS.command };
+        }
 
         await cb(args).catch((error) => {
           event.error = error.message;

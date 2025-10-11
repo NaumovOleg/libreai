@@ -9,10 +9,15 @@
         flex-direction: row;
         gap: 5px;
         margin: 5px 0;
-        .done-icon {
+        .icon {
           width: 15px;
           height: 15px;
+        }
+        .done-icon {
           color: var(--vscode-chat-linesAddedForeground);
+        }
+        .cancel-icon {
+          color: var(--vscode-chat-linesRemovedForeground);
         }
       }
       .error {
@@ -27,6 +32,21 @@
         border: 1px solid var(--vscode-chat-requestBorder);
         padding: 0 5px;
         border-radius: 5px;
+        .command-control {
+          display: flex;
+          gap: 5px;
+          margin-left: 5px;
+          button {
+            width: 15px;
+            padding: 0;
+          }
+          .confirm {
+            color: var(--vscode-chat-linesAddedForeground);
+          }
+          .decline {
+            color: var(--vscode-chat-linesRemovedForeground);
+          }
+        }
       }
     }
   }

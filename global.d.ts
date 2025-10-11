@@ -17,6 +17,7 @@ declare enum COMMANDS {
   showPreview = 'showPreview',
   indexing = 'indexing',
   selectContext = 'selectContext',
+  interactCommand = 'interactCommand',
 }
 
 declare type ShowPreviewMessage = {
@@ -40,11 +41,15 @@ interface AiConfigT {
   maxTokens?: number;
   temperature?: number;
 }
+declare type ExecCommandPayload = {
+  id: string;
+  state: 'confirmed' | 'declined';
+};
 
 declare type MESSAGE = {
   command: COMMANDS;
   key?: CONFIG_PARAGRAPH;
-  value?: AiConfigT | ChatMessage | ShowPreviewMessage | string;
+  value?: AiConfigT | ChatMessage | ShowPreviewMessage | ExecCommandPayload | string;
 };
 
 declare enum Author {

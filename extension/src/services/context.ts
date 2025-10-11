@@ -12,7 +12,7 @@ import {
   replaceLast,
   uuid,
 } from '../utils';
-import { VectorStorage } from './database/vector-storage';
+import { VectorStorage } from './database/vectorStorage';
 
 export class Context {
   private observer = Observer.getInstance();

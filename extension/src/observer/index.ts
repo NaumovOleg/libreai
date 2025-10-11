@@ -5,6 +5,7 @@ import {
   AgentMessage,
   COMMANDS,
   EDITOR_EVENTS,
+  ExecCommandPayload,
   IndexingPayload,
   ObserverEditorHandler,
 } from '../../../global.types';
@@ -33,8 +34,18 @@ export class Observer {
 
   emit(event: 'indexing', payload: IndexingPayload): void;
 
+  emit(event: `interact-command-${string}`, payload: ExecCommandPayload): void;
+
   emit(event: any, payload: any) {
     this.observer.emit(event, payload);
+  }
+
+  subscribe(event: string, listener: (...args: any) => void) {
+    this.observer.subscribe(event, listener);
+  }
+
+  unsubscribe(event: string, listener: (...args: any) => void) {
+    this.observer.unsubscribe(event, listener);
   }
 
   observe() {

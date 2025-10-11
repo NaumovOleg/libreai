@@ -1,21 +1,21 @@
-import { SessionStorage } from '@services';
-import fs from 'fs';
-import path from 'path';
-import * as vscode from 'vscode';
-
-import { Chat, Cursor } from '../../ai';
-import { Observer } from '../../observer';
-import { callbacks, Context, showMemoryDiff } from '../../services';
+import { Chat, Cursor } from '@ai';
+import { Observer } from '@observer';
+import { callbacks, Context, SessionStorage, showMemoryDiff } from '@services';
 import {
   Author,
   ChatMessage,
   COMMANDS,
   Conf,
   CONFIG_PARAGRAPH,
+  interactCommandPayload,
   MESSAGE,
   ShowPreviewMessage,
   uuid,
-} from '../../utils';
+} from '@utils';
+import fs from 'fs';
+import path from 'path';
+import * as vscode from 'vscode';
+
 import { ContextSelector } from '../ContextSelector';
 import { Icons } from '../Icons';
 
@@ -151,6 +151,13 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
+  private interactCommand(payload: interactCommandPayload) {
+    const observer = Observer.getInstance();
+    const event = ('interact-command-' + payload.id) as `interact-command-${string}`;
+    console.log(event);
+    observer.emit(event, payload);
+  }
+
   private async onDidReceiveMessage(message: MESSAGE) {
     console.log('VIEW PROVIDER MESSAGE', message);
     if (message.command === COMMANDS.changeConfig) {
@@ -171,6 +178,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
     if (message.command === COMMANDS.selectContext) {
       this.selectContextFiles();
+    }
+    if (message.command === COMMANDS.interactCommand) {
+      this.interactCommand(message.value as interactCommandPayload);
     }
 
     const value = message.value as ChatMessage;

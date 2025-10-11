@@ -33,7 +33,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [isAgentThinking, setIsAgentThinking] = useState(false);
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
-  const [tmpAgentMessage, setTmpAgentMessage] = useState<AgentMessage | undefined>();
 
   const [messages, setMessages] = useState<(ChatMessage | AgentMessage)[]>([]);
   const [session, setSessionId] = useState<string>(() => {
@@ -57,20 +56,26 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   };
 
   const updateAgentMessages = (message: AgentMessage) => {
-    if (message.status === 'pending') {
-      return setTmpAgentMessage(message);
-    }
-    const newMessage = { ...tmpAgentMessage, ...message };
-    setTmpAgentMessage(undefined);
-    setMessages((prev) => prev.concat(newMessage));
-    setSessions((chatSession) => {
-      const data = {
-        ...chatSession,
-        [sessionRef.current]: chatSession[sessionRef.current].concat(newMessage),
-      };
-      vscode.setState({ ...vscode.getState(), chatSession: data });
-      return data;
+    setMessages((prev) => {
+      const found = prev.find((el) => el.id === message.id);
+      const newMessage = { ...found, ...message };
+
+      setSessions((chatSession) => {
+        const current = found
+          ? chatSession[sessionRef.current].map((el) => (el.id === message.id ? newMessage : el))
+          : chatSession[sessionRef.current].concat(newMessage);
+
+        const data = { ...chatSession, [sessionRef.current]: current };
+        vscode.setState({ ...vscode.getState(), chatSession: data });
+        return data;
+      });
+
+      if (!found) {
+        return prev.concat(newMessage);
+      }
+      return prev.map((el) => (el.id === message.id ? newMessage : el));
     });
+
     if (message.status === 'done' && message.type === 'agentResponse') {
       setIsAgentThinking(false);
     }
@@ -78,7 +83,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
-      console.log('RECEIVED_MESSSAGE chat provider 86', event.data);
       if (event.data.type === COMMANDS.chatStream) {
         setIsStreaming(true);
         seTemporaryMessage(event.data.payload);
@@ -103,6 +107,12 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     globalListener.subscribe(commands, handler);
     return () => globalListener.unsubscribe(commands, handler);
   }, [session]);
+
+  useEffect(() => {
+    return () => {
+      console.log('DESTROY-----------------');
+    };
+  });
 
   useEffect(() => {
     setMessages(sessions[session] ?? []);
@@ -174,7 +184,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const sessionList = Object.keys(sessions)?.length ? Object.keys(sessions) : [session];
 
   const value = {
-    messages: messages.concat(tmpMessage || []).concat(tmpAgentMessage || []),
+    messages: messages.concat(tmpMessage || []),
     addSession,
     setSession,
     session,
@@ -189,7 +199,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     files,
   };
 
-  console.log(value.messages);
+  // console.log(value.messages);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

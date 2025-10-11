@@ -101,6 +101,7 @@ export class VectorStorage {
       .limit(limit);
 
     const results = await query.toArray();
-    return Array.from(new Map(results.map((r) => [r.id, r])).values()) as FileChunk[];
+    const filesMap = new Map(results.map((r) => [r.id, r]));
+    return Array.from(filesMap.values()) as FileChunk[];
   }
 }

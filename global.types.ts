@@ -28,6 +28,7 @@ export enum COMMANDS {
   showPreview = 'showPreview',
   indexing = 'indexing',
   selectContext = 'selectContext',
+  interactCommand = 'interactCommand',
 }
 
 export type ShowPreviewMessage = {
@@ -39,7 +40,7 @@ export type ShowPreviewMessage = {
 export type MESSAGE = {
   command: COMMANDS;
   key?: CONFIG_PARAGRAPH;
-  value?: AiConfigT | ChatMessage | ShowPreviewMessage | string;
+  value?: AiConfigT | ChatMessage | ShowPreviewMessage | ExecCommandPayload | string;
 };
 
 export enum AiProviders {
@@ -101,7 +102,7 @@ export type ObserverEditorEventArgs = {
   editFile: { file: string; content?: string; old?: string };
   deleteFile: { file: string };
   createFile: { file: string; content: string };
-  command: { command: string };
+  command: { command: string; state?: 'confirmed' | 'declined' };
   planning: string;
   agentResponse: { content?: string };
 };
@@ -145,9 +146,19 @@ export type IndexingPayload = {
   total: number;
 };
 
+export type ExecCommandPayload = {
+  id: string;
+  state: 'confirmed' | 'declined';
+};
+
 export type IndexingMessage = {
   type: 'indexing';
   payload: IndexingPayload;
+};
+
+export type ExecCommandMessage = {
+  type: 'execCommand';
+  payload: ExecCommandPayload;
 };
 
 export type ObserverEvents = 'agentResponse' | 'indexing';
