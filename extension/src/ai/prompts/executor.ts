@@ -11,7 +11,6 @@ You will receive an array of tasks in format:
   ],
   "fileTree":[ "path/to/file", "path/to/file" ]
 }
-.
 Read each task and invoke appropriate tools. You can combine multiple tasks in one tool call if possible.
 The "fileTree" field is an array of strings representing all files in the current workspace.  
 You can use it to locate existing files, decide where to create new files, or check if a file exists.

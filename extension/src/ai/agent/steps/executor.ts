@@ -16,7 +16,6 @@ export class Executor {
       tools: this.tools,
       systemPrompt: SYSTEM_EXECUTOR_PROMPT,
       verbose: true,
-
       name: 'Code copilot',
 
       description:

@@ -45,8 +45,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
         ? prev.map((el) => (el.id === message.id ? newMessage : el))
         : prev.concat(newMessage);
 
-      console.log(data);
-
       vscode.setState({ ...vscode.getState(), session: data });
       return data;
     });
