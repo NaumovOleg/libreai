@@ -1,9 +1,9 @@
 {
-  "name": "libreai",
+  "name": "robocode",
   "private": true,
   "displayName": "AI Inline + Chat",
   "publisher": "olegnaumov",
-  "description": "Inline автодополнение кода и чат с ИИ. Стриминг, workspace context, hotkeys.",
+  "description": "Code copilot",
   "version": "1.1.0",
   "main": "./out/extension.js",
   "engines": {
@@ -30,46 +30,46 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "libreAi",
-          "title": "AI",
-          "icon": "media/icon.svg"
+          "id": "robocode",
+          "title": "Robocode",
+          "icon": "media/robot.svg"
         }
       ]
     },
     "views": {
-      "libreAi": [
+      "robocode": [
         {
-          "id": "libreChatView",
+          "id": "robocodeView",
           "name": "Chat",
-          "icon": "media/icon.svg",
+          "icon": "media/robot.svg",
           "type": "webview"
         }
       ]
     },
     "commands": [
       {
-        "command": "libreChat.openChat",
+        "command": "robocode.openChat",
         "title": "Open AI Chat",
-        "icon": "media/icon.svg"
+        "icon": "media/robot.svg"
       },
       {
-        "command": "myExtension.addContextFiles",
+        "command": "robocode.addContextFiles",
         "title": "Add context"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "libreChat.openChat",
-          "when": "view == libreAi.view",
+          "command": "robocode.openChat",
+          "when": "view == robocode.view",
           "group": "navigation",
-          "icon": "media/icon.svg"
+          "icon": "media/robot.svg"
         },
         {
-          "command": "libreChat.openChat",
-          "when": "view == libreAi.view",
+          "command": "robocode.openChat",
+          "when": "view == robocode.view",
           "group": "navigation",
-          "icon": "media/icon.svg"
+          "icon": "media/robot.svg"
         }
       ]
     },

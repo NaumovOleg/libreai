@@ -19,9 +19,7 @@ const commands = [
 ];
 
 export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
-  const vsCodeState = vscode.getState() as State;
-
-  console.log(vsCodeState);
+  const vsCodeState = (vscode.getState() as State) ?? {};
 
   const [isStreaming, setIsStreaming] = useState(false);
   const [provider, setCatProvider] = useState<Author>(() => vsCodeState.provider ?? Author.chat);

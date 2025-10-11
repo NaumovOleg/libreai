@@ -145,7 +145,7 @@ export type ObserverEditorHandlers =
   | ObserverEditorHandler<EDITOR_EVENTS.deleteFile>;
 
 export type IndexingPayload = {
-  status: 'done' | 'pending' | 'error';
+  status: 'done' | 'pending' | 'error' | 'not-indexed';
   progress: number;
   indexed: number;
   currentFile?: string;

@@ -11,12 +11,8 @@ export class Autocomplete {
   }
 
   async run(data: SuggestionPromptParams) {
-    console.log(data);
     const prompt = INLINE_SUGGESTION_PROMPT(data);
     const response = await this.llm.complete({ prompt });
-
-    console.log('AUTOCOMPLETE response', response);
-
     return response.text
       .replace(/^```[a-z]*\n?/i, '')
       .replace(/```$/, '')

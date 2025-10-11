@@ -34,7 +34,6 @@ export class ReadFileTool {
             success: event.status === 'done',
           };
 
-          console.log('Reading file response :', args.file);
           observer.emit('agent', event);
           return result;
         } catch (err) {

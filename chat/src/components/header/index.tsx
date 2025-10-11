@@ -6,16 +6,18 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import Box from '@mui/material/Box';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useIndexing } from '@hooks';
+import { useIndexing, useChat } from '@hooks';
 import { BsDatabaseFillCheck } from 'react-icons/bs';
 import { BsDatabaseFillDash } from 'react-icons/bs';
 import { BsDatabaseFillExclamation } from 'react-icons/bs';
 import { BsDatabaseFillDown } from 'react-icons/bs';
+import Add from '@mui/icons-material/Add';
+
 export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { payload } = useIndexing();
-
+  const { clearSession } = useChat();
   const dataBaseIcon = () => {
     if (!payload || !payload.total || payload.indexed === 0)
       return <BsDatabaseFillDash className="db not-indexed" />;
@@ -43,6 +45,11 @@ export const Header = () => {
               color="inherit"
             >
               <ArrowBack />
+            </IconButton>
+          )}
+          {!showBackButton && (
+            <IconButton className="session-button" onClick={clearSession}>
+              <Add />
             </IconButton>
           )}
         </Box>

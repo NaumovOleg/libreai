@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import { useChat } from '@hooks';
 import { RiRobot3Line } from 'react-icons/ri';
 import Icon from '@mui/material/Icon';
-import { TopNavigation, TextArea, Message } from './components';
+import { TextArea, Message } from './components';
 import { TypingDots } from '@elements';
 
 export const Chat = () => {
@@ -28,7 +28,6 @@ export const Chat = () => {
 
   return (
     <section className="chat-section">
-      <TopNavigation />
       <Box className="messages-container" ref={containerRef} onScroll={handleScroll}>
         {messages.map((el) => (
           <Message key={el.id} message={el} isLoading={false} onDelete={() => {}} />

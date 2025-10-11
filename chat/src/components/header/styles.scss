@@ -10,6 +10,9 @@ header.header {
     min-height: unset;
     display: flex;
     gap: 5px;
+    .session-button {
+      color: var(--vscode-icon-foreground);
+    }
     .button-container {
       height: 100%;
       padding: 0;
