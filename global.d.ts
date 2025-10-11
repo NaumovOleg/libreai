@@ -72,7 +72,6 @@ declare type ChatMessage = {
   text: string;
   time?: Date;
   id: string;
-  session: string;
   files?: string[];
 };
 
@@ -105,15 +104,12 @@ declare type AgentMessage =
   | AgentMessagePayload<'readFile'>
   | AgentMessagePayload<'agentResponse'>;
 
-type ChatSession = { [key: string]: (ChatMessage | AgentMessage)[] };
+type Session = (ChatMessage | AgentMessage)[];
 
 type State = {
-  chatSession: ChatSession;
-  lastSession?: string;
+  session: Session;
   provider?: Author;
-  isAgentThinking: {
-    [session: string]: boolean;
-  };
+  isAgentThinking: boolean;
   indexing: {
     status: 'done' | 'pending' | 'error';
     progress: number;

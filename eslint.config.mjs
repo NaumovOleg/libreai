@@ -28,7 +28,7 @@ export default [
       './lambdas',
       './cdk.out',
       './node_modules',
-      './out',
+      './out/*',
       './yarn.lock',
     ],
     files: ['**/*.{js,mjs,cjs,ts}'],

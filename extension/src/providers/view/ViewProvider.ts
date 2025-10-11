@@ -7,7 +7,6 @@ import {
   COMMANDS,
   Conf,
   CONFIG_PARAGRAPH,
-  ExecCommandPayload,
   MESSAGE,
   ShowPreviewMessage,
   uuid,
@@ -120,11 +119,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         this.ctx.getContext(message.text, { contextLimit: 5 }),
         this.ctx.getFilesContent(message.files),
       ]);
-      const history = this.storage.getSessionChatHistory(message.session);
       const chatGenerator = this.chat.chatStream({
         ...ctx,
         text: message.text,
-        history,
+        history: this.storage.history,
         files,
       });
 
@@ -164,7 +162,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       await Conf.updateConfig(message);
     }
     if (message.command === COMMANDS.removeChatSession) {
-      await this.storage.removeSession(message.value as string);
+      await this.storage.clear();
     }
 
     if (message.command === COMMANDS.configListenerMounted) {

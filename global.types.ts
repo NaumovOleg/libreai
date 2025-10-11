@@ -65,15 +65,12 @@ export enum Author {
   agent = 'agent',
 }
 
-export type ChatSession = { [key: string]: (ChatMessage | AgentMessage)[] };
+export type Session = (ChatMessage | AgentMessage)[];
 
 export type State = {
-  chatSession: ChatSession;
-  lastSession?: string;
+  session: Session;
   provider?: Author;
-  isAgentThinking: {
-    [session: string]: boolean;
-  };
+  isAgentThinking: boolean;
   indexing: {
     status: 'done' | 'pending' | 'error';
     progress: number;
@@ -91,7 +88,6 @@ export type ChatMessage = {
   files?: string[];
   time?: Date;
   id: string;
-  session: string;
 };
 
 export enum AGENT_ACTIONS {

@@ -1,4 +1,4 @@
-import { useState, type FC, type ReactElement, useEffect, useRef } from 'react';
+import { useState, type FC, type ReactElement, useEffect } from 'react';
 import { ChatContext } from './context';
 import {
   State,
@@ -21,68 +21,48 @@ const commands = [
 export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const vsCodeState = vscode.getState() as State;
 
-  const [sessions, setSessions] = useState(() => {
-    if (vsCodeState?.chatSession) return vsCodeState?.chatSession;
-    const newSession = { [uuid()]: [] };
-    vscode.setState({ ...vscode.getState(), chatSession: newSession });
-    return newSession;
-  });
+  console.log(vsCodeState);
+
   const [isStreaming, setIsStreaming] = useState(false);
   const [provider, setCatProvider] = useState<Author>(() => vsCodeState.provider ?? Author.chat);
   const [files, setFiles] = useState<string[]>([]);
-  const [isAgentThinking, setIsAgentThinking] = useState(
-    () => !!vsCodeState.isAgentThinking?.[vsCodeState.lastSession ?? ''],
-  );
+  const [isAgentThinking, setIsAgentThinking] = useState(() => !!vsCodeState.isAgentThinking);
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
 
-  const [messages, setMessages] = useState<(ChatMessage | AgentMessage)[]>([]);
-  const [session, setSessionId] = useState<string>(
-    () => vsCodeState.lastSession ?? Object.keys(sessions ?? {})[0],
-  );
+  const [messages, setMessages] = useState<(ChatMessage | AgentMessage)[]>(() => {
+    if (vsCodeState?.session) return vsCodeState?.session;
+    vscode.setState({ ...vscode.getState(), session: [] });
+    return [];
+  });
 
-  const sessionRef = useRef(session);
-
-  const updateLastMessage = (message: ChatMessage) => {
-    setSessions((chatSession) => {
-      const data = {
-        ...chatSession,
-        [sessionRef.current]: chatSession[sessionRef.current].concat(message),
-      };
-      vscode.setState({ ...vscode.getState(), chatSession: data });
-      return data;
-    });
-    setIsStreaming(false);
-    setMessages((prev) => [...prev, message as ChatMessage]);
-  };
-
-  const updateAgentMessages = (message: AgentMessage) => {
+  const updateMessages = (message: ChatMessage | AgentMessage) => {
     setMessages((prev) => {
       const found = prev.find((el) => el.id === message.id);
       const newMessage = { ...found, ...message };
 
-      setSessions((chatSession) => {
-        const current = found
-          ? chatSession[sessionRef.current].map((el) => (el.id === message.id ? newMessage : el))
-          : chatSession[sessionRef.current].concat(newMessage);
+      const data = found
+        ? prev.map((el) => (el.id === message.id ? newMessage : el))
+        : prev.concat(newMessage);
 
-        const data = { ...chatSession, [sessionRef.current]: current };
-        vscode.setState({ ...vscode.getState(), chatSession: data });
-        return data;
-      });
+      console.log(data);
 
-      if (!found) {
-        return prev.concat(newMessage);
-      }
-      return prev.map((el) => (el.id === message.id ? newMessage : el));
+      vscode.setState({ ...vscode.getState(), session: data });
+      return data;
     });
+  };
+
+  const updateLastMessage = (message: ChatMessage) => {
+    setIsStreaming(false);
+    updateMessages(message);
+  };
+
+  const updateAgentMessages = (message: AgentMessage) => {
+    updateMessages(message);
 
     if (message.status === 'done' && message.type === 'agentResponse') {
       setIsAgentThinking(false);
-      vscode.setState({
-        ...vsCodeState,
-        isAgentThinking: { ...vsCodeState.isAgentThinking, [session]: false },
-      });
+      vscode.setState({ ...vsCodeState, isAgentThinking: false });
     }
   };
 
@@ -111,40 +91,13 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
     globalListener.subscribe(commands, handler);
     return () => globalListener.unsubscribe(commands, handler);
-  }, [session]);
+  }, []);
 
-  useEffect(() => {
-    setMessages(sessions[session] ?? []);
-    sessionRef.current = session;
-  }, [session]);
-
-  const setSession = (sessionId: string) => {
-    if (isStreaming) return;
-    setSessionId(sessionId);
-    vscode.setState({ ...vscode.getState(), lastSession: sessionId });
-  };
-
-  const addSession = () => {
-    if (isStreaming) return;
-    const newSession = uuid();
-    setSessions((prev) => {
-      const data = { ...prev, [newSession]: [] };
-
-      vscode.setState({ ...vscode.getState(), chatSession: data });
-      return data;
-    });
-    setSession(newSession);
+  const clearSession = () => {
+    if (isStreaming || isAgentThinking) return;
     setMessages([]);
-  };
-
-  const removeSession = (sessionId: string) => {
-    if (isStreaming) return;
-    vscode.postMessage({ command: COMMANDS.removeChatSession, value: sessionId });
-    setSessions((prev) => {
-      delete prev[sessionId];
-      vscode.setState({ ...vscode.getState(), chatSession: prev });
-      return { ...prev };
-    });
+    vscode.setState({ ...vscode.getState(), session: [] });
+    vscode.postMessage({ command: COMMANDS.removeChatSession });
   };
 
   const sendMessage = (data: Omit<ChatMessage, 'session' | 'id' | 'time' | 'from' | 'to'>) => {
@@ -154,28 +107,15 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
       from: Author.user,
       to: provider,
       time: new Date(),
-      session,
       files,
     };
 
-    setSessions((s) => {
-      const sessionData = {
-        ...s,
-        [session]: [...s[session], message],
-      };
+    updateMessages(message);
+    vscode.postMessage({ command: COMMANDS.sendMessage, value: message });
 
-      setMessages((prev) => [...prev, message]);
-      vscode.postMessage({ command: COMMANDS.sendMessage, value: message });
-      vscode.setState({ ...vscode.getState(), chatSession: sessionData });
-
-      return sessionData;
-    });
     if (provider === Author.agent) {
       setIsAgentThinking(true);
-      vscode.setState({
-        ...vsCodeState,
-        isAgentThinking: { ...vsCodeState.isAgentThinking, [session]: true },
-      });
+      vscode.setState({ ...vsCodeState, isAgentThinking: true });
     }
   };
 
@@ -184,16 +124,10 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     vscode.setState({ ...vscode.getState(), provider });
   };
 
-  const sessionList = Object.keys(sessions)?.length ? Object.keys(sessions) : [session];
-
   const value = {
     messages: messages.concat(tmpMessage || []),
-    addSession,
-    setSession,
-    session,
-    sessions: sessionList.reverse(),
     sendMessage,
-    removeSession,
+    clearSession,
     tmpMessage,
     isStreaming,
     setProvider,
@@ -201,8 +135,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     isAgentThinking,
     files,
   };
-
-  // console.log(value.messages);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

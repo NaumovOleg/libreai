@@ -28,17 +28,13 @@ export type ListenerContextType = {
 };
 
 export type ChatContextType = {
-  sessions: string[];
   files: string[];
   messages: (ChatMessage | AgentMessage)[];
   tmpMessage?: ChatMessage;
-  session: string;
   isStreaming: boolean;
   isAgentThinking: boolean;
   provider: Author;
   setProvider: (provider: Author) => void;
   sendMessage: (message: Omit<ChatMessage, 'id' | 'session' | 'from' | 'time' | 'to'>) => void;
-  setSession: (session: string) => void;
-  removeSession: (session: string) => void;
-  addSession: () => void;
+  clearSession: () => void;
 };
