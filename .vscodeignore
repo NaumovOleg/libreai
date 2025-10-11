@@ -1,0 +1,9 @@
+**/node_modules/**
+!node_modules/@xenova/**
+!node_modules/onnxruntime-node/**
+!node_modules/sharp/**
+!node_modules/@lancedb/**
+!node_modules/ai/**
+!node_modules/llamaindex/**
+!node_modules/cohere-ai/**
+!node_modules/zod/**
