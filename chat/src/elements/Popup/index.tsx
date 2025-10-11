@@ -22,7 +22,7 @@ export const Popup: FC<Props> = ({ label, children, variant = 'dialog', placemen
       <Popper {...bindPopper(popupState)} transition placement={placement}>
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={350}>
-            <Paper>{children}</Paper>
+            <Paper onClick={() => popupState.close()}>{children}</Paper>
           </Fade>
         )}
       </Popper>

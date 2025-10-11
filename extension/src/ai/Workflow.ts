@@ -40,8 +40,6 @@ export class Workflow {
 
     this.workflow.handle([processTaskStep], async (event, context) => {
       const index = context.data.index;
-
-      console.log('processTaskStep+++++', index);
       const instruction = context.data.instructions[index];
       const response = await this.executor.run(instruction, context.data.fileTree);
       const output = context.data.output.concat(response.data.message.content.toString());

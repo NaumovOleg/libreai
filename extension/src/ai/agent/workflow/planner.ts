@@ -51,7 +51,6 @@ export class Planner {
       event.status = 'done';
 
       const parsed = JSON.parse(response.message.content.toString());
-      console.log('PLANNER OUTPUT+++++++++++++++++++++++++++++', parsed);
       return parsed.tasks;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {

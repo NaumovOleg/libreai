@@ -1,18 +1,19 @@
 {
-  "name": "libreai",
+  "name": "robocode",
   "private": true,
   "displayName": "AI Inline + Chat",
   "publisher": "olegnaumov",
-  "description": "Inline автодополнение кода и чат с ИИ. Стриминг, workspace context, hotkeys.",
+  "description": "Code copilot",
   "version": "1.1.0",
   "main": "./out/extension.js",
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
-    "Other"
+    "Chat",
+    "AI"
   ],
-  "icon": "media/robot.svg",
+  "icon": "media/robot.png",
   "activationEvents": [
     "onStartupFinished"
   ],
@@ -30,46 +31,46 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "libreAi",
-          "title": "AI",
-          "icon": "media/icon.svg"
+          "id": "robocode",
+          "title": "Robocode",
+          "icon": "media/robot.png"
         }
       ]
     },
     "views": {
-      "libreAi": [
+      "robocode": [
         {
-          "id": "libreChatView",
+          "id": "robocodeView",
           "name": "Chat",
-          "icon": "media/icon.svg",
+          "icon": "media/robot.png",
           "type": "webview"
         }
       ]
     },
     "commands": [
       {
-        "command": "libreChat.openChat",
+        "command": "robocode.openChat",
         "title": "Open AI Chat",
-        "icon": "media/icon.svg"
+        "icon": "media/robot.png"
       },
       {
-        "command": "myExtension.addContextFiles",
+        "command": "robocode.addContextFiles",
         "title": "Add context"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "libreChat.openChat",
-          "when": "view == libreAi.view",
+          "command": "robocode.openChat",
+          "when": "view == robocode.view",
           "group": "navigation",
-          "icon": "media/icon.svg"
+          "icon": "media/robot.png"
         },
         {
-          "command": "libreChat.openChat",
-          "when": "view == libreAi.view",
+          "command": "robocode.openChat",
+          "when": "view == robocode.view",
           "group": "navigation",
-          "icon": "media/icon.svg"
+          "icon": "media/robot.png"
         }
       ]
     },

@@ -79,7 +79,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
     action.command = {
       title: 'Trigger AI Autocomplete',
-      command: 'myExtension.triggerAutocomplete',
+      command: 'robocode.triggerAutocomplete',
       arguments: [document, range],
     } as vscode.Command;
 

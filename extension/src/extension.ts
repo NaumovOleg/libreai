@@ -18,8 +18,8 @@ export async function activate(context: vscode.ExtensionContext) {
   );
   const chatView = vscode.window.registerWebviewViewProvider(ViewProvider.viewType, chatProvider);
   context.subscriptions.push(
-    vscode.commands.registerCommand('libreChat.openChat', () => {
-      vscode.commands.executeCommand('libreChatView.focus');
+    vscode.commands.registerCommand('robocode.openChat', () => {
+      vscode.commands.executeCommand('robocodeView.focus');
     }),
   );
   vscode.workspace.onDidChangeWorkspaceFolders(async () => {
@@ -34,6 +34,7 @@ export async function activate(context: vscode.ExtensionContext) {
     ctx.deleteFiles(Array.from(ev.files));
   });
   context.subscriptions.push(inlineProvider, chatView, contextSelector.subscription);
+
   if (!(await ctx.isWorkspaceIndexed())) {
     ctx.indexWorkspace();
   }

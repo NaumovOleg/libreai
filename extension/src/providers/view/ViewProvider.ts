@@ -19,7 +19,7 @@ import { ContextSelector } from '../ContextSelector';
 import { Icons } from '../Icons';
 
 export class ViewProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'libreChatView';
+  public static readonly viewType = 'robocodeView';
   private mediaFolder = 'out/view';
   private web!: vscode.WebviewView;
   private workflow: Workflow;
@@ -157,7 +157,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async onDidReceiveMessage(message: MESSAGE) {
-    console.log('VIEW PROVIDER MESSAGE', message);
     if (message.command === COMMANDS.changeConfig) {
       await Conf.updateConfig(message);
     }
@@ -194,8 +193,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   public async useAgent(message: ChatMessage) {
-    console.log('RECEIVED_MESSAGE BACKEND--------------', message);
-
     const [ctx, files] = await Promise.all([
       this.ctx.getContext(message.text, { contextLimit: 10 }),
       this.ctx.getFilesContent(message.files),

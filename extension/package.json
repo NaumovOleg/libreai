@@ -13,7 +13,7 @@
   "categories": [
     "Other"
   ],
-  "icon": "media/icon.svg",
+  "icon": "media/robot.png",
   "activationEvents": [
     "onStartupFinished"
   ],

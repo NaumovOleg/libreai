@@ -4,7 +4,13 @@ import { COMMANDS, vscode, globalListener, IndexingMessage, IndexingPayload } fr
 
 export const IndexingProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [payload, setPayload] = useState<IndexingPayload>(() => {
-    return vscode.getState().indexing;
+    return (
+      vscode.getState()?.indexing ?? {
+        status: 'not-indexed',
+        progress: 0,
+        indexed: 0,
+      }
+    );
   });
 
   useEffect(() => {

@@ -35,7 +35,7 @@ export class ContextSelector {
   }
 
   get subscription() {
-    return vscode.commands.registerCommand('myExtension.addContextFiles', async () => {
+    return vscode.commands.registerCommand('robocode.addContextFiles', async () => {
       const selected = await this.openContextSelector();
 
       if (selected.length) {
