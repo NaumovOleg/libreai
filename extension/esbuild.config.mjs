@@ -14,15 +14,10 @@ build({
     'vscode',
     '@xenova/transformers', // external to avoid dynamic require issues
     'onnxruntime-node',
-    'sharp',
-    '@lancedb/lancedb',
-    'ai',
-    'llamaindex',
-    'cohere-ai',
+    '@lancedb/lancedb-darwin-arm64',
     '@llamaindex',
-    'zod',
   ],
-  sourcemap: true,
+  sourcemap: false,
 }).catch((err) => {
   console.error(err);
 });

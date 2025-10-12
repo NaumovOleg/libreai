@@ -138,6 +138,15 @@
     }
   },
   "dependencies": {
+    "@xenova/transformers": "^2.14.1",
+    "onnxruntime-node": "^1.17.0",
+    "@llamaindex/deepseek": "^0.0.38",
+    "@llamaindex/huggingface": "^0.1.30",
+    "@llamaindex/ollama": "^0.1.23",
+    "@llamaindex/openai": "^0.4.20",
+    "@llamaindex/workflow": "^1.1.24"
+  },
+  "devDependencies": {
     "nodemon": "^3.1.10"
   }
 }
