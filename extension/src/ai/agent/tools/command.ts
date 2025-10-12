@@ -31,17 +31,24 @@ export class CommandTool {
           event.status = 'done';
           event.args.state = 'declined';
           observer.emit('agent', event);
-          return { success: false, name: AGENT_TOOLS.command };
+          return { success: false, name: AGENT_TOOLS.command, result: 'Declined by user' };
         }
 
-        await cb(args).catch((error) => {
+        const result = await cb(args).catch((error) => {
           event.error = error.message;
           event.status = 'error';
+          return error.message as string;
         });
+
+        if (result) {
+          event.args.result = result;
+        }
+
+        console.log('uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu', result.toString());
 
         observer.emit('agent', event);
 
-        return { success: event.status === 'done', name: AGENT_TOOLS.command };
+        return { success: event.status === 'done', name: AGENT_TOOLS.command, result };
       },
     });
   }

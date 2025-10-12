@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { ContextSelector, Icons, InlineCompletionProvider, ViewProvider } from './providers';
 import { Context, SessionStorage } from './services';
 import { VectorStorage } from './services/database';
-console.log('=====================================');
+
 export async function activate(context: vscode.ExtensionContext) {
   const vectorizer = new VectorStorage(context);
   const storage = new SessionStorage(context);

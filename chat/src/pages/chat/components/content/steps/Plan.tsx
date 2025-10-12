@@ -1,4 +1,4 @@
-import './steps.style.scss';
+import './steps.scss';
 import { FC } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';

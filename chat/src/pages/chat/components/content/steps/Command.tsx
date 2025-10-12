@@ -1,4 +1,4 @@
-import './steps.style.scss';
+import './steps.scss';
 import { FC } from 'react';
 import Typography from '@mui/material/Typography';
 import { AgentMessagePayload, vscode, COMMANDS } from '@utils';
@@ -14,7 +14,6 @@ export const Command: FC<Props> = ({ message }) => {
   const command = (
     <span className="command-line">
       {message.args.command}
-
       {message.status === 'pending' && (
         <div className="command-control">
           <IconButton className="confirm" onClick={() => onClickCommand('confirmed')}>
@@ -49,15 +48,18 @@ export const Command: FC<Props> = ({ message }) => {
           </div>
         )}
         {message.status === 'done' && (
-          <div className="done item">
-            Cmd:
-            {command}
-            {message.args.state === 'confirmed' ? (
-              <DoneAllIcon className="done-icon icon" />
-            ) : (
-              <GiCancel className="cancel-icon icon" />
-            )}
-          </div>
+          <>
+            <div className="done item">
+              Cmd:
+              {command}
+              {message.args.state === 'confirmed' ? (
+                <DoneAllIcon className="done-icon icon" />
+              ) : (
+                <GiCancel className="cancel-icon icon" />
+              )}
+            </div>
+            {message.args.result && <div className="result">Result: {message.args.result}</div>}
+          </>
         )}
       </div>
     </div>

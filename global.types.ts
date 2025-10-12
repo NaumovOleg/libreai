@@ -109,7 +109,7 @@ export type ObserverEditorEventArgs = {
   editFile: { file: string; content?: string; old?: string };
   deleteFile: { file: string };
   createFile: { file: string; content: string };
-  command: { command: string; state?: 'confirmed' | 'declined' };
+  command: { command: string; state?: 'confirmed' | 'declined'; result?: string };
   planning: string;
   agentResponse: { content?: string };
 };
