@@ -18,14 +18,14 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
   getContextBeforeCursor(
     document: vscode.TextDocument,
     position: vscode.Position,
-    linesBefore = 3,
+    linesBefore = 20,
   ) {
     const startLine = Math.max(0, position.line - linesBefore);
     const range = new vscode.Range(startLine, 0, position.line, position.character);
     return document.getText(range);
   }
 
-  getContextAfterCursor(document: vscode.TextDocument, position: vscode.Position, linesAfter = 3) {
+  getContextAfterCursor(document: vscode.TextDocument, position: vscode.Position, linesAfter = 20) {
     const endLine = Math.min(document.lineCount - 1, position.line + linesAfter);
     const range = new vscode.Range(
       position.line,
@@ -48,8 +48,8 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
         const { resolve, document, position } = this.lastRequest;
 
-        const before = this.getContextBeforeCursor(document, position, 10);
-        const after = this.getContextAfterCursor(document, position, 10);
+        const before = this.getContextBeforeCursor(document, position, 20);
+        const after = this.getContextAfterCursor(document, position, 20);
 
         const language = this.ctx.language;
         const suggestionText = await this.autocomplete.run({ language, before, after });
@@ -69,19 +69,48 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
     });
   }
 
+  async triggerAutocomplete() {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) return;
+    const { document, selection } = editor;
+    const position = selection.active;
+
+    const before = this.getContextBeforeCursor(document, position, 10);
+    const after = this.getContextAfterCursor(document, position, 10);
+    const language = this.ctx.language;
+
+    const suggestionText = await this.autocomplete.run({ language, before, after });
+
+    if (!suggestionText) {
+      vscode.window.showInformationMessage('No AI suggestion available.');
+      return;
+    }
+
+    const snippet = new vscode.SnippetString(stripCodeFences(suggestionText));
+    await editor.insertSnippet(snippet, position);
+  }
+
   provideCodeActions(
     document: vscode.TextDocument,
     range: vscode.Range,
     context: vscode.CodeActionContext,
     token: vscode.CancellationToken,
-  ): vscode.ProviderResult<vscode.CodeAction[]> {
-    const action = new vscode.CodeAction('Trigger AI Autocomplete', vscode.CodeActionKind.QuickFix);
+  ): vscode.ProviderResult<(vscode.CodeAction | vscode.Command)[]> {
+    console.log({
+      range,
+      context,
+      token,
+    });
+    const action = new vscode.CodeAction(
+      '💡 Trigger AI Autocomplete',
+      vscode.CodeActionKind.QuickFix,
+    );
 
     action.command = {
       title: 'Trigger AI Autocomplete',
       command: 'robocode.triggerAutocomplete',
       arguments: [document, range],
-    } as vscode.Command;
+    };
 
     return [action];
   }

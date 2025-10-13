@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { EXCLUDED_FOLDERS, filePattern, foldersPattern } from './constants';
+import { EXCLUDED_FOLDERS } from './constants';
 
 export const uuid = (length: number = 4): string => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -103,19 +103,7 @@ export const ensureDirectory = async (fileUri: vscode.Uri) => {
   }
 };
 
-export const getWorkspaceFilesUri = async (maxFiles?: number) => {
-  const workspaceFiles = await vscode.workspace.findFiles(
-    filePattern,
-    foldersPattern,
-    maxFiles && maxFiles * 3,
-  );
-
-  let uris: vscode.Uri[] = [];
-
-  for (let i = 0; i <= workspaceFiles.length; i++) {
-    uris.push(workspaceFiles[i]);
-    if (uris.length >= this.maxFiles) break;
-  }
-
-  uris = uris.slice(0, this.maxFiles);
+export const getSelectionText = () => {
+  const editor = vscode.window.activeTextEditor;
+  return editor?.document.getText(editor.selection) ?? editor?.document.getText() ?? '';
 };

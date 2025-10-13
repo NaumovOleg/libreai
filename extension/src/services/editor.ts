@@ -34,6 +34,15 @@ export class Editor {
     return { ...instruction, old };
   }
 
+  static async insertBeforeSelection(text: string, start: vscode.Position) {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) return;
+
+    return editor.edit((editBuilder) => {
+      editBuilder.insert(start, text);
+    });
+  }
+
   // async applyRange(instruction: EditFileToolArgs = this.instruction) {
   //   if (!vscode.workspace.workspaceFolders?.length) return null;
   //   const root = vscode.workspace.workspaceFolders[0].uri.fsPath;

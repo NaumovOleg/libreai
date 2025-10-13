@@ -135,7 +135,15 @@
           "type": "number"
         }
       }
-    }
+    },
+    "keybindings": [
+      {
+        "command": "robocode.triggerAutocomplete",
+        "key": "ctrl+p",
+        "mac": "cmd+p",
+        "when": "editorTextFocus"
+      }
+    ]
   },
   "dependencies": {
     "@xenova/transformers": "^2.14.1",

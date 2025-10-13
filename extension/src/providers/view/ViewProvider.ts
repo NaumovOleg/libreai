@@ -112,7 +112,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         time: new Date(),
         text: '',
         id: uuid(7),
-        session: message.session,
       };
 
       const [ctx, files] = await Promise.all([

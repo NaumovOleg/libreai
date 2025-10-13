@@ -1,17 +1,18 @@
-import * as path from 'path';
-import * as vscode from 'vscode';
-
-import { Observer } from '../observer';
+import { Observer } from '@observer';
 import {
   ContextT,
   DbFile,
   filePattern,
   foldersPattern,
+  getSelectionText,
   getWorkspaceFileTree,
   getWorkspaceName,
   replaceLast,
   uuid,
-} from '../utils';
+} from '@utils';
+import * as path from 'path';
+import * as vscode from 'vscode';
+
 import { VectorStorage } from './database/vectorStorage';
 
 export class Context {
@@ -104,6 +105,7 @@ export class Context {
       try {
         await this.indexFile(uri, 10, false);
         indexed++;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.error(`❌ Failed to index ${uri.fsPath}:`, err);
         this.observer.emit('indexing', {
@@ -161,8 +163,6 @@ export class Context {
       lookUpFileTree ? getWorkspaceFileTree() : [''],
     ]);
 
-    console.log(chunks);
-
     const ctx = chunks.reduce(
       (acc, chunk) => {
         if (!acc[chunk.path]) {
@@ -186,8 +186,7 @@ export class Context {
     }, '');
 
     const editor = vscode.window.activeTextEditor;
-    const selection =
-      (editor?.document.getText(editor.selection) || editor?.document.getText()) ?? '';
+    const selection = getSelectionText();
     const currentFilePath = editor?.document.uri.fsPath || 'none';
     const language = editor?.document.languageId;
 
