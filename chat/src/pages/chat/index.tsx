@@ -6,6 +6,20 @@ import { RiRobot3Line } from 'react-icons/ri';
 import Icon from '@mui/material/Icon';
 import { TextArea, Message } from './components';
 import { TypingDots } from '@elements';
+import { MdLabelOutline } from 'react-icons/md';
+import { Author } from '@utils';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+const renderDivider = () => {
+  return (
+    <div className="message-divider">
+      <div className="icon">
+        <MdLabelOutline />
+      </div>
+      <div className="border-line"></div>
+    </div>
+  );
+};
 
 export const Chat = () => {
   const { messages, isAgentThinking } = useChat();
@@ -29,9 +43,17 @@ export const Chat = () => {
   return (
     <section className="chat-section">
       <Box className="messages-container" ref={containerRef} onScroll={handleScroll}>
-        {messages.map((el) => (
-          <Message key={el.id} message={el} isLoading={false} onDelete={() => {}} />
-        ))}
+        {messages.map((el, index) => {
+          const nextMessage = (messages[index + 1] ?? {}) as { from?: Author };
+          const drawDivider = nextMessage?.from === Author.user;
+
+          return (
+            <div key={el.id}>
+              <Message message={el} isLoading={false} onDelete={() => {}} />
+              {drawDivider && renderDivider()}
+            </div>
+          );
+        })}
         {isAgentThinking && (
           <div className="agent-spinner">
             <Icon>

@@ -50,7 +50,8 @@ export const Command: FC<Props> = ({ message }) => {
         {message.status === 'done' && (
           <>
             <div className="done item">
-              Cmd:
+              <span className="prefix"> Cmd:</span>
+
               {command}
               {message.args.state === 'confirmed' ? (
                 <DoneAllIcon className="done-icon icon" />
@@ -58,7 +59,13 @@ export const Command: FC<Props> = ({ message }) => {
                 <GiCancel className="cancel-icon icon" />
               )}
             </div>
-            {message.args.result && <div className="result">Result: {message.args.result}</div>}
+            {message.args.result && (
+              <div className="result">
+                <span className="prefix result-prefix"> Result:</span>
+
+                {message.args.result}
+              </div>
+            )}
           </>
         )}
       </div>

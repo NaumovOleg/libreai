@@ -9,6 +9,7 @@
         flex-direction: row;
         gap: 5px;
         margin: 5px 0;
+        word-break: break-all;
         .icon {
           width: 15px;
           height: 15px;
@@ -25,7 +26,7 @@
         align-items: flex-start;
       }
       .command-line {
-        height: 20px;
+        min-height: 20px;
         display: flex;
         align-items: center;
         justify-self: flex-start;
@@ -47,6 +48,12 @@
             color: var(--vscode-chat-linesRemovedForeground);
           }
         }
+      }
+      .prefix {
+        width: 95px;
+      }
+      .result-prefix {
+        color: var(--vscode-chat-linesAddedForeground);
       }
     }
   }

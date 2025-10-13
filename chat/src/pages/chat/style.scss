@@ -255,6 +255,22 @@
       margin: 10px 0;
       border: 1px solid var(--vscode-commandCenter-inactiveBorder, #555555);
     }
+    .message-divider {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      color: var(--vscode-editor-foreground);
+      height: 15px;
+      .icon {
+        align-self: center;
+        display: flex;
+        align-items: center;
+      }
+      .border-line {
+        width: 100%;
+        border-top: 1px solid var(--vscode-editor-foreground);
+      }
+    }
   }
 }
 

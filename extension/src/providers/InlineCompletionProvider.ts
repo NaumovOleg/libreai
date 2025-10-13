@@ -40,6 +40,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
     document: vscode.TextDocument,
     position: vscode.Position,
   ): Promise<vscode.InlineCompletionList> {
+    console.log('auto complete ');
     return new Promise((resolve) => {
       if (this.debounceTimer) clearTimeout(this.debounceTimer);
       this.lastRequest = { resolve, document, position };
@@ -89,30 +90,4 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
     const snippet = new vscode.SnippetString(stripCodeFences(suggestionText));
     await editor.insertSnippet(snippet, position);
   }
-
-  provideCodeActions(
-    document: vscode.TextDocument,
-    range: vscode.Range,
-    context: vscode.CodeActionContext,
-    token: vscode.CancellationToken,
-  ): vscode.ProviderResult<(vscode.CodeAction | vscode.Command)[]> {
-    console.log({
-      range,
-      context,
-      token,
-    });
-    const action = new vscode.CodeAction(
-      '💡 Trigger AI Autocomplete',
-      vscode.CodeActionKind.QuickFix,
-    );
-
-    action.command = {
-      title: 'Trigger AI Autocomplete',
-      command: 'robocode.triggerAutocomplete',
-      arguments: [document, range],
-    };
-
-    return [action];
-  }
-  static readonly providedCodeActionKinds = [vscode.CodeActionKind.QuickFix];
 }

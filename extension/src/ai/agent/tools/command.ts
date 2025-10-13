@@ -44,8 +44,6 @@ export class CommandTool {
           event.args.result = result;
         }
 
-        console.log('uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu', result.toString());
-
         observer.emit('agent', event);
 
         return { success: event.status === 'done', name: AGENT_TOOLS.command, result };
