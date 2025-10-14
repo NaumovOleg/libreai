@@ -6,7 +6,6 @@
             "ES2020",
             "DOM.AsyncIterable"
         ],
-        "baseUrl": ".",
         "outDir": "out",
         "rootDir": "src",
         "moduleResolution": "bundler",

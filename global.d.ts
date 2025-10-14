@@ -18,6 +18,7 @@ declare enum COMMANDS {
   indexing = 'indexing',
   selectContext = 'selectContext',
   interactCommand = 'interactCommand',
+  helperMessage = 'helperMessage',
 }
 
 declare type ShowPreviewMessage = {
@@ -125,3 +126,5 @@ declare const acquireVsCodeApi: () => {
   getState: () => State;
   setState: (state: State) => void;
 };
+
+declare module '*.scss';

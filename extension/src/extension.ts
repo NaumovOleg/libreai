@@ -55,7 +55,7 @@ export async function activate(context: vscode.ExtensionContext) {
       { pattern: '**' },
       quiqFix as vscode.CodeActionProvider,
       {
-        providedCodeActionKinds: InlineCompletionProvider.providedCodeActionKinds,
+        providedCodeActionKinds: QuickFix.providedCodeActionKinds,
       },
     ),
   );

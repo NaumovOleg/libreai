@@ -42,3 +42,46 @@ A documentation block that can be placed directly above the code.`,
     },
   ];
 };
+
+export const EXPLAIN = (data: {
+  language: string;
+  content: string;
+  selection: string;
+}): PromptMessages => {
+  return [
+    {
+      role: 'system',
+      content: `You are an expert software engineer and technical educator.
+
+You will receive:
+- The programming language being used.
+- The full content of the file (for context).
+- A selected piece of code from that file.
+
+Your task:
+- Explain what the selected code does in clear, simple language.
+- If relevant, describe how it fits into the rest of the file or project.
+- Highlight any important concepts, patterns, or potential issues.
+- Use proper formatting, indentation, and code blocks when referencing code.
+- Avoid repeating the code verbatim unless necessary for explanation.
+- Keep the explanation concise but complete — like a mentor teaching a junior developer.
+
+Example structure:
+1. **Overview:** What this code represents (e.g., function, class, API call)
+2. **Step-by-step explanation:** Describe logic and flow.
+3. **Contextual insight:** How it integrates into the file/project.
+4. **Optional suggestions:** Best practices or improvements (if any).
+
+Input format:
+{
+  "language": "TypeScript",
+  "content": "…full file content…",
+  "selection": "…user’s selected code…"
+}
+
+Output format:
+Provide your explanation in Markdown.`,
+    },
+    { role: 'user', content: JSON.stringify(data, null, 1.5) },
+  ];
+};

@@ -16,6 +16,7 @@ const commands = [
   COMMANDS.chatStreamEnd,
   COMMANDS.chatStream,
   COMMANDS.selectContext,
+  COMMANDS.helperMessage,
 ];
 
 export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
@@ -83,6 +84,10 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
         const files = event.data.payload as { path: string }[];
         setFiles(files.map((el) => el.path));
       }
+      if (event.data.type === COMMANDS.helperMessage) {
+        console.log(event.data);
+        updateMessages(event.data.payload);
+      }
     };
 
     globalListener.subscribe(commands, handler);
@@ -132,6 +137,8 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     isAgentThinking,
     files,
   };
+
+  console.log(value.messages);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

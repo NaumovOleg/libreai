@@ -213,10 +213,4 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     // this.storage.addChatHistoryItems(historyToUpdate);
     // this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
   }
-
-  public updateContext(payload: unknown) {
-    if (!this.web) return;
-
-    this.web.webview.postMessage({ type: COMMANDS.changeConfig, payload });
-  }
 }

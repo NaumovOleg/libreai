@@ -29,6 +29,7 @@ export enum COMMANDS {
   indexing = 'indexing',
   selectContext = 'selectContext',
   interactCommand = 'interactCommand',
+  helperMessage = 'helperMessage',
 }
 
 export type ShowPreviewMessage = {

@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 
 import {
   AgentMessage,
+  ChatMessage,
   COMMANDS,
   EDITOR_EVENTS,
   ExecCommandPayload,
@@ -36,7 +37,13 @@ export class Observer {
 
   emit(event: `interact-command-${string}`, payload: ExecCommandPayload): void;
 
-  emit(event: any, payload: any) {
+  emit(event: COMMANDS.helperMessage, payload: ChatMessage): void;
+
+  emit(event: COMMANDS.chatStream, payload: ChatMessage): void;
+
+  emit(event: COMMANDS.chatStreamEnd): void;
+
+  emit(event: any, payload?: any) {
     this.observer.emit(event, payload);
   }
 
@@ -51,6 +58,9 @@ export class Observer {
   observe() {
     this.observer.subscribe('agent', this.agentResponse.bind(this));
     this.observer.subscribe('indexing', this.indexing.bind(this));
+    this.observer.subscribe(COMMANDS.helperMessage, this.helperMessage.bind(this));
+    this.observer.subscribe(COMMANDS.chatStream, this.chatStream.bind(this));
+    this.observer.subscribe(COMMANDS.chatStreamEnd, this.chatStreamEnd.bind(this));
   }
   agentResponse: ObserverEditorHandler<EDITOR_EVENTS.readFile> = (payload: AgentMessage) => {
     this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
@@ -58,4 +68,15 @@ export class Observer {
   indexing = (payload: IndexingPayload) => {
     this.web.webview.postMessage({ type: COMMANDS.indexing, payload });
   };
+  helperMessage = (payload: ChatMessage) => {
+    this.web.webview.postMessage({ type: COMMANDS.helperMessage, payload });
+  };
+
+  chatStream(payload: ChatMessage) {
+    this.web.webview.postMessage({ type: COMMANDS.chatStream, payload });
+  }
+
+  chatStreamEnd() {
+    this.web.webview.postMessage({ type: COMMANDS.chatStreamEnd });
+  }
 }

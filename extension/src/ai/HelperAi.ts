@@ -1,7 +1,10 @@
 import { LLMFactory } from '@llm';
 import { PromptMessages } from '@utils';
 
-import { DOCUMENT } from './prompts';
+import { DOCUMENT, EXPLAIN } from './prompts';
+
+type Documentpayload = { code: string; language: string };
+type ExplainPayload = { language: string; selection: string; content: string };
 
 export class HelperAi {
   LLMFactory = new LLMFactory();
@@ -10,11 +13,27 @@ export class HelperAi {
     return this.LLMFactory.chat;
   }
 
-  document(data: { code: string; language: string }, stream = false) {
+  document(data: Documentpayload, stream: true): AsyncGenerator<string>;
+
+  document(data: Documentpayload, stream?: false): Promise<string>;
+
+  document(data: Documentpayload, stream = false) {
     if (stream) {
       return this.chatStream(DOCUMENT(data));
     }
     return this.chat(DOCUMENT(data));
+  }
+
+  explain(data: ExplainPayload, stream?: true): AsyncGenerator<string>;
+
+  explain(data: ExplainPayload, stream: false): Promise<string>;
+
+  explain(data: { language: string; selection: string; content: string }, stream = true) {
+    const prompt = EXPLAIN(data);
+    if (stream) {
+      return this.chatStream(prompt);
+    }
+    return this.chat(prompt);
   }
 
   async chat(messages: PromptMessages) {
