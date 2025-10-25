@@ -199,15 +199,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     return this.workflow.run({
       fileTree: ctx.fileTree,
-      workspaceContext: ctx.workspaceContext,
       language: ctx.language,
       request: message.text,
       files,
     });
-
-    // historyToUpdate.push(payload);
-
-    // this.storage.addChatHistoryItems(historyToUpdate);
-    // this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
   }
 }

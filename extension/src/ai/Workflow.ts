@@ -20,7 +20,7 @@ export class Workflow {
   private planner: Planner;
   private executor: Executor;
 
-  constructor(cbks: ToolCallbacks) {
+  constructor(cbks: Omit<ToolCallbacks, 'planning'>) {
     const toolFactory = new ToolFactory(cbks);
     this.planner = new Planner(toolFactory.plannerTools);
     this.executor = new Executor(toolFactory.tools);

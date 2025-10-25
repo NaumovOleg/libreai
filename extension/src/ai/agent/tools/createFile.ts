@@ -1,3 +1,4 @@
+import { Observer } from '@observer';
 import {
   AGENT_TOOLS,
   AgentMessagePayload,
@@ -8,7 +9,6 @@ import {
 } from '@utils';
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
-import { Observer } from '../../../observer';
 import { Schemas } from './schemas';
 
 export class CreateFileTool {

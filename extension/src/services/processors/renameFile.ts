@@ -1,6 +1,5 @@
+import { RenameFileToolArgs, resolveFilePath } from '@utils';
 import * as vscode from 'vscode';
-
-import { RenameFileToolArgs, resolveFilePath } from '../../utils';
 
 export const renameFileCb = async (instruction: RenameFileToolArgs) => {
   if (!vscode.workspace.workspaceFolders?.length) return null;

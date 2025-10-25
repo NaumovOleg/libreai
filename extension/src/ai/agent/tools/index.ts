@@ -14,7 +14,7 @@ export class ToolFactory {
   tools: FunctionTool<any, any, any>[];
   plannerTools: FunctionTool<any, any, any>[];
 
-  constructor(cbks: ToolCallbacks) {
+  constructor(cbks: Omit<ToolCallbacks, 'planning'>) {
     const command = new CommandTool(cbks[AGENT_TOOLS.command]);
     const create = new CreateFileTool(cbks[AGENT_TOOLS.createFile]);
     const deleteFile = new DeleteFileTool(cbks[AGENT_TOOLS.deleteFile]);

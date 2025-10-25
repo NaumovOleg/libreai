@@ -1,7 +1,7 @@
+import { Observer } from '@observer';
 import { AGENT_TOOLS, AgentMessagePayload, EditFileToolArgs, ToolCallbacks, uuid } from '@utils';
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
-import { Observer } from '../../../observer';
 import { Schemas } from './schemas';
 
 export class EditFileTool {

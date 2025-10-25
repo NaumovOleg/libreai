@@ -1,6 +1,5 @@
+import { EditFileToolArgs, resolveFilePath } from '@utils';
 import * as vscode from 'vscode';
-
-import { EditFileToolArgs, resolveFilePath } from '../utils';
 
 export class Editor {
   document!: vscode.TextDocument;

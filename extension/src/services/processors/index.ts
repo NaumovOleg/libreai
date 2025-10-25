@@ -1,4 +1,5 @@
-import { AGENT_TOOLS, ToolCallbacks } from '../../utils';
+import { AGENT_TOOLS, ToolCallbacks } from '@utils';
+
 import { commandCb } from './command';
 import { createFileCb } from './createFile';
 import { deleteFileCb } from './deleteFile';

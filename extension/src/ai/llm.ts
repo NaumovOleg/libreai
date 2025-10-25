@@ -2,9 +2,8 @@ import { AiConfigT, AiProviders } from '@global/types';
 import { deepseek } from '@llamaindex/deepseek';
 import { ollama } from '@llamaindex/ollama';
 import { openai } from '@llamaindex/openai';
+import { Conf } from '@utils';
 import { LLM, ToolCallLLM } from 'llamaindex';
-
-import { Conf } from '../utils';
 
 const constructors = {
   [AiProviders.openai]: openai,

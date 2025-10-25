@@ -155,6 +155,7 @@
     .message {
       font-size: 10px;
       .message-markdown {
+        overflow-y: scroll;
         p {
           margin: 0;
           word-wrap: break-word;

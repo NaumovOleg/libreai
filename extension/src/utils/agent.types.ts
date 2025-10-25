@@ -19,7 +19,7 @@ export type ExecutorInstruction = {
   };
 };
 
-export type PlannerQuery = Pick<ContextT, 'fileTree' | 'workspaceContext' | 'language'> & {
+export type PlannerQuery = Pick<ContextT, 'fileTree' | 'language'> & {
   request: string;
 } & { files?: { file: string; content: string }[] };
 export type PlannerTask = { file: string; task: string } | { command?: string };

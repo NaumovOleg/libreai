@@ -1,6 +1,5 @@
+import { CreateToolArgs, ensureDirectory, resolveFilePath } from '@utils';
 import * as vscode from 'vscode';
-
-import { CreateToolArgs, ensureDirectory, resolveFilePath } from '../../utils';
 
 export const createFileCb = async (instruction: CreateToolArgs) => {
   if (!vscode.workspace.workspaceFolders?.length) return null;

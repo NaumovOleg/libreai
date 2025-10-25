@@ -1,7 +1,7 @@
+import { Observer } from '@observer';
 import { AGENT_TOOLS, AgentMessagePayload, ReadFileToolArgs, ToolCallbacks, uuid } from '@utils';
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
-import { Observer } from '../../../observer';
 import { Schemas } from './schemas';
 export class ReadFileTool {
   tool: FunctionTool<ReadFileToolArgs, JSONValue | Promise<JSONValue>, object>;

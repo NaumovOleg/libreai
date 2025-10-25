@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 
-import { SuggestionPromptParams } from '../../utils';
+import { SuggestionPromptParams } from '@utils';
 
 export const INLINE_SUGGESTION_PROMPT = (data: SuggestionPromptParams) => {
   return `

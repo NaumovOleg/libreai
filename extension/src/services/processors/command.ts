@@ -1,7 +1,6 @@
+import { CommandToolArgs } from '@utils';
 import { execSync } from 'child_process';
 import * as vscode from 'vscode';
-
-import { CommandToolArgs } from '../../utils';
 
 export const commandCb = async (instruction: CommandToolArgs) => {
   if (!vscode.workspace.workspaceFolders?.length) return 'No workspace folder is open.';

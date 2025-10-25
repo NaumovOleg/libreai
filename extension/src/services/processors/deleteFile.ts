@@ -1,6 +1,5 @@
+import { DeleteFileToolArgs, resolveFilePath } from '@utils';
 import * as vscode from 'vscode';
-
-import { DeleteFileToolArgs, resolveFilePath } from '../../utils';
 
 export const deleteFileCb = async (instruction: DeleteFileToolArgs) => {
   if (!vscode.workspace.workspaceFolders?.length) return null;

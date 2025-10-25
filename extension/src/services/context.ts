@@ -1,6 +1,5 @@
 import { Observer } from '@observer';
 import {
-  ContextT,
   DbFile,
   filePattern,
   foldersPattern,
@@ -14,6 +13,36 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { VectorStorage } from './database/vectorStorage';
+
+export type ContextWithEmbeddings = {
+  editor: vscode.TextEditor | undefined;
+  workspaceContext: string;
+  selection: string;
+  currentFilePath: string;
+  language?: string;
+  fileTree: string[];
+};
+
+export type ContextWithoutEmbeddings = {
+  editor: vscode.TextEditor | undefined;
+  selection: string;
+  currentFilePath: string;
+  language?: string;
+  fileTree: string[];
+};
+
+export type GetContextParams = {
+  contextLimit?: number;
+  lookUpFileTree?: boolean;
+  lookupEmbeddings?: boolean;
+};
+
+// Conditional return type
+export type GetContextReturn<P extends GetContextParams | undefined = undefined> = P extends {
+  lookupEmbeddings: false;
+}
+  ? ContextWithoutEmbeddings
+  : ContextWithEmbeddings;
 
 export class Context {
   private observer = Observer.getInstance();
@@ -149,29 +178,42 @@ export class Context {
     return relativePaths.sort().join('\n');
   }
 
-  async getContext(
+  async getContext<P extends GetContextParams | undefined = undefined>(
     message: string,
-    params?: {
-      contextLimit?: number;
-      lookUpFileTree?: boolean;
-      lookupEmbeddings?: boolean;
-    },
-  ): Promise<ContextT> {
-    const { contextLimit = 10, lookUpFileTree = true, lookupEmbeddings = true } = params ?? {};
+    params?: P,
+  ): Promise<GetContextReturn<P>> {
+    const {
+      contextLimit = 10,
+      lookUpFileTree = true,
+      lookupEmbeddings = true,
+    } = (params ?? {}) as GetContextParams;
 
     const [chunks, fileTree] = await Promise.all([
       lookupEmbeddings ? this.searchRelevant(message, contextLimit) : [],
       lookUpFileTree ? getWorkspaceFileTree() : [],
     ]);
 
-    const workspaceContext = parseEmbeddings(chunks);
+    const workspaceContext: string | undefined = lookupEmbeddings
+      ? parseEmbeddings(chunks)
+      : undefined;
 
     const editor = vscode.window.activeTextEditor;
     const selection = getSelectionText();
     const currentFilePath = editor?.document.uri.fsPath || 'none';
     const language = editor?.document.languageId;
 
-    return { editor, selection, workspaceContext, currentFilePath, language, fileTree };
+    const data = {
+      editor,
+      selection,
+      currentFilePath,
+      language,
+      fileTree,
+    } as GetContextReturn<P>;
+
+    if (lookupEmbeddings) {
+      Object.assign(data, { workspaceContext: workspaceContext ?? '' });
+    }
+    return data;
   }
 
   async getFilesContent(urls?: string[]) {

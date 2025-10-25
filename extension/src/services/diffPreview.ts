@@ -1,6 +1,5 @@
+import { ShowPreviewMessage } from '@utils';
 import * as vscode from 'vscode';
-
-import { ShowPreviewMessage } from '../utils';
 
 class MemoryContentProvider implements vscode.TextDocumentContentProvider {
   private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
