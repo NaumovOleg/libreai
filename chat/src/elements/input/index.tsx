@@ -8,14 +8,16 @@ type Props = {
   placeholder?: string;
   onChange: (value: string) => void;
   value?: string;
+  type?: 'text' | 'number';
 };
 
-export const Input: FC<Props> = ({ label, value = '', onChange, placeholder }) => {
+export const Input: FC<Props> = ({ label, value = '', onChange, placeholder, type = 'text' }) => {
   return (
     <div>
       <FormControl variant="outlined">
         {label && <InputLabel>{label}</InputLabel>}
         <OutlinedInput
+          type={type}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value as string)}

@@ -65,6 +65,17 @@ export const AiConfig: FC<Props> = ({ configType }) => {
           onChange={(temperature) => setConfig(configType, { temperature: +temperature })}
         />
       </Fragment>
+      {configType === CONFIG_PARAGRAPH.autoCompleteConfig && (
+        <Fragment>
+          <Typography variant="body1">Autocomplete delay ms. (use 0 to turn off)</Typography>
+          <Input
+            placeholder="autocomplete"
+            type="number"
+            value={settings?.autocompleteDeleay + ''}
+            onChange={(temperature) => setConfig(configType, { autocompleteDeleay: +temperature })}
+          />
+        </Fragment>
+      )}
 
       <Button
         onClick={() => applyChanges(configType)}

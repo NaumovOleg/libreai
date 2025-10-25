@@ -197,9 +197,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       this.ctx.getFilesContent(message.files),
     ]);
 
-    console.log('AGENT CONTEXT', ctx);
-    // const history = this.storage.getSessionChatHistory(message.session);
-
     return this.workflow.run({
       fileTree: ctx.fileTree,
       workspaceContext: ctx.workspaceContext,

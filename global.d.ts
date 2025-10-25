@@ -41,6 +41,7 @@ interface AiConfigT {
   apiKey?: string;
   maxTokens?: number;
   temperature?: number;
+  autocompleteDeleay?: number;
 }
 declare type ExecCommandPayload = {
   id: string;

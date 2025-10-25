@@ -58,6 +58,7 @@ export interface AiConfigT {
   apiKey?: string;
   maxTokens?: number;
   temperature?: number;
+  autocompleteDeleay?: number;
 }
 
 export enum Author {

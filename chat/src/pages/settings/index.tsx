@@ -19,7 +19,6 @@ export const Settings = () => {
       label: 'Autocomplete',
       content: <AiConfig configType={CONFIG_PARAGRAPH.autoCompleteConfig} />,
     },
-    { label: 'Tab 3', content: <div>Content for Tab 3</div> },
   ];
 
   return (

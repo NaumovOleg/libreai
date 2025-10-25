@@ -1,8 +1,8 @@
+import { Conf, stripCodeFences } from '@utils';
 import * as vscode from 'vscode';
 
 import { Autocomplete } from '../ai';
 import { Context } from '../services';
-import { stripCodeFences } from '../utils';
 
 export class InlineCompletionProvider implements vscode.InlineCompletionItemProvider {
   private debounceTimer: NodeJS.Timeout | null = null;
@@ -41,6 +41,10 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
     position: vscode.Position,
   ): Promise<vscode.InlineCompletionList> {
     console.log('auto complete ');
+
+    const delay = Conf.autoCompleteConfig.autocompleteDeleay;
+    if (delay === 0) return { items: [] };
+
     return new Promise((resolve) => {
       if (this.debounceTimer) clearTimeout(this.debounceTimer);
       this.lastRequest = { resolve, document, position };
@@ -66,7 +70,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
         this.debounceTimer = null;
         this.lastRequest = null;
-      }, 3000);
+      }, Conf.autoCompleteConfig.autocompleteDeleay);
     });
   }
 

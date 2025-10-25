@@ -23,6 +23,8 @@
   ],
   "scripts": {
     "dev": "nodemon --config ./nodemon.json",
+    "package": "vsce package ",
+    "list-package": "vsce ls --tree",
     "build": "yarn workspace chat build && yarn workspace extension build",
     "build:chat": "yarn workspace chat build",
     "build:extension": "yarn workspace extension build"
@@ -113,6 +115,9 @@
           "type": "number"
         },
         "autoCompleteConfig.temperature": {
+          "type": "number"
+        },
+        "autoCompleteConfig.autocompleteDeleay": {
           "type": "number"
         },
         "agentConfig.provider": {
