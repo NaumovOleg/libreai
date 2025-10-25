@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 
-import { PromptMessages, PromptProps } from '../../utils';
+import { formFileContent, PromptMessages, PromptProps } from '@utils';
 export const CHAT_PROMPT = (data: PromptProps): PromptMessages => {
   return [
     {
@@ -11,7 +11,7 @@ Use this project context, current file, selection, programming language and file
   - Current file:  <***>${data.currentFilePath}<***>.
   - Selection:  <***>${data.selection}<***>.
   - Programming language:  <***>${data.language}<***>.
-  - Files: ${JSON.stringify(data.files, null, 1.5)}`,
+  - Files: ${formFileContent(data.files)}`,
     },
     { role: 'user', content: `Instruction: <***>${data.text}<***>.` },
   ];

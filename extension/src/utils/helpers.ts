@@ -106,3 +106,14 @@ export const getSelectionText = () => {
   const editor = vscode.window.activeTextEditor;
   return editor?.document.getText(editor.selection) ?? editor?.document.getText() ?? '';
 };
+
+export const formFileContent = (files?: { content: string; file: string }[]) => {
+  return files
+    ?.map(
+      (f) => `
+<file path="${f.file}">
+${f.content.trim()}
+</file>`,
+    )
+    .join('\n\n');
+};

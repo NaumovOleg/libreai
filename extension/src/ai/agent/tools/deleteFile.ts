@@ -34,11 +34,11 @@ export class DeleteFileTool {
 
         observer.emit('agent', event);
 
-        return JSON.stringify({
+        return {
           success: (event.status = 'done'),
           name: EDITOR_EVENTS.deleteFile,
           file: args.file,
-        });
+        };
       },
       name: AGENT_TOOLS.deleteFile,
       description: 'Deletes existed file.',

@@ -1,4 +1,5 @@
-import { PlannerQuery } from '../../utils';
+import { formFileContent, PlannerQuery } from '@utils';
+
 export const PLANNER_SYSTEM_PROMPT = (data: {
   files?: { file: string; content: string }[];
   fileTree: string[];
@@ -10,7 +11,7 @@ and produce a minimal, clear list of actionable tasks for the code agent.
 Use the following context:
   - **File Tree:** <***>${data.fileTree}<***>
   - **Language:** <***>${data.language}<***>
-  ${data.files ? '- **Files Content:** ' + JSON.stringify(data.files, null, 2) : ''}
+  ${data.files ? '- **Files Content:** ' + formFileContent(data.files) : ''}
     
 ***RULES***
   1. Use workspace-relative paths only.

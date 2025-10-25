@@ -198,7 +198,7 @@ export class Context {
     const data = urls.map((url) => {
       const uri = vscode.Uri.file(url);
       return vscode.workspace.fs.readFile(uri).then((data) => ({
-        file: uri.path,
+        file: vscode.workspace.asRelativePath(uri),
         content: Buffer.from(data).toString('utf8'),
       }));
     });

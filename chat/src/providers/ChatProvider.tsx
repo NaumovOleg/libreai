@@ -85,7 +85,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
         setFiles(files.map((el) => el.path));
       }
       if (event.data.type === COMMANDS.helperMessage) {
-        console.log(event.data);
         updateMessages(event.data.payload);
       }
     };
@@ -137,8 +136,6 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     isAgentThinking,
     files,
   };
-
-  console.log(value.messages);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

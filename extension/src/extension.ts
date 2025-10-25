@@ -12,7 +12,6 @@ import { Context, SessionStorage } from './services';
 import { VectorStorage } from './services/database';
 
 export async function activate(context: vscode.ExtensionContext) {
-  console.log('Robocode started');
   const vectorizer = new VectorStorage(context);
   const ctx = new Context(vectorizer);
   const storage = new SessionStorage(context);
@@ -51,7 +50,6 @@ export async function activate(context: vscode.ExtensionContext) {
       },
     ),
     vscode.commands.registerCommand('robocode.openChat', () => {
-      console.log('=======================================');
       vscode.commands.executeCommand('robocodeView.focus');
     }),
     vscode.commands.registerCommand(quiqFix.documentCodeCommand, (args) => {

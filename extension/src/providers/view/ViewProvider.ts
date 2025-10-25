@@ -118,6 +118,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         this.ctx.getContext(message.text, { contextLimit: 5 }),
         this.ctx.getFilesContent(message.files),
       ]);
+
       const chatGenerator = this.chat.chatStream({
         ...ctx,
         text: message.text,
@@ -151,7 +152,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   private interactCommand(payload: ExecCommandPayload) {
     const observer = Observer.getInstance();
     const event = ('interact-command-' + payload.id) as `interact-command-${string}`;
-    console.log(event);
     observer.emit(event, payload);
   }
 

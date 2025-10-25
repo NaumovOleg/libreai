@@ -38,7 +38,7 @@ export class ReadFileTool {
           return result;
         } catch (err) {
           console.log(err);
-          return JSON.stringify({ status: 'error' });
+          return { status: 'error' };
         }
       },
 
