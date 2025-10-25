@@ -7,7 +7,7 @@ import {
   getSelectionText,
   getWorkspaceFileTree,
   getWorkspaceName,
-  replaceLast,
+  parseEmbeddings,
   uuid,
 } from '@utils';
 import * as path from 'path';
@@ -154,36 +154,17 @@ export class Context {
     params?: {
       contextLimit?: number;
       lookUpFileTree?: boolean;
+      lookupEmbeddings?: boolean;
     },
   ): Promise<ContextT> {
-    const { contextLimit = 10, lookUpFileTree = true } = params ?? {};
+    const { contextLimit = 10, lookUpFileTree = true, lookupEmbeddings = true } = params ?? {};
 
     const [chunks, fileTree] = await Promise.all([
-      this.searchRelevant(message, contextLimit),
-      lookUpFileTree ? getWorkspaceFileTree() : [''],
+      lookupEmbeddings ? this.searchRelevant(message, contextLimit) : [],
+      lookUpFileTree ? getWorkspaceFileTree() : [],
     ]);
 
-    const ctx = chunks.reduce(
-      (acc, chunk) => {
-        if (!acc[chunk.path]) {
-          acc[chunk.path] = `<FILE>${chunk.path}</FILE> \n
-          <CHUNK>
-          ${chunk.text}
-          </CHUNK>`;
-        } else {
-          const replaceString = `\n ${chunk.text}</CHUNK>`;
-
-          acc[chunk.path] = replaceLast(acc[chunk.path], '</CHUNK>', replaceString);
-        }
-        return acc;
-      },
-      {} as { [key: string]: string },
-    );
-
-    const workspaceContext = Object.values(ctx).reduce((acc, val) => {
-      acc += val + '\n';
-      return acc;
-    }, '');
+    const workspaceContext = parseEmbeddings(chunks);
 
     const editor = vscode.window.activeTextEditor;
     const selection = getSelectionText();

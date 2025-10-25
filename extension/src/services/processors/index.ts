@@ -5,7 +5,7 @@ import { deleteFileCb } from './deleteFile';
 import { editFileCb } from './editFile';
 import { readFileCb } from './readFile';
 import { renameFileCb } from './renameFile';
-import { searchEmbeddingsCb } from './searchEmbeddings';
+import { retrieveEmbeddingsCb } from './retrieveEmbeddings';
 
 export const callbacks: Omit<ToolCallbacks, 'planning'> = {
   [AGENT_TOOLS.command]: commandCb,
@@ -14,5 +14,5 @@ export const callbacks: Omit<ToolCallbacks, 'planning'> = {
   [AGENT_TOOLS.editFile]: editFileCb,
   [AGENT_TOOLS.readFile]: readFileCb,
   [AGENT_TOOLS.renameFile]: renameFileCb,
-  [AGENT_TOOLS.searchEmbeddings]: searchEmbeddingsCb,
+  [AGENT_TOOLS.retrieveEmbeddings]: retrieveEmbeddingsCb,
 };

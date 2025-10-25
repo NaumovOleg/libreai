@@ -193,7 +193,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
   public async useAgent(message: ChatMessage) {
     const [ctx, files] = await Promise.all([
-      this.ctx.getContext(message.text, { contextLimit: 10 }),
+      this.ctx.getContext(message.text, { lookupEmbeddings: false }),
       this.ctx.getFilesContent(message.files),
     ]);
 

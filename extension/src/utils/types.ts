@@ -27,7 +27,7 @@ export type DbFile = FileChunk & { id: string };
 
 export type ContextT = {
   editor: vscode.TextEditor | undefined;
-  workspaceContext: string;
+  workspaceContext?: string;
   selection: string;
   currentFilePath: string;
   language?: string;

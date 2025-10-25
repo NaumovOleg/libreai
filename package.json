@@ -4,7 +4,7 @@
   "displayName": "AI Inline + Chat",
   "publisher": "olgert",
   "description": "Code copilot",
-  "version": "1.1.6",
+  "version": "1.2.1",
   "main": "./out/extension.js",
   "engines": {
     "vscode": "^1.85.0"
@@ -77,7 +77,7 @@
       ]
     },
     "configuration": {
-      "title": "AI Extension Settings",
+      "title": "Robocode configurations",
       "properties": {
         "chatConfig.provider": {
           "type": "string"

@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { EXCLUDED_FOLDERS } from './constants';
+import { FileChunk } from './types';
 
 export const uuid = (length: number = 4): string => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -116,4 +117,28 @@ ${f.content.trim()}
 </file>`,
     )
     .join('\n\n');
+};
+
+export const parseEmbeddings = (chunks: FileChunk[]) => {
+  const ctx = chunks.reduce(
+    (acc, chunk) => {
+      if (!acc[chunk.path]) {
+        acc[chunk.path] = `<FILE>${chunk.path}</FILE> \n
+          <CHUNK>
+          ${chunk.text}
+          </CHUNK>`;
+      } else {
+        const replaceString = `\n ${chunk.text}</CHUNK>`;
+
+        acc[chunk.path] = replaceLast(acc[chunk.path], '</CHUNK>', replaceString);
+      }
+      return acc;
+    },
+    {} as { [key: string]: string },
+  );
+
+  return Object.values(ctx).reduce((acc, val) => {
+    acc += val + '\n';
+    return acc;
+  }, '');
 };

@@ -61,7 +61,7 @@ export enum AGENT_TOOLS {
   createFile = 'createFile',
   readFile = 'readFile',
   planning = 'planning',
-  searchEmbeddings = 'searchEmbeddings',
+  retrieveEmbeddings = 'retrieveEmbeddings',
 }
 
 export type ToolCallbacks = {
@@ -74,7 +74,7 @@ export type ToolCallbacks = {
   [AGENT_TOOLS.createFile]: (args: CreateToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.readFile]: (args: string) => Promise<string>;
   [AGENT_TOOLS.planning]: (args: string) => Promise<string>;
-  [AGENT_TOOLS.searchEmbeddings]: (
+  [AGENT_TOOLS.retrieveEmbeddings]: (
     args: SearchEmbeddingsToolArgs,
   ) => Promise<{ path: string; text: string }[]>;
 };

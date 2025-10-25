@@ -6,7 +6,7 @@ import { Schemas } from './schemas';
 export class SearchEmbeddings {
   tool: FunctionTool<SearchEmbeddingsToolArgs, JSONValue | Promise<JSONValue>, object>;
 
-  constructor(cb: ToolCallbacks[AGENT_TOOLS.searchEmbeddings]) {
+  constructor(cb: ToolCallbacks[AGENT_TOOLS.retrieveEmbeddings]) {
     this.tool = tool({
       execute: async (args: SearchEmbeddingsToolArgs) => {
         console.log('Searching embedings', args);
@@ -20,12 +20,16 @@ export class SearchEmbeddings {
 
         console.log('EMBEDDINGS DATA------------', data);
 
-        return data;
+        return {
+          success: true,
+          name: AGENT_TOOLS.retrieveEmbeddings,
+          content: data,
+        };
       },
 
-      name: AGENT_TOOLS.searchEmbeddings,
+      name: AGENT_TOOLS.retrieveEmbeddings,
       description: 'Search workspace embeddings by semantic criteria.',
-      parameters: Schemas[AGENT_TOOLS.searchEmbeddings],
+      parameters: Schemas[AGENT_TOOLS.retrieveEmbeddings],
     });
   }
 }
