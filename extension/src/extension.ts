@@ -12,7 +12,7 @@ import { Context, SessionStorage } from './services';
 import { VectorStorage } from './services/database';
 
 export async function activate(context: vscode.ExtensionContext) {
-  const vectorizer = new VectorStorage(context);
+  const vectorizer = VectorStorage.getInstance(context);
   const ctx = new Context(vectorizer);
   const storage = new SessionStorage(context);
   const icons = new Icons();

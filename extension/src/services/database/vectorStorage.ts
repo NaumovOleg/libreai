@@ -14,6 +14,14 @@ export class VectorStorage {
   private fileTable!: Table;
   private fileTableName = 'files';
   private embedder: FileEmbedder;
+  private static _instance: VectorStorage;
+
+  static getInstance(context?: vscode.ExtensionContext) {
+    if (context && !VectorStorage._instance) {
+      VectorStorage._instance = new VectorStorage(context);
+    }
+    return VectorStorage._instance;
+  }
 
   constructor(private context: vscode.ExtensionContext) {
     this.embedder = new FileEmbedder();

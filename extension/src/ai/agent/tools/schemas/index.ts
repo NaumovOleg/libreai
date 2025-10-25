@@ -5,6 +5,7 @@ import { DeleteFileSchema } from './deleteFile';
 import { EditFileSchema } from './editFile';
 import { ReadFileSchema } from './readFile';
 import { RenameFileSchema } from './renameFile';
+import { SearchEmbeddingsSchema } from './searchEmbeddings';
 
 export * from './command';
 export * from './deleteFile';
@@ -19,4 +20,5 @@ export const Schemas = {
   [AGENT_TOOLS.renameFile]: RenameFileSchema,
   [AGENT_TOOLS.createFile]: CreateFileSchema,
   [AGENT_TOOLS.deleteFile]: DeleteFileSchema,
+  [AGENT_TOOLS.searchEmbeddings]: SearchEmbeddingsSchema,
 };

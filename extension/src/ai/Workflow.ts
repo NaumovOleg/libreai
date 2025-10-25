@@ -21,8 +21,8 @@ export class Workflow {
   private executor: Executor;
 
   constructor(cbks: ToolCallbacks) {
-    this.planner = new Planner();
     const toolFactory = new ToolFactory(cbks);
+    this.planner = new Planner(toolFactory.plannerTools);
     this.executor = new Executor(toolFactory.tools);
     this.workflow.handle([startStep], async (event, context) => {
       const instructions = await this.planner.run(context.data);

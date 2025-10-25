@@ -1,64 +1,37 @@
+import { agent } from '@llamaindex/workflow';
 import { LLMFactory } from '@llm';
-import { AgentMessagePayload, PlannerQuery, PlannerTask, uuid } from '@utils';
-import { z } from 'zod';
+import { PlannerQuery, PlannerTask } from '@utils';
+import { FunctionTool, JSONValue } from 'llamaindex';
 
-import { Observer } from '../../../observer';
-import { PLANNER_SYSTEM_PROMPT, PLANNER_USER_PROMPT } from '../../prompts';
+import { PLANNER_AGENT_SYSTEM_PROMPT } from '../../prompts';
 
 export class Planner {
   LLMFactory = new LLMFactory();
-  private parser = z.object({
-    tasks: z.array(
-      z.union([
-        z.object({
-          file: z
-            .string()
-            .describe('Path to the file to edit. Exclude if there are commands to run'),
-          task: z.string().describe('Instruction to apply. Include if there are file changes.'),
-        }),
-        z.object({
-          command: z
-            .string()
-            .describe('Optional shell command to run. Exclude if there are file changes.'),
-        }),
-      ]),
-    ),
-  });
 
-  get llm() {
-    return this.LLMFactory.planner;
+  constructor(private tools: FunctionTool<JSONValue, JSONValue | Promise<JSONValue>, object>[]) {}
+
+  get agent() {
+    return agent({
+      llm: this.LLMFactory.agent,
+      tools: this.tools,
+      systemPrompt: PLANNER_AGENT_SYSTEM_PROMPT,
+      verbose: false,
+      name: 'Planner assistant',
+      description: 'An AI coding assistant.',
+      logger: {
+        log: (...args) => console.log('📝 PLANNER LOG:', args),
+        error: (...args) => console.error('❌ PLANNER ERROR:', args),
+        warn: (...args) => console.warn('⚠️ PLANNER WARN:', args),
+      },
+    });
   }
 
-  async run(query: PlannerQuery): Promise<PlannerTask[]> {
-    const planningId = uuid(4);
-    const event: AgentMessagePayload<'planning'> = {
-      status: 'pending',
-      args: 'Planning',
-      id: planningId,
-      type: 'planning',
-    };
-    const observer = Observer.getInstance();
-    observer.emit('agent', event);
+  async run(request: PlannerQuery): Promise<PlannerTask[]> {
+    const data = JSON.stringify(request, null, 1.5);
+    const response = await this.agent.run(data);
 
-    try {
-      const response = await this.llm.chat({
-        responseFormat: this.parser,
-        messages: [
-          { role: 'system', content: PLANNER_SYSTEM_PROMPT(query) },
-          { role: 'user', content: PLANNER_USER_PROMPT(query) },
-        ],
-      });
-      event.status = 'done';
-
-      const parsed = JSON.parse(response.message.content.toString());
-      return parsed.tasks;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      event.status = 'error';
-      event.error = err.message;
-      throw new Error(err);
-    } finally {
-      observer.emit('agent', event);
-    }
+    const tasks = JSON.parse((response.data.message?.content as string) ?? { tasks: [] });
+    console.log('PLANNER TASKS--------->', tasks);
+    return tasks;
   }
 }

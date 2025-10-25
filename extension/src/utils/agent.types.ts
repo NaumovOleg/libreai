@@ -48,6 +48,10 @@ export type RenameFileToolArgs = {
   file: string;
   newName: string;
 };
+export type SearchEmbeddingsToolArgs = {
+  criteria: string;
+  limit: number;
+};
 
 export enum AGENT_TOOLS {
   editFile = 'editFile',
@@ -57,16 +61,20 @@ export enum AGENT_TOOLS {
   createFile = 'createFile',
   readFile = 'readFile',
   planning = 'planning',
+  searchEmbeddings = 'searchEmbeddings',
 }
 
 export type ToolCallbacks = {
   [AGENT_TOOLS.editFile]: (
     args: EditFileToolArgs,
-  ) => Promise<{ old: string; content: string; file: string }>;
+  ) => Promise<{ old: string; content: string; file: string } | null>;
   [AGENT_TOOLS.command]: (args: CommandToolArgs) => Promise<string>;
   [AGENT_TOOLS.renameFile]: (args: RenameFileToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.deleteFile]: (args: DeleteFileToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.createFile]: (args: CreateToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.readFile]: (args: string) => Promise<string>;
   [AGENT_TOOLS.planning]: (args: string) => Promise<string>;
+  [AGENT_TOOLS.searchEmbeddings]: (
+    args: SearchEmbeddingsToolArgs,
+  ) => Promise<{ path: string; text: string }[]>;
 };

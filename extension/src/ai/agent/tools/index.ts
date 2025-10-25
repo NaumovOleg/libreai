@@ -8,9 +8,11 @@ import { DeleteFileTool } from './deleteFile';
 import { EditFileTool } from './editFile';
 import { ReadFileTool } from './readFile';
 import { RenameFileTool } from './renameFile';
+import { SearchEmbeddings } from './searchEmbeddings';
 
 export class ToolFactory {
   tools: FunctionTool<any, any, any>[];
+  plannerTools: FunctionTool<any, any, any>[];
 
   constructor(cbks: ToolCallbacks) {
     const command = new CommandTool(cbks[AGENT_TOOLS.command]);
@@ -19,7 +21,9 @@ export class ToolFactory {
     const edit = new EditFileTool(cbks[AGENT_TOOLS.editFile]);
     const read = new ReadFileTool(cbks[AGENT_TOOLS.readFile]);
     const rename = new RenameFileTool(cbks[AGENT_TOOLS.renameFile]);
+    const searchEmbeddings = new SearchEmbeddings(cbks[AGENT_TOOLS.searchEmbeddings]);
 
     this.tools = [command.tool, create.tool, deleteFile.tool, edit.tool, read.tool, rename.tool];
+    this.plannerTools = [searchEmbeddings.tool];
   }
 }
