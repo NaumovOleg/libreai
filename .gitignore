@@ -4,3 +4,5 @@ extension/node_modules
 .vscode
 out
 chat/dist
+robocode-*
+.DS_Strore

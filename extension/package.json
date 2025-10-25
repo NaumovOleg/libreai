@@ -1,8 +1,7 @@
 {
   "name": "extension",
   "displayName": "AI Inline + Chat",
-  "publisher": "olegnaumov",
-  "description": "Inline автодополнение кода и чат с ИИ. Стриминг, workspace context, hotkeys.",
+  "publisher": "olgert",
   "version": "1.1.0",
   "main": "./out/extension.mjs",
   "private": true,

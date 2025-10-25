@@ -2,9 +2,9 @@
   "name": "robocode",
   "private": true,
   "displayName": "AI Inline + Chat",
-  "publisher": "olegnaumov",
+  "publisher": "olgert",
   "description": "Code copilot",
-  "version": "1.1.0",
+  "version": "1.1.5",
   "main": "./out/extension.js",
   "engines": {
     "vscode": "^1.85.0"
@@ -151,13 +151,17 @@
     ]
   },
   "dependencies": {
-    "@xenova/transformers": "^2.14.1",
-    "onnxruntime-node": "^1.17.0",
+    "@lancedb/lancedb-darwin-arm64": "^0.22.2",
+    "@llamaindex/core": "^0.6.22",
     "@llamaindex/deepseek": "^0.0.38",
     "@llamaindex/huggingface": "^0.1.30",
+    "@llamaindex/node-parser": "^2.0.22",
     "@llamaindex/ollama": "^0.1.23",
     "@llamaindex/openai": "^0.4.20",
-    "@llamaindex/workflow": "^1.1.24"
+    "@llamaindex/workflow": "^1.1.24",
+    "@xenova/transformers": "^2.14.1",
+    "js-tiktoken": "^1.0.21",
+    "onnxruntime-node": "^1.17.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
