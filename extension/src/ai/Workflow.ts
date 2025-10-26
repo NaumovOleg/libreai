@@ -27,7 +27,7 @@ export class Workflow {
     const toolFactory = new ToolFactory(cbks);
     this.planner = new Planner(toolFactory.plannerTools);
     this.executor = new Executor(toolFactory.tools);
-    this.analizer = new Analizer(toolFactory.tools);
+    this.analizer = new Analizer(toolFactory.analizerTools);
     this.workflow.handle([analizerStep], async (event, context) => {
       const { nextStep, text } = await this.analizer.run(context.data);
       if (!nextStep) {
