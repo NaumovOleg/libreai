@@ -1,22 +1,19 @@
 import { Chat, Workflow } from '@ai';
 import { Observer } from '@observer';
 import { callbacks, Context, SessionStorage, showMemoryDiff } from '@services';
-import {
-  Author,
-  ChatMessage,
-  COMMANDS,
-  Conf,
-  CONFIG_PARAGRAPH,
-  MESSAGE,
-  ShowPreviewMessage,
-  uuid,
-} from '@utils';
+import { Author, ChatMessage, COMMANDS, Conf, MESSAGE, ShowPreviewMessage, uuid } from '@utils';
 import fs from 'fs';
 import path from 'path';
 import * as vscode from 'vscode';
-
 import { ContextSelector } from '../ContextSelector';
 import { Icons } from '../Icons';
+import {
+  interactCommand,
+  onReceiveUserMessage,
+  onStartMessages,
+  selectContextFiles,
+  useAgent as useAgentHelper,
+} from './ViewProviderHelpers';
 
 export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'robocodeView';
@@ -64,16 +61,16 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     const iconsMap = this.icons.getIcons(this.web);
     html = html
       .replace(
-        /href="\/index\.css"/,
-        `href="${webviewView.webview.asWebviewUri(
+        /href=\"\/index\.css\"/,
+        `href=${webviewView.webview.asWebviewUri(
           vscode.Uri.file(path.join(this.extensionUri.fsPath, this.mediaFolder, 'index.css')),
-        )}"`,
+        )}`,
       )
       .replace(
-        /src="\/index\.js"/,
-        `src="${webviewView.webview.asWebviewUri(
+        /src=\"\/index\.js\"/,
+        `src=${webviewView.webview.asWebviewUri(
           vscode.Uri.file(path.join(this.extensionUri.fsPath, this.mediaFolder, 'index.js')),
-        )}"`,
+        )}`,
       )
       .replace(
         '</head>',
@@ -82,26 +79,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     this.web.webview.html = html;
     this.startIndexingWorkspace();
-  }
-
-  private onStartMessages() {
-    return this.web.webview.postMessage({
-      type: COMMANDS.changeConfig,
-      payload: {
-        [CONFIG_PARAGRAPH.chatConfig]: Conf.chatConfig,
-        [CONFIG_PARAGRAPH.autoCompleteConfig]: Conf.autoCompleteConfig,
-        [CONFIG_PARAGRAPH.agentConfig]: Conf.agentConfig,
-      },
-    });
-  }
-
-  private onReceiveUserMessage(message: ChatMessage) {
-    if (message.to == Author.chat) {
-      return this.useChat(message);
-    }
-    if (message.to == Author.agent) {
-      return this.useAgent(message);
-    }
   }
 
   private async useChat(message: ChatMessage) {
@@ -148,12 +125,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private interactCommand(payload: ExecCommandPayload) {
-    const observer = Observer.getInstance();
-    const event = ('interact-command-' + payload.id) as `interact-command-${string}`;
-    observer.emit(event, payload);
-  }
-
   private async onDidReceiveMessage(message: MESSAGE) {
     if (message.command === COMMANDS.changeConfig) {
       await Conf.updateConfig(message);
@@ -163,7 +134,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
 
     if (message.command === COMMANDS.configListenerMounted) {
-      await this.onStartMessages();
+      await onStartMessages(this.web);
     }
     if (message.command === COMMANDS.showPreview) {
       showMemoryDiff(message.value as ShowPreviewMessage);
@@ -175,32 +146,21 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       this.selectContextFiles();
     }
     if (message.command === COMMANDS.interactCommand) {
-      this.interactCommand(message.value as ExecCommandPayload);
+      interactCommand(message.value as any);
     }
 
     const value = message.value as ChatMessage;
 
     if (message.command === COMMANDS.sendMessage) {
-      await this.onReceiveUserMessage(value);
+      await onReceiveUserMessage(value, this.useChat.bind(this), this.useAgent.bind(this));
     }
   }
 
   public async selectContextFiles() {
-    const payload = await this.contextSelector.openContextSelector();
-    this.web.webview.postMessage({ type: COMMANDS.selectContext, payload });
+    await selectContextFiles(this.contextSelector, this.web);
   }
 
   public async useAgent(message: ChatMessage) {
-    const [ctx, files] = await Promise.all([
-      this.ctx.getContext(message.text, { lookupEmbeddings: false }),
-      this.ctx.getFilesContent(message.files),
-    ]);
-
-    return this.workflow.run({
-      fileTree: ctx.fileTree,
-      language: ctx.language,
-      request: message.text,
-      files,
-    });
+    return useAgentHelper(message, this.ctx, this.workflow);
   }
 }
