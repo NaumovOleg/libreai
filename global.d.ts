@@ -85,6 +85,7 @@ declare type ObserverEditorEventArgs = {
   createFile: { file: string; content: string };
   command: { command: string };
   planning: string;
+  analizing: string;
   agentResponse: { content?: string };
 };
 
@@ -104,6 +105,7 @@ declare type AgentMessage =
   | AgentMessagePayload<'renameFile'>
   | AgentMessagePayload<'command'>
   | AgentMessagePayload<'readFile'>
+  | AgentMessagePayload<'analizing'>
   | AgentMessagePayload<'agentResponse'>;
 
 type Session = (ChatMessage | AgentMessage)[];

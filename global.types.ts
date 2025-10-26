@@ -113,6 +113,7 @@ export type ObserverEditorEventArgs = {
   createFile: { file: string; content: string };
   command: { command: string; state?: 'confirmed' | 'declined'; result?: string };
   planning: string;
+  analizing: string;
   agentResponse: { content?: string };
 };
 
@@ -132,7 +133,8 @@ export type AgentMessage =
   | AgentMessagePayload<'renameFile'>
   | AgentMessagePayload<'command'>
   | AgentMessagePayload<'readFile'>
-  | AgentMessagePayload<'agentResponse'>;
+  | AgentMessagePayload<'agentResponse'>
+  | AgentMessagePayload<'analizing'>;
 
 export type ObserverEditorHandler<E extends keyof ObserverEditorEventArgs> = (
   payload: AgentMessagePayload<E>,

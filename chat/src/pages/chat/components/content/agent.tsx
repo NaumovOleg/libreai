@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import { Plan, FileActions, Command, AgentResponse } from './steps';
+import { Plan, FileActions, Command, AgentResponse, Analizing } from './steps';
 import { AgentMessage, AgentMessagePayload } from '../../../../../../global.types';
 
 type Props = {
@@ -29,6 +29,9 @@ export const AgentMessageContent: FC<Props> = ({ message }) => {
     }
     if (message.type === 'agentResponse') {
       return <AgentResponse message={message as AgentMessagePayload<'agentResponse'>} />;
+    }
+    if (message.type === 'analizing') {
+      return <Analizing message={message as AgentMessagePayload<'analizing'>} />;
     }
 
     return null;

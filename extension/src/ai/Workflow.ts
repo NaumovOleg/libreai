@@ -3,6 +3,8 @@ import { Observer } from '@observer';
 import { AgentMessagePayload, PlannerQuery, ToolCallbacks, uuid } from '@utils';
 
 import {
+  Analizer,
+  analizerStep,
   Executor,
   finish,
   nextTaskStep,
@@ -19,11 +21,20 @@ export class Workflow {
   private workflow = withState(createWorkflow());
   private planner: Planner;
   private executor: Executor;
+  private analizer: Analizer;
 
   constructor(cbks: Omit<ToolCallbacks, 'planning'>) {
     const toolFactory = new ToolFactory(cbks);
     this.planner = new Planner(toolFactory.plannerTools);
     this.executor = new Executor(toolFactory.tools);
+    this.analizer = new Analizer(toolFactory.tools);
+    this.workflow.handle([analizerStep], async (event, context) => {
+      const { nextStep, text } = await this.analizer.run(context.data);
+      if (!nextStep) {
+        return finish.with({ output: [text ?? ''] });
+      }
+      return startStep.with(context.data);
+    });
     this.workflow.handle([startStep], async (event, context) => {
       const { error, success, text, instructions } = await this.planner.run(context.data);
       if (error || !success) {
@@ -69,7 +80,7 @@ export class Workflow {
       type: 'agentResponse',
     };
     const { stream, sendEvent } = this.workflow.createContext();
-    sendEvent(startStep.with(data));
+    sendEvent(analizerStep.with(data));
 
     for await (const event of stream) {
       if (finish.include(event)) {

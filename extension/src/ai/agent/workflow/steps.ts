@@ -1,6 +1,7 @@
 import { workflowEvent } from '@llamaindex/workflow';
 import { PlannerQuery, PlannerTask } from '@utils';
 
+export const analizerStep = workflowEvent<PlannerQuery>();
 export const startStep = workflowEvent<PlannerQuery>();
 
 type ProcessorInput = {

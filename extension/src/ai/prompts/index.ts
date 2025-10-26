@@ -1,3 +1,4 @@
+export * from './analizer';
 export * from './autocomplete';
 export * from './chat';
 export * from './executor';

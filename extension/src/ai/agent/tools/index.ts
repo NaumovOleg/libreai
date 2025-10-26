@@ -13,6 +13,7 @@ import { SearchEmbeddings } from './retrieveEmbeddings';
 export class ToolFactory {
   tools: FunctionTool<any, any, any>[];
   plannerTools: FunctionTool<any, any, any>[];
+  analizerTools: FunctionTool<any, any, any>[];
 
   constructor(cbks: Omit<ToolCallbacks, 'planning'>) {
     const command = new CommandTool(cbks[AGENT_TOOLS.command]);
@@ -25,5 +26,6 @@ export class ToolFactory {
 
     this.tools = [command.tool, create.tool, deleteFile.tool, edit.tool, read.tool, rename.tool];
     this.plannerTools = [retrieveEmbeddings.tool];
+    this.analizerTools = [retrieveEmbeddings.tool, read.tool];
   }
 }
