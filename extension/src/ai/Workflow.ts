@@ -25,7 +25,10 @@ export class Workflow {
     this.planner = new Planner(toolFactory.plannerTools);
     this.executor = new Executor(toolFactory.tools);
     this.workflow.handle([startStep], async (event, context) => {
-      const instructions = await this.planner.run(context.data);
+      const { error, instructions } = await this.planner.run(context.data);
+      if (error) {
+        return finish.with({ output: [error] });
+      }
       return startInstructionsStep.with({ fileTree: context.data.fileTree, instructions });
     });
 
