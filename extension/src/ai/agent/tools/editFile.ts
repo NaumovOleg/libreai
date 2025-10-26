@@ -30,6 +30,7 @@ export class EditFileTool {
         });
 
         event.args.old = editResponse?.old;
+        event.args.content = editResponse?.content ?? args.content;
 
         observer.emit('agent', event);
         return { success: event.status === 'done', name: AGENT_TOOLS.editFile, file: args.file };

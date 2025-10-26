@@ -37,7 +37,9 @@ export class Editor {
     // Re-acquire the document after save (in case any reload happens)
     this.document = await vscode.workspace.openTextDocument(this.uri);
 
-    return { ...instruction, old };
+    // Return updated content and metadata
+    const content = this.document.getText();
+    return { ...instruction, old, content };
   }
 
   static async insertBeforeSelection(text: string, start: vscode.Position) {
