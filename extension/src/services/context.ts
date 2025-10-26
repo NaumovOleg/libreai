@@ -134,7 +134,6 @@ export class Context {
       try {
         await this.indexFile(uri, 10, false);
         indexed++;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.error(`❌ Failed to index ${uri.fsPath}:`, err);
         this.observer.emit('indexing', {

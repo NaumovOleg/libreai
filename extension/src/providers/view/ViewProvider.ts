@@ -133,7 +133,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
       this.web.webview.postMessage({ type: COMMANDS.chatStreamEnd });
       await this.storage.addChatHistoryItems([message, payload]);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.log(err);
     }

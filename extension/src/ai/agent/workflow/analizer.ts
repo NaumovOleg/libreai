@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { agent } from '@llamaindex/workflow';
 import { LLMFactory } from '@llm';
 import { Observer } from '@observer';

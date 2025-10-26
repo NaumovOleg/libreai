@@ -56,6 +56,7 @@ export default [
         'error',
         {
           ignoreRestArgs: true,
+          'ignore-catch': true,
         },
       ],
       'lines-between-class-members': [
@@ -75,7 +76,6 @@ export default [
           caughtErrorsIgnorePattern: '_[a-z-A-Z]',
           destructuredArrayIgnorePattern: '_[a-z-A-Z]',
           varsIgnorePattern: '_[a-z-A-Z]',
-          // ignoreRestSiblings: true,
         },
       ],
     },
