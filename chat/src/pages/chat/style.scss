@@ -156,6 +156,11 @@
       font-size: 10px;
       .message-markdown {
         overflow-y: scroll;
+        .user-files {
+          max-height: 50px;
+          overflow-y: scroll;
+          margin-bottom: 10px;
+        }
         p {
           margin: 0;
           word-wrap: break-word;

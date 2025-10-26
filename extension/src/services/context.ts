@@ -217,13 +217,24 @@ export class Context {
 
   async getFilesContent(urls?: string[]) {
     if (!urls || !urls.length) return [];
-    const data = urls.map((url) => {
-      const uri = vscode.Uri.file(url);
-      return vscode.workspace.fs.readFile(uri).then((data) => ({
-        file: vscode.workspace.asRelativePath(uri),
-        content: Buffer.from(data).toString('utf8'),
-      }));
+
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (!workspaceFolder) {
+      vscode.window.showErrorMessage('No workspace folder found.');
+      return [];
+    }
+
+    const workspacePath = workspaceFolder.uri.fsPath;
+
+    const data = urls.map(async (relativePath) => {
+      const absolutePath = path.join(workspacePath, relativePath);
+      const uri = vscode.Uri.file(absolutePath);
+
+      const fileData = await vscode.workspace.fs.readFile(uri);
+
+      return { file: relativePath, content: Buffer.from(fileData).toString('utf8') };
     });
+
     return Promise.all(data);
   }
 }

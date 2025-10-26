@@ -11,6 +11,8 @@ export class ContextSelector {
       description: uri.fsPath,
     }));
 
+    console.log(')0000000', items);
+
     const quickPick = vscode.window.createQuickPick();
     quickPick.items = items;
     quickPick.title = 'Add context';
@@ -24,7 +26,7 @@ export class ContextSelector {
     return new Promise<vscode.Uri[]>((resolve) => {
       quickPick.onDidAccept(() => {
         const selected = quickPick.selectedItems.map((item) =>
-          vscode.Uri.file(item.description ?? item.label),
+          vscode.Uri.file(item.label ?? item.description),
         );
         quickPick.hide();
         resolve(selected);
@@ -46,9 +48,9 @@ export class ContextSelector {
           })),
         );
 
-        vscode.window.showInformationMessage(`Добавлено файлов: ${files.length}`);
+        vscode.window.showInformationMessage(`Added files: ${files.length}`);
       } else {
-        vscode.window.showInformationMessage('Файлы не выбраны.');
+        vscode.window.showInformationMessage('Files no added.');
       }
     });
   }
