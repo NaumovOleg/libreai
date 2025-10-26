@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { agent } from '@llamaindex/workflow';
 import { LLMFactory } from '@llm';
 import { Observer } from '@observer';
-import { PlannerQuery, PlannerTask, uuid } from '@utils';
+import { PlannerQuery, PlannerTask, safeJsonParse, uuid } from '@utils';
 import { FunctionTool, JSONValue } from 'llamaindex';
 
 import { PLANNER_AGENT_SYSTEM_PROMPT } from '../../prompts';
@@ -29,30 +30,33 @@ export class Planner {
 
   async run(
     request: PlannerQuery,
-  ): Promise<{ error?: string; success: boolean; instructions: PlannerTask[] }> {
+  ): Promise<{ error?: string; success: boolean; instructions: PlannerTask[]; text?: string }> {
     const data = JSON.stringify(request, null, 1.5);
 
-    const planningId = uuid(4);
+    const id = uuid(4);
     const event: AgentMessagePayload<'planning'> = {
+      id,
       status: 'pending',
       args: 'Planning',
-      id: planningId,
       type: 'planning',
     };
     const observer = Observer.getInstance();
     observer.emit('agent', event);
     try {
       const response = await this.agent.run(data);
-
-      const instructions = JSON.parse((response.data.message?.content as string) ?? { tasks: [] });
-      console.log('PLANNER TASKS--------->', instructions);
-      return { instructions, success: true };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = safeJsonParse<string | PlannerTask[]>(response.data.result);
+      event.status = 'done';
+      return {
+        instructions: Array.isArray(result) ? result : [],
+        text: !Array.isArray(result) ? result : '',
+        success: Array.isArray(result),
+      };
     } catch (err: any) {
       event.status = 'error';
       event.error = err.message;
-      observer.emit('agent', event);
       return { error: err.message, success: false, instructions: [] };
+    } finally {
+      observer.emit('agent', event);
     }
   }
 }

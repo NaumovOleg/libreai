@@ -112,7 +112,7 @@ export const formFileContent = (files?: { content: string; file: string }[]) => 
   return files
     ?.map(
       (f) => `
-<file path="${f.file}">
+<file path=${f.file}>
 ${f.content.trim()}
 </file>`,
     )
@@ -142,3 +142,26 @@ export const parseEmbeddings = (chunks: FileChunk[]) => {
     return acc;
   }, '');
 };
+
+/**
+ * Securely parses a JSON input. If input is a JSON string, parses and returns the object.
+ * If input is already an object, returns as is. If parsing fails, returns the original input.
+ * This function is safe for both pure JSON and plain strings.
+ * @param input - The input to parse (can be JSON string, object, or primitive)
+ * @returns Parsed object, or original input if parsing fails or if input is not JSON
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function safeJsonParse<T = any>(input: any): T {
+  if (typeof input === 'object' && input !== null) {
+    return input;
+  }
+  if (typeof input === 'string') {
+    try {
+      return JSON.parse(input);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
+      return input as T;
+    }
+  }
+  return input;
+}
