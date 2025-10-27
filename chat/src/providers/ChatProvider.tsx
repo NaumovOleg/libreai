@@ -9,6 +9,7 @@ import {
   Author,
   globalListener,
   AgentMessage,
+  MAX_MESSAGES,
 } from '@utils';
 
 const commands = [
@@ -29,20 +30,32 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
 
+  // messages state always holds the most recent MAX_MESSAGES
   const [messages, setMessages] = useState<(ChatMessage | AgentMessage)[]>(() => {
-    if (vsCodeState?.session) return vsCodeState?.session;
+    if (vsCodeState?.session) {
+      const trimmed = vsCodeState.session.slice(-MAX_MESSAGES);
+      vscode.setState({ ...vscode.getState(), session: trimmed });
+      return trimmed;
+    }
     vscode.setState({ ...vscode.getState(), session: [] });
     return [];
   });
+
+  // Utility to always trim to MAX_MESSAGES on addition
+  const capMessages = (arr: (ChatMessage | AgentMessage)[]): (ChatMessage | AgentMessage)[] => {
+    return arr.length > MAX_MESSAGES ? arr.slice(-MAX_MESSAGES) : arr;
+  };
 
   const updateMessages = (message: ChatMessage | AgentMessage) => {
     setMessages((prev) => {
       const found = prev.find((el) => el.id === message.id);
       const newMessage = { ...found, ...message };
 
-      const data = found
+      let data = found
         ? prev.map((el) => (el.id === message.id ? newMessage : el))
         : prev.concat(newMessage);
+
+      data = capMessages(data);
 
       vscode.setState({ ...vscode.getState(), session: data });
       return data;
@@ -125,8 +138,10 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     vscode.setState({ ...vscode.getState(), provider });
   };
 
+  // Always only return up to MAX_MESSAGES in memory (plus tmpMessage if exists)
+  const displayMessages = [...messages, ...(tmpMessage ? [tmpMessage] : [])];
   const value = {
-    messages: messages.concat(tmpMessage || []),
+    messages: displayMessages.slice(-MAX_MESSAGES),
     sendMessage,
     clearSession,
     tmpMessage,

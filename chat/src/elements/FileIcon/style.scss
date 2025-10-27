@@ -5,10 +5,14 @@
   border: 1px solid var(--vscode-chat-requestBorder);
   padding: 0 5px;
   border-radius: 5px;
-  flex-wrap: wrap;
+
   .name {
     font-size: 10px;
     margin-left: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    direction: rtl;
   }
   .name.created {
     color: var(--vscode-gitDecoration-untrackedResourceForeground);

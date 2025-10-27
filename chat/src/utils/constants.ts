@@ -7,3 +7,4 @@ export const AI_PROVIDERS = {
 };
 
 export const FILE_ICONS: { [key: string]: string } = window['ICONS_PATHS' as any] as any;
+export const MAX_MESSAGES = 30;
