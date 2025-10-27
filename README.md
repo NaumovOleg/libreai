@@ -13,11 +13,8 @@ It helps you write, refactor, and analyze code directly inside your editor — w
 - 🔍 **Refactoring & Code Analysis**  
   RoboCode reviews your code and suggests improvements for readability, performance, and best practices.
 
-- 🧠 **Local & Cloud Model Support**  
-  Works with local models through [`@xenova/transformers`](https://github.com/xenova/transformers) or external AI APIs.
-
-- 🧩 **Extensible Plugin System**  
-  Add your own AI tools and custom workflows to expand capabilities.
+- 🧠 **Local embeddings & Cloud Model Support**  
+  Works with local embedding models through [`@xenova/transformers`](https://github.com/xenova/transformers) or external AI APIs.
 
 ---
 
@@ -30,5 +27,5 @@ It helps you write, refactor, and analyze code directly inside your editor — w
    Or install manually via CLI:
 
 ```bash
-code --install-extension olegnaumov.robocode
+code --install-extension olgert.robocode
 ```

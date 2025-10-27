@@ -12,7 +12,7 @@ export const ChatMessageContent: FC<Props> = ({ message }) => {
   return (
     <div className={`message prose prose-invert ${message.from}`}>
       <div className="message-markdown">
-        {message.files?.length && (
+        {!!message.files?.length && (
           <div className="user-files">
             {message.files.map((el) => (
               <FileIcon path={el} />

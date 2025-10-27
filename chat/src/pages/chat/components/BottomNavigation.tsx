@@ -11,7 +11,7 @@ type Props = {
   sendMessage: () => void;
 };
 export const BottomNavigation: FC<Props> = ({ sendMessage }) => {
-  const { chatConfig } = useConfig();
+  const { chatConfig, agentConfig } = useConfig();
   const { provider, setProvider } = useChat();
   return (
     <div className="bottom-navigation navigation">
@@ -29,7 +29,7 @@ export const BottomNavigation: FC<Props> = ({ sendMessage }) => {
           </div>
         </Popup>
         <div className="panel">
-          <Typography>{chatConfig.model}</Typography>
+          <Typography>{provider === 'chat' ? chatConfig.model : agentConfig.model}</Typography>
         </div>
       </div>
 
