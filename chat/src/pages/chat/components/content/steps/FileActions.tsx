@@ -73,7 +73,7 @@ export const FileActions: FC<Props> = ({ message }) => {
         )}
         {message.status === 'done' && (
           <div className="done item">
-            {messages[message.type]}
+            <div className="done-line">{messages[message.type]}</div>
             {file}
             <DoneAllIcon className="done-icon" />
           </div>

@@ -5,7 +5,7 @@
   border: 1px solid var(--vscode-chat-requestBorder);
   padding: 0 5px;
   border-radius: 5px;
-
+  min-width: 0;
   .name {
     font-size: 10px;
     margin-left: 5px;
@@ -20,17 +20,21 @@
   .name.deleted {
     color: var(--vscode-chat-linesRemovedForeground);
   }
-  .removed {
+  .changes {
     padding-left: 4px;
-    font: weight 700px;
-    color: var(--vscode-chat-linesRemovedForeground);
-  }
-  .added {
-    padding-left: 4px;
-    font: weight 700px;
-    color: var(--vscode-chat-linesAddedForeground);
+    min-width: 40px;
+    display: flex;
+    .removed {
+      font: weight 700px;
+      color: var(--vscode-chat-linesRemovedForeground);
+    }
+    .added {
+      font: weight 700px;
+      color: var(--vscode-chat-linesAddedForeground);
+    }
   }
 }
 .clickable.file-icon {
   cursor: pointer;
+  min-width: 0;
 }

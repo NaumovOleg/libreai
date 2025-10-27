@@ -157,9 +157,12 @@
       .message-markdown {
         overflow-y: scroll;
         .user-files {
+          gap: 3px;
           max-height: 50px;
           overflow-y: scroll;
           margin-bottom: 10px;
+          display: flex;
+          flex-direction: column;
         }
         p {
           margin: 0;
