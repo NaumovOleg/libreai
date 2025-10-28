@@ -10,6 +10,7 @@ import {
   globalListener,
   AgentMessage,
   MAX_MESSAGES,
+  FilePath,
 } from '@utils';
 
 const commands = [
@@ -25,7 +26,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
   const [isStreaming, setIsStreaming] = useState(false);
   const [provider, setCatProvider] = useState<Author>(() => vsCodeState.provider ?? Author.chat);
-  const [files, setFiles] = useState<string[]>([]);
+  const [files, setFiles] = useState<FilePath[]>([]);
   const [isAgentThinking, setIsAgentThinking] = useState(() => !!vsCodeState.isAgentThinking);
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
@@ -94,8 +95,8 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
         updateAgentMessages(event.data.payload as AgentMessage);
       }
       if (event.data.type === COMMANDS.selectContext) {
-        const files = event.data.payload as { path: string }[];
-        setFiles(files.map((el) => el.path));
+        const files = event.data.payload as FilePath[];
+        setFiles(files.map((el) => el));
       }
       if (event.data.type === COMMANDS.helperMessage) {
         updateMessages(event.data.payload);

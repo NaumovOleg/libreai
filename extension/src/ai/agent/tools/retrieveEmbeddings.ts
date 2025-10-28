@@ -18,8 +18,6 @@ export class SearchEmbeddings {
           content: e.text,
         }));
 
-        console.log('EMBEDDINGS DATA------------', data);
-
         return {
           success: true,
           name: AGENT_TOOLS.retrieveEmbeddings,

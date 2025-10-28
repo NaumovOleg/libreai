@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { EXCLUDED_FOLDERS } from './constants';
+import { EXCLUDED_FOLDERS, foldersPattern } from './constants';
 import { FileChunk } from './types';
 
 export const uuid = (length: number = 4): string => {
@@ -56,17 +56,29 @@ async function collectEntries(
   return hasFiles;
 }
 
-export async function getWorkspaceFileTree(): Promise<string[]> {
-  const rootUri = vscode.workspace.workspaceFolders?.[0]?.uri;
-  if (!rootUri) return [];
+export const getWorkspaceFileTree = async (): Promise<string[]> => {
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders?.length) return [''];
 
-  const rootPath = rootUri.fsPath;
-  const tree: string[] = [];
+  const allPaths: string[] = [];
 
-  await collectEntries(rootUri, rootPath, tree);
+  for (const folder of workspaceFolders) {
+    const root = folder.uri.fsPath;
 
-  return tree.sort();
-}
+    const files = await vscode.workspace.findFiles(
+      new vscode.RelativePattern(folder, '**/*'),
+      foldersPattern,
+    );
+
+    const relativePaths = files.map((file) =>
+      path.join(folder.name, path.relative(root, file.fsPath)),
+    );
+
+    allPaths.push(...relativePaths);
+  }
+
+  return allPaths.sort();
+};
 
 export const replaceLast = (str: string, search: string, replacement: string) => {
   const index = str.lastIndexOf(search);
@@ -89,7 +101,20 @@ export const getFileContent = async (path: string) => {
   // return lines.map((line, index) => `${index + 1}| ${line}`).join('\n');
 };
 
-export const resolveFilePath = (filePath: string, root: string) => {
+export function trimAfterLastSlash(filePath: string): string {
+  const parentDir = path.dirname(filePath);
+
+  return parentDir.endsWith(path.sep) ? parentDir : parentDir + path.sep;
+}
+
+export const resolveFilePath = (filePath: string) => {
+  if (!vscode.workspace.workspaceFolders || !vscode.workspace.workspaceFolders.length)
+    return vscode.Uri.file(filePath);
+
+  const folders = vscode.workspace.workspaceFolders;
+  const root =
+    folders.length > 1 ? trimAfterLastSlash(folders[0].uri.fsPath) : folders[0].uri.fsPath;
+
   const absolutePath = path.isAbsolute(filePath) ? filePath : path.join(root, filePath);
   return vscode.Uri.file(absolutePath);
 };

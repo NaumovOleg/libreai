@@ -5,6 +5,7 @@ import {
   ChatMessage,
   COMMANDS,
   CONFIG_PARAGRAPH,
+  FilePath,
   IndexingPayload,
 } from './types';
 
@@ -28,7 +29,7 @@ export type ListenerContextType = {
 };
 
 export type ChatContextType = {
-  files: string[];
+  files: FilePath[];
   messages: (ChatMessage | AgentMessage)[];
   tmpMessage?: ChatMessage;
   isStreaming: boolean;

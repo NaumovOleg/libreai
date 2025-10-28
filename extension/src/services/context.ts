@@ -9,7 +9,6 @@ import {
   parseEmbeddings,
   uuid,
 } from '@utils';
-import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { VectorStorage } from './database/vectorStorage';
@@ -54,9 +53,24 @@ export class Context {
   ) {}
 
   static getStringUri(uri: vscode.Uri) {
-    if (!vscode.workspace.workspaceFolders?.length) return '';
-    const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    return uri.fsPath.replace(root + '/', '');
+    const folders = vscode.workspace.workspaceFolders;
+    if (!folders?.length) return '';
+
+    const folder = vscode.workspace.getWorkspaceFolder(uri);
+    if (!folder) {
+      return uri.fsPath.split('/').pop() || '';
+    }
+
+    const root = folder.uri.fsPath;
+    const relativePath = uri.fsPath.startsWith(root)
+      ? uri.fsPath.slice(root.length + 1)
+      : uri.fsPath;
+
+    if (folders.length > 1) {
+      return `${folder.name}/${relativePath}`;
+    }
+
+    return relativePath;
   }
 
   get language() {
@@ -70,6 +84,7 @@ export class Context {
     const bytes = await vscode.workspace.fs.readFile(uri);
     const content = new TextDecoder().decode(bytes).slice(0, this.maxChars);
     const path = Context.getStringUri(uri);
+
     const chunks: DbFile[] = [];
 
     const lines = content.split(/\r?\n/);
@@ -167,16 +182,6 @@ export class Context {
     return total;
   }
 
-  async getWorkspaceFileTree(): Promise<string> {
-    const root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '';
-    if (!root) return '';
-
-    const files = await vscode.workspace.findFiles('**/*', foldersPattern);
-    const relativePaths = files.map((file) => path.relative(root, file.fsPath));
-
-    return relativePaths.sort().join('\n');
-  }
-
   async getContext<P extends GetContextParams | undefined = undefined>(
     message: string,
     params?: P,
@@ -215,7 +220,7 @@ export class Context {
     return data;
   }
 
-  async getFilesContent(urls?: string[]) {
+  async getFilesContent(urls?: { relative: string; absolute: string }[]) {
     if (!urls || !urls.length) return [];
 
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
@@ -224,15 +229,12 @@ export class Context {
       return [];
     }
 
-    const workspacePath = workspaceFolder.uri.fsPath;
-
-    const data = urls.map(async (relativePath) => {
-      const absolutePath = path.join(workspacePath, relativePath);
-      const uri = vscode.Uri.file(absolutePath);
+    const data = urls.map(async ({ absolute, relative }) => {
+      const uri = vscode.Uri.file(absolute);
 
       const fileData = await vscode.workspace.fs.readFile(uri);
 
-      return { file: relativePath, content: Buffer.from(fileData).toString('utf8') };
+      return { file: relative, content: Buffer.from(fileData).toString('utf8') };
     });
 
     return Promise.all(data);

@@ -83,11 +83,16 @@ export type State = {
   };
 };
 
+export type FilePath = {
+  absolute: string;
+  relative: string;
+};
+
 export type ChatMessage = {
   from: Author;
   to: Author;
   text: string;
-  files?: string[];
+  files?: FilePath[];
   time?: Date;
   id: string;
 };

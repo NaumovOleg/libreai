@@ -8,12 +8,8 @@ export class Editor {
   constructor(private instruction: EditFileToolArgs) {}
 
   async apply(instruction: EditFileToolArgs = this.instruction) {
-    if (!vscode.workspace.workspaceFolders?.length) return null;
-    const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
+    this.uri = resolveFilePath(instruction.file);
 
-    this.uri = resolveFilePath(instruction.file, root);
-
-    // Ensure document is opened from disk (may not become activeEditor)
     this.document = await vscode.workspace.openTextDocument(this.uri);
     const edit = new vscode.WorkspaceEdit();
     const old = this.document.getText();

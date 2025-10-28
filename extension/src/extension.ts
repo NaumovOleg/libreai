@@ -62,10 +62,9 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   vscode.workspace.onDidChangeWorkspaceFolders(async () => {
-    if (!(await ctx.isWorkspaceIndexed())) {
-      ctx.indexWorkspace();
-    }
+    ctx.indexWorkspace();
   });
+
   vscode.workspace.onDidSaveTextDocument((ev) => {
     ctx.indexFile(ev.uri);
   });

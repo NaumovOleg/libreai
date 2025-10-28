@@ -19,7 +19,7 @@ export const TextArea = () => {
         </button>
         <div className="files">
           {files.map((el) => (
-            <FileIcon path={el} />
+            <FileIcon path={el.relative} />
           ))}
         </div>
       </div>

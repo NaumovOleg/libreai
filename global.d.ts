@@ -68,13 +68,18 @@ declare enum AGENT_ACTIONS {
   executeCommand = 'executeCommand',
 }
 
+declare type FilePath = {
+  absolute: string;
+  relative: string;
+};
+
 declare type ChatMessage = {
   from: Author;
   to: Author;
   text: string;
   time?: Date;
   id: string;
-  files?: string[];
+  files?: FilePath[];
 };
 
 declare type ObserverEditorEventArgs = {

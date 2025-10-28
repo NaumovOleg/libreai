@@ -2,10 +2,9 @@ import { CreateToolArgs, ensureDirectory, resolveFilePath } from '@utils';
 import * as vscode from 'vscode';
 
 export const createFileCb = async (instruction: CreateToolArgs) => {
-  if (!vscode.workspace.workspaceFolders?.length) return null;
-  const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
+  const uri = resolveFilePath(instruction.file);
 
-  const uri = resolveFilePath(instruction.file, root);
+  console.log('CREATTEEEEEEEEE', uri);
 
   try {
     await vscode.workspace.fs.stat(uri);

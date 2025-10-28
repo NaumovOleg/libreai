@@ -10,7 +10,7 @@ type Props = {
 };
 
 export const FileIcon: FC<Props> = ({ path, changes, type = 'edit', onClick }) => {
-  const ext = path.split('.').pop() ?? '';
+  const ext = path?.split('.')?.pop() ?? '';
 
   const icon = FILE_ICONS[path] ?? FILE_ICONS[ext];
 

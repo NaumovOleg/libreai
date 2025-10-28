@@ -11,8 +11,6 @@ export class ContextSelector {
       description: uri.fsPath,
     }));
 
-    console.log(')0000000', items);
-
     const quickPick = vscode.window.createQuickPick();
     quickPick.items = items;
     quickPick.title = 'Add context';
@@ -23,11 +21,12 @@ export class ContextSelector {
 
     quickPick.show();
 
-    return new Promise<vscode.Uri[]>((resolve) => {
+    return new Promise<{ absolute: string; relative: string }[]>((resolve) => {
       quickPick.onDidAccept(() => {
-        const selected = quickPick.selectedItems.map((item) =>
-          vscode.Uri.file(item.label ?? item.description),
-        );
+        const selected = quickPick.selectedItems.map((item) => ({
+          absolute: item.description ?? item.label,
+          relative: item.label,
+        }));
         quickPick.hide();
         resolve(selected);
       });
@@ -43,8 +42,8 @@ export class ContextSelector {
       if (selected.length) {
         const files = await Promise.all(
           selected.map(async (uri) => ({
-            path: vscode.workspace.asRelativePath(uri),
-            content: readFileSync(uri.fsPath, 'utf8'),
+            path: vscode.workspace.asRelativePath(vscode.Uri.file(uri.relative)),
+            content: readFileSync(uri.relative, 'utf8'),
           })),
         );
 

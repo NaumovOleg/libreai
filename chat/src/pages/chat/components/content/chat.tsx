@@ -15,7 +15,7 @@ export const ChatMessageContent: FC<Props> = ({ message }) => {
         {!!message.files?.length && (
           <div className="user-files">
             {message.files.map((el) => (
-              <FileIcon path={el} />
+              <FileIcon path={el.relative} />
             ))}
           </div>
         )}
