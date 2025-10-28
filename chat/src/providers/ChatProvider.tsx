@@ -153,7 +153,5 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     files,
   };
 
-  console.log('MESSAGES', value.messages);
-
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

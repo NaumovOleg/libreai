@@ -4,13 +4,10 @@ import * as vscode from 'vscode';
 export const createFileCb = async (instruction: CreateToolArgs) => {
   const uri = resolveFilePath(instruction.file);
 
-  console.log('CREATTEEEEEEEEE', uri);
+  await vscode.workspace.fs.stat(uri);
 
-  try {
-    await vscode.workspace.fs.stat(uri);
-  } catch {
-    await ensureDirectory(uri);
-    await vscode.workspace.fs.writeFile(uri, Buffer.from(instruction.content ?? '', 'utf-8'));
-  }
+  await ensureDirectory(uri);
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(instruction.content ?? '', 'utf-8'));
+
   return instruction.file;
 };

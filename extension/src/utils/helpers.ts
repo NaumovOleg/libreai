@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { EXCLUDED_FOLDERS, foldersPattern } from './constants';
+import { EXCLUDED_FOLDERS } from './constants';
 import { FileChunk } from './types';
 
 export const uuid = (length: number = 4): string => {
@@ -32,14 +32,18 @@ async function collectEntries(
   tree: string[],
 ): Promise<boolean> {
   const entries = await vscode.workspace.fs.readDirectory(dirUri);
+  const workcpacesCount = vscode.workspace.workspaceFolders?.length ?? 1;
 
   let hasFiles = false;
 
   for (const [name, type] of entries) {
     if (EXCLUDED_FOLDERS.includes(name)) continue;
 
-    const entryUri = vscode.Uri.file(path.join(dirUri.fsPath, name));
-    const relativePath = path.relative(rootPath, entryUri.fsPath);
+    const entryUri = resolveFilePath(path.join(dirUri.fsPath, name));
+    let relativePath = path.relative(rootPath, entryUri.fsPath);
+    if (workcpacesCount > 1) {
+      relativePath = vscode.workspace.getWorkspaceFolder(entryUri)?.name + '/' + relativePath;
+    }
 
     if (type === vscode.FileType.Directory) {
       const subDirHasFiles = await collectEntries(entryUri, rootPath, tree);
@@ -58,23 +62,25 @@ async function collectEntries(
 
 export const getWorkspaceFileTree = async (): Promise<string[]> => {
   const workspaceFolders = vscode.workspace.workspaceFolders;
-  if (!workspaceFolders?.length) return [''];
+  if (!workspaceFolders?.length) return [];
 
   const allPaths: string[] = [];
 
   for (const folder of workspaceFolders) {
     const root = folder.uri.fsPath;
 
-    const files = await vscode.workspace.findFiles(
-      new vscode.RelativePattern(folder, '**/*'),
-      foldersPattern,
-    );
+    await collectEntries(folder.uri, folder.uri.path, allPaths);
 
-    const relativePaths = files.map((file) =>
-      path.join(folder.name, path.relative(root, file.fsPath)),
-    );
+    // const files = await vscode.workspace.findFiles(
+    //   new vscode.RelativePattern(folder, '**/*'),
+    //   foldersPattern,
+    // );
 
-    allPaths.push(...relativePaths);
+    // const relativePaths = files.map((file) =>
+    //   path.join(folder.name, path.relative(root, file.fsPath)),
+    // );
+
+    // allPaths.push(...relativePaths);
   }
 
   return allPaths.sort();
@@ -116,6 +122,7 @@ export const resolveFilePath = (filePath: string) => {
     folders.length > 1 ? trimAfterLastSlash(folders[0].uri.fsPath) : folders[0].uri.fsPath;
 
   const absolutePath = path.isAbsolute(filePath) ? filePath : path.join(root, filePath);
+
   return vscode.Uri.file(absolutePath);
 };
 
