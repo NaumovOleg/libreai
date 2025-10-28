@@ -34,4 +34,7 @@ export const EXCLUDED_FOLDERS = [
   '.tmp',
   'tmp',
   'logs',
+  'package-lock.json',
+  'yarn-lock.json',
+  'README.md',
 ];

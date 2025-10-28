@@ -14,6 +14,37 @@ export const uuid = (length: number = 4): string => {
   return result;
 };
 
+export const getFileWorkspaceName = (uri: vscode.Uri) => {
+  const folder = vscode.workspace.getWorkspaceFolder(uri);
+  return folder?.name ?? 'noname';
+};
+export const getFileWorkspaceUrl = (uri: vscode.Uri) => {
+  const folder = vscode.workspace.getWorkspaceFolder(uri);
+  return folder?.uri?.fsPath ?? '';
+};
+
+export const getWorkspacesUrl = () => {
+  return vscode.workspace.workspaceFolders?.map((f) => f.uri.fsPath) ?? [];
+};
+
+export const getRelativeToWorkspaceFilePath = (uri: vscode.Uri) => {
+  const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+
+  if (workspaceFolder) {
+    return path.relative(workspaceFolder.uri.fsPath, uri.fsPath);
+  }
+
+  return uri.fsPath;
+};
+
+export const getActiveWorkspaceName = () => {
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) return undefined;
+
+  const folder = vscode.workspace.getWorkspaceFolder(editor.document.uri);
+  return folder?.name;
+};
+
 export const getWorkspaceName = () => {
   const folders = vscode.workspace.workspaceFolders;
   if (!folders || folders.length === 0) {
@@ -151,18 +182,29 @@ ${f.content.trim()}
     .join('\n\n');
 };
 
+function getWorkspaceNameFromUrl(workspaceUrl: string): string {
+  const uri = vscode.Uri.parse(workspaceUrl);
+  return path.basename(uri.fsPath);
+}
+
 export const parseEmbeddings = (chunks: FileChunk[]) => {
+  const workcpacesCount = vscode.workspace.workspaceFolders?.length ?? 0;
+
   const ctx = chunks.reduce(
     (acc, chunk) => {
-      if (!acc[chunk.path]) {
-        acc[chunk.path] = `<FILE>${chunk.path}</FILE> \n
+      let path = getWorkspaceNameFromUrl(chunk.workspace) + '/' + chunk.path;
+      if (workcpacesCount <= 1) {
+        path = chunk.path;
+      }
+      if (!acc[path]) {
+        acc[path] = `<FILE>${path}</FILE> \n
           <CHUNK>
           ${chunk.text}
           </CHUNK>`;
       } else {
         const replaceString = `\n ${chunk.text}</CHUNK>`;
 
-        acc[chunk.path] = replaceLast(acc[chunk.path], '</CHUNK>', replaceString);
+        acc[path] = replaceLast(acc[path], '</CHUNK>', replaceString);
       }
       return acc;
     },

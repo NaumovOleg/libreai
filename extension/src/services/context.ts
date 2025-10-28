@@ -3,9 +3,11 @@ import {
   DbFile,
   filePattern,
   foldersPattern,
+  getFileWorkspaceUrl,
+  getRelativeToWorkspaceFilePath,
   getSelectionText,
   getWorkspaceFileTree,
-  getWorkspaceName,
+  getWorkspacesUrl,
   parseEmbeddings,
   uuid,
 } from '@utils';
@@ -79,11 +81,9 @@ export class Context {
   }
 
   async chunckFile(uri: vscode.Uri, chunkSize = 10) {
-    if (!vscode.workspace.workspaceFolders?.length) return [];
-
     const bytes = await vscode.workspace.fs.readFile(uri);
     const content = new TextDecoder().decode(bytes).slice(0, this.maxChars);
-    const path = Context.getStringUri(uri);
+    const path = getRelativeToWorkspaceFilePath(uri);
 
     const chunks: DbFile[] = [];
 
@@ -100,7 +100,7 @@ export class Context {
       chunks.push({
         path,
         text: numberedLines,
-        workspace: getWorkspaceName(),
+        workspace: getFileWorkspaceUrl(uri),
         id: uuid(),
       });
     }
@@ -114,7 +114,8 @@ export class Context {
   }
 
   async searchRelevant(search: string, limit?: number) {
-    return this.database.searchKNN(search, { workspace: getWorkspaceName() }, limit);
+    if (!getWorkspacesUrl().length) return [];
+    return this.database.searchKNN(search, { workspaces: getWorkspacesUrl() }, limit);
   }
 
   async deleteFiles(uris: vscode.Uri[]) {
@@ -122,11 +123,26 @@ export class Context {
     return this.database.deleteFiles(uriStrings);
   }
 
-  async isWorkspaceIndexed() {
-    return this.database.isWorkspaceIndexed();
+  async checkAndIndexWorkspace(force?: boolean) {
+    const isIndexed = await this.isWorkspacesIndexed();
+    const workspaces = isIndexed.filter((el) => force || !el.indexed);
+    const promises = workspaces.map((w) => this.indexWorkspace(w.workspace));
+    await Promise.all(promises);
   }
 
-  async indexWorkspace() {
+  async isWorkspacesIndexed() {
+    const workspaces = vscode.workspace.workspaceFolders?.map((f) => f.uri.fsPath);
+    if (!workspaces) return [];
+    const promises = workspaces.map((workspace) =>
+      this.database.isWorkspaceIndexed(workspace).then((indexed) => ({
+        workspace,
+        indexed,
+      })),
+    );
+    return Promise.all(promises);
+  }
+
+  async indexWorkspace(workspace: string) {
     this.observer.emit('indexing', {
       status: 'pending',
       progress: 0,
@@ -134,7 +150,7 @@ export class Context {
       total: 0,
     });
 
-    await this.database.clearWorkspace(getWorkspaceName());
+    await this.database.clearWorkspace(workspace);
 
     const uris: vscode.Uri[] = await vscode.workspace.findFiles(
       filePattern,

@@ -19,6 +19,11 @@ export class Analizer {
       verbose: false,
       name: 'Analizer assistant',
       description: 'An AI coding assistant.',
+      logger: {
+        log: (...args) => console.log('📝 ANALIZER LOG:', args),
+        error: (...args) => console.error('❌ ANALIZER ERROR:', args),
+        warn: (...args) => console.warn('⚠️ ANALIZER WARN:', args),
+      },
     });
   }
 

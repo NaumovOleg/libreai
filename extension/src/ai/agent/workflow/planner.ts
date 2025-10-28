@@ -20,6 +20,11 @@ export class Planner {
       verbose: false,
       name: 'Planner assistant',
       description: 'An AI coding assistant.',
+      logger: {
+        log: (...args) => console.log('📝 PLANNER LOG:', args),
+        error: (...args) => console.error('❌ PLANNER ERROR:', args),
+        warn: (...args) => console.warn('⚠️ PLANNER WARN:', args),
+      },
     });
   }
 

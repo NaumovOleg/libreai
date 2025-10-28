@@ -62,7 +62,7 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   vscode.workspace.onDidChangeWorkspaceFolders(async () => {
-    ctx.indexWorkspace();
+    ctx.checkAndIndexWorkspace();
   });
 
   vscode.workspace.onDidSaveTextDocument((ev) => {
@@ -71,10 +71,6 @@ export async function activate(context: vscode.ExtensionContext) {
   vscode.workspace.onDidDeleteFiles((ev) => {
     ctx.deleteFiles(Array.from(ev.files));
   });
-
-  if (!(await ctx.isWorkspaceIndexed())) {
-    ctx.indexWorkspace();
-  }
 }
 
 export function deactivate() {}

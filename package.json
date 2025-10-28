@@ -4,7 +4,7 @@
   "displayName": "AI Inline + Chat",
   "publisher": "olgert",
   "description": "Code copilot",
-  "version": "1.4.8",
+  "version": "1.5.2",
   "main": "./out/extension.js",
   "engines": {
     "vscode": "^1.85.0"
@@ -12,9 +12,6 @@
   "categories": [
     "Chat",
     "AI"
-  ],
-  "enabledApiProposals": [
-    "extensionRuntime"
   ],
   "icon": "media/robot.png",
   "activationEvents": [

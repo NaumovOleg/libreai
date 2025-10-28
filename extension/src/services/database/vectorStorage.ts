@@ -2,7 +2,7 @@
 import * as lancedb from '@lancedb/lancedb';
 import { Table } from '@lancedb/lancedb';
 import { getRegistry, LanceSchema, register } from '@lancedb/lancedb/embedding';
-import { DbFile, FileChunk, getWorkspaceName } from '@utils';
+import { DbFile, FileChunk } from '@utils';
 import { Utf8 } from 'apache-arrow';
 import * as vscode from 'vscode';
 
@@ -58,10 +58,10 @@ export class VectorStorage {
     }
   }
 
-  async isWorkspaceIndexed() {
+  async isWorkspaceIndexed(workspace: string) {
     const existed = (await this.fileTable
       .search('*')
-      .where(`workspace = '${getWorkspaceName()}'`)
+      .where(`workspace = '${workspace}'`)
       .limit(1)
       .toArray()) as DbFile[];
 
@@ -69,16 +69,18 @@ export class VectorStorage {
   }
 
   async putFileChunks(chunks: DbFile[], deleteFiles = true) {
-    const workspace = getWorkspaceName();
     if (!this.fileTable) throw new Error('Table not initialized. Call init().');
     if (!chunks.length) {
       return [];
     }
 
+    const workspaces = [...new Set(chunks.map((file) => file.workspace))];
+
     const paths = chunks.map((c) => c.path);
     if (deleteFiles) {
       await this.fileTable.delete(
-        `path IN (${paths.map((fp) => `'${fp.replace(/'/g, "''")}'`).join(',')}) AND workspace = '${workspace}'`,
+        `path IN (${paths.map((fp) => `'${fp.replace(/'/g, "''")}'`).join(',')})
+   AND workspace IN (${workspaces.map((ws) => `'${ws.replace(/'/g, "''")}'`).join(',')})`,
       );
     }
 
@@ -95,7 +97,7 @@ export class VectorStorage {
 
   async searchKNN(
     search: string,
-    filters: { workspace: string; path?: string },
+    filters: { workspaces: string[]; path?: string },
     limit = 5,
   ): Promise<FileChunk[]> {
     if (!this.fileTableName) throw new Error('Table not initialized. Call init().');
@@ -103,9 +105,13 @@ export class VectorStorage {
 
     const queryEmbedding = (await this.embedder.embed([search]))[0];
 
+    const escapedWorkspaces = filters.workspaces
+      .map((ws) => `'${ws.replace(/'/g, "''")}'`)
+      .join(',');
+
     const query = this.fileTable
       .search(queryEmbedding)
-      .where(`workspace = '${filters.workspace}'`)
+      .where(`workspace IN (${escapedWorkspaces})`)
       .limit(limit);
 
     const results = await query.toArray();

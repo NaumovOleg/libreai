@@ -78,7 +78,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       );
 
     this.web.webview.html = html;
-    this.startIndexingWorkspace();
+    this.ctx.checkAndIndexWorkspace();
   }
 
   private async useChat(message: ChatMessage) {
@@ -115,15 +115,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private async startIndexingWorkspace(force = false) {
-    if (force) {
-      return this.ctx.indexWorkspace();
-    }
-    const isIndexed = await this.ctx.isWorkspaceIndexed();
-    if (!isIndexed) {
-      return this.ctx.indexWorkspace();
-    }
-  }
+  private async startIndexingWorkspace(force = false) {}
 
   private async onDidReceiveMessage(message: MESSAGE) {
     if (message.command === COMMANDS.changeConfig) {
@@ -140,7 +132,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       showMemoryDiff(message.value as ShowPreviewMessage);
     }
     if (message.command === COMMANDS.indexing) {
-      this.startIndexingWorkspace(true);
+      this.ctx.checkAndIndexWorkspace(true);
     }
     if (message.command === COMMANDS.selectContext) {
       this.selectContextFiles();
