@@ -152,11 +152,7 @@ export class Context {
 
     await this.database.clearWorkspace(workspace);
 
-    const uris: vscode.Uri[] = await vscode.workspace.findFiles(
-      filePattern,
-      foldersPattern,
-      this.maxFiles && this.maxFiles * 3,
-    );
+    const uris: vscode.Uri[] = await vscode.workspace.findFiles(filePattern, foldersPattern);
 
     const total = uris.length;
     let indexed = 0;

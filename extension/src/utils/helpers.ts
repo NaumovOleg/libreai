@@ -45,14 +45,6 @@ export const getActiveWorkspaceName = () => {
   return folder?.name;
 };
 
-export const getWorkspaceName = () => {
-  const folders = vscode.workspace.workspaceFolders;
-  if (!folders || folders.length === 0) {
-    return 'noname';
-  }
-  return folders[0].name;
-};
-
 export const stripCodeFences = (code: string) => {
   return code.replace(/^```[a-zA-Z0-9]*\s*/, '').replace(/```$/, '');
 };

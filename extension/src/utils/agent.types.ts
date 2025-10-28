@@ -49,7 +49,7 @@ export type RenameFileToolArgs = {
   newName: string;
 };
 export type SearchEmbeddingsToolArgs = {
-  criteria: string;
+  search: string;
   limit: number;
 };
 
