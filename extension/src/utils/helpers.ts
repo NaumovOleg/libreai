@@ -231,3 +231,14 @@ export function safeJsonParse<T = any>(input: any): T {
   }
   return input;
 }
+
+export const getActiveWorkspaces = () => {
+  const editor = vscode.window.activeTextEditor;
+  const document = editor?.document;
+
+  let workspaces = document
+    ? [vscode.workspace.getWorkspaceFolder(document.uri)?.uri.fsPath ?? 'noname']
+    : vscode.workspace.workspaceFolders?.map((el) => el.uri.fsPath);
+
+  return workspaces?.filter(Boolean) ?? [];
+};

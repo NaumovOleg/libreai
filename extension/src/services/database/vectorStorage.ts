@@ -11,10 +11,9 @@ import { FileEmbedder } from './embedder';
 export class VectorStorage {
   private dbPath: string;
   private db!: lancedb.Connection;
-  private fileTable!: Table;
-  private fileTableName = 'files';
   private embedder: FileEmbedder;
   private static _instance: VectorStorage;
+  private tables: { [key: string]: lancedb.Table } = {};
 
   static getInstance(context?: vscode.ExtensionContext) {
     if (context && !VectorStorage._instance) {
@@ -31,15 +30,24 @@ export class VectorStorage {
   async init() {
     this.dbPath = this.context.globalStorageUri.fsPath;
     await vscode.workspace.fs.createDirectory(this.context.globalStorageUri);
-
     this.db = await lancedb.connect(this.dbPath);
-
     register(FileEmbedder.name)(FileEmbedder);
+  }
+
+  private getTableNameForWorkspace(workspace: string): string {
+    return `files_${workspace.replace(/[^a-zA-Z0-9_]/g, '_')}`;
+  }
+
+  private async getOrCreateTable(workspace: string): Promise<Table> {
+    const tableName = this.getTableNameForWorkspace(workspace);
+
+    if (this.tables[tableName]) return this.tables[tableName];
+    const tables = await this.db.tableNames();
+    let table: Table;
     const fileEmbedderFn = getRegistry().get(FileEmbedder.name)?.create();
     if (!fileEmbedderFn) {
       throw new Error('Embedder not found');
     }
-
     const schema = LanceSchema({
       text: fileEmbedderFn.sourceField(new Utf8()),
       vector: fileEmbedderFn.vectorField(),
@@ -47,75 +55,76 @@ export class VectorStorage {
       id: new Utf8(),
       workspace: new Utf8(),
     });
-
-    const tables = await this.db.tableNames();
-    if (tables.includes(this.fileTableName)) {
-      this.fileTable = await this.db.openTable(this.fileTableName);
-      console.log(`Opened existing table: ${this.fileTableName}`);
+    if (tables.includes(tableName)) {
+      table = await this.db.openTable(tableName);
+      console.log(`Opened existing table: ${tableName}`);
     } else {
-      this.fileTable = await this.db.createEmptyTable(this.fileTableName, schema);
-      console.log(`Created new table: ${this.fileTableName}`);
+      table = await this.db.createEmptyTable(tableName, schema);
+      console.log(`Created new table: ${tableName}`);
     }
+    this.tables[tableName] = table;
+    return table;
   }
 
   async isWorkspaceIndexed(workspace: string) {
-    const existed = (await this.fileTable
-      .search('*')
-      .where(`workspace = '${workspace}'`)
-      .limit(1)
-      .toArray()) as DbFile[];
-
+    console.log('IS WORKSPACE INDEXED', workspace);
+    const table = await this.getOrCreateTable(workspace);
+    const existed = (await table.search('*').limit(1).toArray()) as DbFile[];
     return !!existed.length;
   }
 
   async putFileChunks(chunks: DbFile[], deleteFiles = true) {
-    if (!this.fileTable) throw new Error('Table not initialized. Call init().');
+    console.log('PUT FILE CHUNKS', chunks);
     if (!chunks.length) {
       return [];
     }
 
-    const workspaces = [...new Set(chunks.map((file) => file.workspace))];
-
-    const paths = chunks.map((c) => c.path);
-    if (deleteFiles) {
-      await this.fileTable.delete(
-        `path IN (${paths.map((fp) => `'${fp.replace(/'/g, "''")}'`).join(',')})
-   AND workspace IN (${workspaces.map((ws) => `'${ws.replace(/'/g, "''")}'`).join(',')})`,
-      );
+    const workspaceGroups: Record<string, DbFile[]> = {};
+    for (const chunk of chunks) {
+      if (!workspaceGroups[chunk.workspace]) {
+        workspaceGroups[chunk.workspace] = [];
+      }
+      workspaceGroups[chunk.workspace].push(chunk);
     }
-
-    return this.fileTable.add(chunks);
+    const results = [];
+    for (const workspace of Object.keys(workspaceGroups)) {
+      const table = await this.getOrCreateTable(workspace);
+      const wsChunks = workspaceGroups[workspace];
+      const paths = wsChunks.map((c) => c.path);
+      if (deleteFiles && paths.length > 0) {
+        await table.delete(
+          `path IN (${paths.map((fp) => `'${fp.replace(/'/g, "''")}'`).join(',')})`,
+        );
+      }
+      results.push(await table.add(wsChunks));
+    }
+    return results;
   }
 
-  async deleteFiles(paths: string[]) {
-    return this.fileTable.delete(`path IN (${paths.map((p) => `'${p}'`).join(',')})`);
+  async deleteFiles(workspace: string, paths: string[]) {
+    console.log('DELETE FILES ', workspace);
+    const table = await this.getOrCreateTable(workspace);
+    return table.delete(`path IN (${paths.map((p) => `'${p.replace(/'/g, "''")}'`).join(',')})`);
   }
 
   async clearWorkspace(workspace: string) {
-    return this.fileTable.delete(`workspace = '${workspace}'`);
+    console.log('CLEAR WORKSPACE', workspace);
+    const table = await this.getOrCreateTable(workspace);
+    return table.delete('true');
   }
 
-  async searchKNN(
-    search: string,
-    filters: { workspaces: string[]; path?: string },
-    limit = 5,
-  ): Promise<FileChunk[]> {
-    if (!this.fileTableName) throw new Error('Table not initialized. Call init().');
+  async searchKNN(search: string, workspaces: string[], limit = 5): Promise<FileChunk[]> {
     if (!this.embedder) throw new Error('Embedder not initialized.');
-
     const queryEmbedding = (await this.embedder.embed([search]))[0];
+    let results: FileChunk[] = [];
+    for (const workspace of workspaces) {
+      const table = await this.getOrCreateTable(workspace);
+      let query = table.search(queryEmbedding).limit(limit);
 
-    const escapedWorkspaces = filters.workspaces
-      .map((ws) => `'${ws.replace(/'/g, "''")}'`)
-      .join(',');
+      const wsResults = await query.toArray();
+      results = results.concat(wsResults as FileChunk[]);
+    }
 
-    const query = this.fileTable
-      .search(queryEmbedding)
-      .where(`workspace IN (${escapedWorkspaces})`)
-      .limit(limit);
-
-    const results = await query.toArray();
-    const filesMap = new Map(results.map((r) => [r.id, r]));
-    return Array.from(filesMap.values()) as FileChunk[];
+    return results;
   }
 }

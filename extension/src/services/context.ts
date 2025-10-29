@@ -92,35 +92,48 @@ export class Context {
     for (let startLine = 0; startLine < lines.length; startLine += chunkSize) {
       const endLine = Math.min(startLine + chunkSize, lines.length);
 
-      const numberedLines = lines
+      const text = lines
         .slice(startLine, endLine)
         .map((line, idx) => `${startLine + idx}| ${line}`)
         .join('\n');
 
-      chunks.push({
-        path,
-        text: numberedLines,
-        workspace: getFileWorkspaceUrl(uri),
-        id: uuid(),
-      });
+      chunks.push({ path, text, workspace: getFileWorkspaceUrl(uri), id: uuid() });
     }
 
     return chunks;
   }
 
   async indexFile(uri: vscode.Uri, chunkSize = 10, deleteFiles = true) {
+    console.log('indexFile');
     const chunks = await this.chunckFile(uri, chunkSize);
     return this.database.putFileChunks(chunks, deleteFiles);
   }
 
   async searchRelevant(search: string, limit?: number) {
     if (!getWorkspacesUrl().length) return [];
-    return this.database.searchKNN(search, { workspaces: getWorkspacesUrl() }, limit);
+    return this.database.searchKNN(search, getWorkspacesUrl(), limit);
   }
 
   async deleteFiles(uris: vscode.Uri[]) {
-    const uriStrings = uris.map(Context.getStringUri);
-    return this.database.deleteFiles(uriStrings);
+    const workspaceMap = new Map<string, string[]>(); // workspacePath -> [fileUriStrings]
+
+    for (const uri of uris) {
+      const folder = vscode.workspace.getWorkspaceFolder(uri);
+      if (!folder) continue;
+
+      const workspacePath = folder.uri.fsPath;
+      const uriString = Context.getStringUri(uri);
+
+      if (!workspaceMap.has(workspacePath)) {
+        workspaceMap.set(workspacePath, []);
+      }
+      workspaceMap.get(workspacePath)!.push(uriString);
+    }
+
+    for (const [workspace, uriStrings] of workspaceMap.entries()) {
+      console.log(`Deleting files from workspace: ${workspace}`, uriStrings);
+      await this.database.deleteFiles(workspace, uriStrings);
+    }
   }
 
   async checkAndIndexWorkspace(force?: boolean) {
@@ -133,16 +146,20 @@ export class Context {
   async isWorkspacesIndexed() {
     const workspaces = vscode.workspace.workspaceFolders?.map((f) => f.uri.fsPath);
     if (!workspaces) return [];
+
+    console.log('isWorkspacesIndexed', workspaces);
     const promises = workspaces.map((workspace) =>
       this.database.isWorkspaceIndexed(workspace).then((indexed) => ({
         workspace,
         indexed,
       })),
     );
+
     return Promise.all(promises);
   }
 
   async indexWorkspace(workspace: string) {
+    console.log('INDEX WORKSPACE', workspace);
     this.observer.emit('indexing', {
       status: 'pending',
       progress: 0,

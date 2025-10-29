@@ -1724,6 +1724,11 @@
   dependencies:
     "@babel/types" "^7.28.2"
 
+"@types/braces@*":
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/@types/braces/-/braces-3.0.5.tgz#91159f97e516630c7946d8b0d5bf60245986e04c"
+  integrity sha512-SQFof9H+LXeWNz8wDe7oN5zu7ket0qwMu5vZubW4GCJ8Kkeh6nBWUz87+KTz/G3Kqsrp0j/W253XJb3KMEeg3w==
+
 "@types/command-line-args@^5.2.3":
   version "5.2.3"
   resolved "https://registry.yarnpkg.com/@types/command-line-args/-/command-line-args-5.2.3.tgz#553ce2fd5acf160b448d307649b38ffc60d39639"
@@ -1793,6 +1798,13 @@
   integrity sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==
   dependencies:
     "@types/unist" "*"
+
+"@types/micromatch@^4.0.10":
+  version "4.0.10"
+  resolved "https://registry.yarnpkg.com/@types/micromatch/-/micromatch-4.0.10.tgz#f83b8b05cea1face2a7cf3b7e866ff97d204b632"
+  integrity sha512-5jOhFDElqr4DKTrTEbnW8DZ4Hz5LRUEmyrGpCMrD/NphYv3nUnaF08xmSLx1rGGnyEs/kFnhiw6dCgcDqMr5PQ==
+  dependencies:
+    "@types/braces" "*"
 
 "@types/ms@*":
   version "2.1.0"

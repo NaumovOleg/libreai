@@ -1,5 +1,6 @@
+import { foldersPattern, getActiveWorkspaces } from '@utils';
+import micromatch from 'micromatch';
 import * as vscode from 'vscode';
-
 import {
   ContextSelector,
   Helper,
@@ -62,15 +63,24 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   vscode.workspace.onDidChangeWorkspaceFolders(async () => {
+    console.log('ccccccchhfhfhfhfhfhfhfhhfhfh');
     ctx.checkAndIndexWorkspace();
+    console.log(getActiveWorkspaces());
   });
 
   vscode.workspace.onDidSaveTextDocument((ev) => {
-    ctx.indexFile(ev.uri);
+    const filePath = ev.uri.fsPath;
+
+    const isExcluded = micromatch.isMatch(filePath, foldersPattern, { dot: true });
+
+    if (!isExcluded) {
+      ctx.indexFile(ev.uri);
+    }
   });
   vscode.workspace.onDidDeleteFiles((ev) => {
     ctx.deleteFiles(Array.from(ev.files));
   });
+  console.log(getActiveWorkspaces());
 }
 
 export function deactivate() {}
