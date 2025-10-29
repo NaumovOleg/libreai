@@ -19,6 +19,7 @@ declare enum COMMANDS {
   selectContext = 'selectContext',
   interactCommand = 'interactCommand',
   helperMessage = 'helperMessage',
+  onChangeWorkspace = 'onChangeWorkspace',
 }
 
 declare type ShowPreviewMessage = {
@@ -120,12 +121,15 @@ type State = {
   provider?: Author;
   isAgentThinking: boolean;
   indexing: {
-    status: 'done' | 'pending' | 'error' | 'not-indexed';
-    progress: number;
-    indexed: number;
-    currentFile?: string;
-    error?: string;
-    total: number;
+    [key: string]: {
+      status: 'done' | 'pending' | 'error' | 'not-indexed';
+      progress: number;
+      indexed: number;
+      currentFile?: string;
+      error?: string;
+      total: number;
+      workspace: string;
+    };
   };
 };
 

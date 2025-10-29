@@ -63,9 +63,7 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   vscode.workspace.onDidChangeWorkspaceFolders(async () => {
-    console.log('ccccccchhfhfhfhfhfhfhfhhfhfh');
-    ctx.checkAndIndexWorkspace();
-    console.log(getActiveWorkspaces());
+    ctx.onWorkspaceChange();
   });
 
   vscode.workspace.onDidSaveTextDocument((ev) => {

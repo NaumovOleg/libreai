@@ -80,3 +80,8 @@ export const getEditSummary = ({ content, old }: { content?: string; old?: strin
 
   return { added, removed };
 };
+
+export const normalizeWorkspaceName = (workspace: string) => {
+  const parts = workspace.split(/[\\/]+/).filter(Boolean);
+  return parts.slice(-1).join('/');
+};

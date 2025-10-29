@@ -30,6 +30,7 @@ export enum COMMANDS {
   selectContext = 'selectContext',
   interactCommand = 'interactCommand',
   helperMessage = 'helperMessage',
+  onChangeWorkspace = 'onChangeWorkspace',
 }
 
 export type ShowPreviewMessage = {
@@ -74,12 +75,15 @@ export type State = {
   provider?: Author;
   isAgentThinking: boolean;
   indexing: {
-    status: 'done' | 'pending' | 'error';
-    progress: number;
-    indexed: number;
-    currentFile?: string;
-    error?: string;
-    total: number;
+    [key: string]: {
+      status: 'done' | 'pending' | 'error' | 'not-indexed';
+      progress: number;
+      indexed: number;
+      currentFile?: string;
+      error?: string;
+      total: number;
+      workspace: string;
+    };
   };
 };
 
@@ -160,6 +164,7 @@ export type IndexingPayload = {
   currentFile?: string;
   error?: string;
   total: number;
+  workspace: string;
 };
 
 export type ExecCommandPayload = {
@@ -170,6 +175,10 @@ export type ExecCommandPayload = {
 export type IndexingMessage = {
   type: 'indexing';
   payload: IndexingPayload;
+};
+export type ChangeWorkspaceMessage = {
+  type: 'onChangeWorkspace';
+  payload: string[];
 };
 
 export type ExecCommandMessage = {

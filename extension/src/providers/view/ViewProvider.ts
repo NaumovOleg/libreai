@@ -78,6 +78,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       );
 
     this.web.webview.html = html;
+
     this.ctx.checkAndIndexWorkspace();
   }
 
@@ -115,8 +116,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private async startIndexingWorkspace(force = false) {}
-
   private async onDidReceiveMessage(message: MESSAGE) {
     if (message.command === COMMANDS.changeConfig) {
       await Conf.updateConfig(message);
@@ -126,13 +125,18 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
 
     if (message.command === COMMANDS.configListenerMounted) {
+      const observer = Observer.getInstance();
+      observer.emit(
+        COMMANDS.onChangeWorkspace,
+        vscode.workspace.workspaceFolders?.map((el) => el.uri.fsPath) ?? [],
+      );
       await onStartMessages(this.web);
     }
     if (message.command === COMMANDS.showPreview) {
       showMemoryDiff(message.value as ShowPreviewMessage);
     }
     if (message.command === COMMANDS.indexing) {
-      this.ctx.checkAndIndexWorkspace(true);
+      this.onWorkspaceIndexRequest(message.value as string);
     }
     if (message.command === COMMANDS.selectContext) {
       this.selectContextFiles();
@@ -146,6 +150,13 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     if (message.command === COMMANDS.sendMessage) {
       await onReceiveUserMessage(value, this.useChat.bind(this), this.useAgent.bind(this));
     }
+  }
+
+  public onWorkspaceIndexRequest(workspace?: string) {
+    if (!workspace) {
+      return this.ctx.checkAndIndexWorkspace(true);
+    }
+    return this.ctx.indexWorkspace(workspace);
   }
 
   public async selectContextFiles() {

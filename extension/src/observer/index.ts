@@ -43,6 +43,8 @@ export class Observer {
 
   emit(event: COMMANDS.chatStreamEnd): void;
 
+  emit(event: COMMANDS.onChangeWorkspace, payload: string[]): void;
+
   emit(event: any, payload?: any) {
     this.observer.emit(event, payload);
   }
@@ -61,6 +63,7 @@ export class Observer {
     this.observer.subscribe(COMMANDS.helperMessage, this.helperMessage.bind(this));
     this.observer.subscribe(COMMANDS.chatStream, this.chatStream.bind(this));
     this.observer.subscribe(COMMANDS.chatStreamEnd, this.chatStreamEnd.bind(this));
+    this.observer.subscribe(COMMANDS.onChangeWorkspace, this.onChangeWorkspace.bind(this));
   }
   agentResponse: ObserverEditorHandler<EDITOR_EVENTS.readFile> = (payload: AgentMessage) => {
     this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
@@ -78,5 +81,8 @@ export class Observer {
 
   chatStreamEnd() {
     this.web.webview.postMessage({ type: COMMANDS.chatStreamEnd });
+  }
+  onChangeWorkspace(payload: string[]) {
+    this.web.webview.postMessage({ type: COMMANDS.onChangeWorkspace, payload });
   }
 }

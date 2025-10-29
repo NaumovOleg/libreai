@@ -18,8 +18,8 @@ export type ConfigContextType = {
 };
 
 export type IndexingContextType = {
-  payload: IndexingPayload;
-  startIndexing: () => void;
+  payload: { [key: string]: IndexingPayload };
+  startIndexing: (workspace?: string) => void;
 };
 
 export type ListenerContextType = {

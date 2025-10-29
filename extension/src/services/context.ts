@@ -1,13 +1,14 @@
 import { Observer } from '@observer';
 import {
+  COMMANDS,
   DbFile,
   filePattern,
   foldersPattern,
+  getActiveWorkspaces,
   getFileWorkspaceUrl,
   getRelativeToWorkspaceFilePath,
   getSelectionText,
   getWorkspaceFileTree,
-  getWorkspacesUrl,
   parseEmbeddings,
   uuid,
 } from '@utils';
@@ -50,7 +51,6 @@ export class Context {
 
   constructor(
     private database: VectorStorage,
-    private maxFiles = 500,
     private maxChars = 5000,
   ) {}
 
@@ -110,8 +110,8 @@ export class Context {
   }
 
   async searchRelevant(search: string, limit?: number) {
-    if (!getWorkspacesUrl().length) return [];
-    return this.database.searchKNN(search, getWorkspacesUrl(), limit);
+    if (!getActiveWorkspaces().length) return [];
+    return this.database.searchKNN(search, getActiveWorkspaces(), limit);
   }
 
   async deleteFiles(uris: vscode.Uri[]) {
@@ -136,11 +136,24 @@ export class Context {
     }
   }
 
+  async onWorkspaceChange() {
+    this.observer.emit(
+      COMMANDS.onChangeWorkspace,
+      vscode.workspace.workspaceFolders?.map((el) => el.uri.fsPath) ?? [],
+    );
+    return this.checkAndIndexWorkspace();
+  }
+
   async checkAndIndexWorkspace(force?: boolean) {
     const isIndexed = await this.isWorkspacesIndexed();
+    console.log('INDEXED', isIndexed);
+
     const workspaces = isIndexed.filter((el) => force || !el.indexed);
-    const promises = workspaces.map((w) => this.indexWorkspace(w.workspace));
-    await Promise.all(promises);
+
+    for (const w of workspaces) {
+      console.log(`Indexing workspace: ${w.workspace}`);
+      await this.indexWorkspace(w.workspace); // ждет, пока закончится предыдущее
+    }
   }
 
   async isWorkspacesIndexed() {
@@ -159,12 +172,12 @@ export class Context {
   }
 
   async indexWorkspace(workspace: string) {
-    console.log('INDEX WORKSPACE', workspace);
     this.observer.emit('indexing', {
       status: 'pending',
       progress: 0,
       indexed: 0,
       total: 0,
+      workspace,
     });
 
     await this.database.clearWorkspace(workspace);
@@ -187,6 +200,7 @@ export class Context {
           total,
           error: err.message,
           currentFile: uri.fsPath,
+          workspace,
         });
       }
 
@@ -198,6 +212,7 @@ export class Context {
         indexed,
         total,
         currentFile: uri.fsPath,
+        workspace,
       });
     }
 
@@ -206,6 +221,7 @@ export class Context {
       progress: 100,
       indexed: total,
       total,
+      workspace,
     });
 
     return total;
