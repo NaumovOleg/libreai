@@ -1,6 +1,6 @@
 import { Chat, Workflow } from '@ai';
 import { Observer } from '@observer';
-import { callbacks, Context, SessionStorage, showMemoryDiff } from '@services';
+import { callbacks, Context, Indexer, SessionStorage, showMemoryDiff } from '@services';
 import { Author, ChatMessage, COMMANDS, Conf, MESSAGE, ShowPreviewMessage, uuid } from '@utils';
 import fs from 'fs';
 import path from 'path';
@@ -26,6 +26,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     private readonly extensionUri: vscode.Uri,
     private storage: SessionStorage,
     private ctx: Context,
+    private indexer: Indexer,
     private icons: Icons,
     private contextSelector: ContextSelector,
   ) {
@@ -79,7 +80,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     this.web.webview.html = html;
 
-    this.ctx.checkAndIndexWorkspace();
+    this.indexer.checkAndIndexWorkspace();
   }
 
   private async useChat(message: ChatMessage) {
@@ -116,6 +117,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
+  private async configListenerMounted() {
+    await Promise.all([this.indexer.onWorkspaceChange(), onStartMessages(this.web)]);
+  }
+
   private async onDidReceiveMessage(message: MESSAGE) {
     if (message.command === COMMANDS.changeConfig) {
       await Conf.updateConfig(message);
@@ -125,12 +130,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
 
     if (message.command === COMMANDS.configListenerMounted) {
-      const observer = Observer.getInstance();
-      observer.emit(
-        COMMANDS.onChangeWorkspace,
-        vscode.workspace.workspaceFolders?.map((el) => el.uri.fsPath) ?? [],
-      );
-      await onStartMessages(this.web);
+      this.configListenerMounted();
     }
     if (message.command === COMMANDS.showPreview) {
       showMemoryDiff(message.value as ShowPreviewMessage);
@@ -154,9 +154,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
   public onWorkspaceIndexRequest(workspace?: string) {
     if (!workspace) {
-      return this.ctx.checkAndIndexWorkspace(true);
+      return this.indexer.checkAndIndexWorkspace(true);
     }
-    return this.ctx.indexWorkspace(workspace);
+    return this.indexer.indexWorkspace(workspace);
   }
 
   public async selectContextFiles() {

@@ -178,7 +178,7 @@ export type IndexingMessage = {
 };
 export type ChangeWorkspaceMessage = {
   type: 'onChangeWorkspace';
-  payload: string[];
+  payload: { [key: string]: IndexingPayload };
 };
 
 export type ExecCommandMessage = {

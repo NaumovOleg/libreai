@@ -12,11 +12,7 @@ import {
 type Payload = { [key: string]: IndexingPayload };
 
 export const IndexingProvider: FC<{ children: ReactElement }> = ({ children }) => {
-  const [payload, setPayload] = useState<Payload>(() => {
-    return vscode.getState().indexing ?? {};
-  });
-
-  const [workspaces, setWorkspaces] = useState<string[]>([]);
+  const [payload, setPayload] = useState<Payload>({});
 
   useEffect(() => {
     vscode.setState({ ...vscode.getState(), indexing: payload });
@@ -29,7 +25,7 @@ export const IndexingProvider: FC<{ children: ReactElement }> = ({ children }) =
     }
 
     if (event.data.type === COMMANDS.onChangeWorkspace) {
-      setWorkspaces(event.data.payload);
+      setPayload(event.data.payload);
     }
   };
 
@@ -48,15 +44,8 @@ export const IndexingProvider: FC<{ children: ReactElement }> = ({ children }) =
     }
   };
 
-  const value = Object.entries(payload).reduce((acc, [key, val]) => {
-    if (workspaces.includes(key)) {
-      acc[val.workspace] = val;
-    }
-    return acc;
-  }, {} as Payload);
-
   return (
-    <IndexingContext.Provider value={{ payload: value, startIndexing }}>
+    <IndexingContext.Provider value={{ payload, startIndexing }}>
       {children}
     </IndexingContext.Provider>
   );

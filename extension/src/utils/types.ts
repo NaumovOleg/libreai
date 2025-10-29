@@ -4,6 +4,7 @@ export * from '../../../global.types';
 export type PromptMessages = { role: 'system' | 'user' | 'assistant'; content: string }[];
 
 export const CHAT_HISTORY_PROP = 'chatHistory';
+export const WORKSPACE_INDEX_PREFIX = 'workspace_index_';
 export type CHAT_HISTORY = string[];
 
 export type PromptProps = {

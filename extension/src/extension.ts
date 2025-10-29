@@ -1,4 +1,4 @@
-import { foldersPattern, getActiveWorkspaces } from '@utils';
+import { foldersPattern } from '@utils';
 import micromatch from 'micromatch';
 import * as vscode from 'vscode';
 import {
@@ -9,11 +9,12 @@ import {
   QuickFix,
   ViewProvider,
 } from './providers';
-import { Context, SessionStorage } from './services';
+import { Context, Indexer, SessionStorage } from './services';
 import { VectorStorage } from './services/database';
 
 export async function activate(context: vscode.ExtensionContext) {
   const vectorizer = VectorStorage.getInstance(context);
+  const indexer = new Indexer(context, vectorizer);
   const ctx = new Context(vectorizer);
   const storage = new SessionStorage(context);
   const icons = new Icons();
@@ -23,7 +24,14 @@ export async function activate(context: vscode.ExtensionContext) {
   const contextSelector = new ContextSelector();
 
   await Promise.all([icons.initIcons(), vectorizer.init()]);
-  const viewProvider = new ViewProvider(context.extensionUri, storage, ctx, icons, contextSelector);
+  const viewProvider = new ViewProvider(
+    context.extensionUri,
+    storage,
+    ctx,
+    indexer,
+    icons,
+    contextSelector,
+  );
   const inlineProvider = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },
     completions,
@@ -63,7 +71,7 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   vscode.workspace.onDidChangeWorkspaceFolders(async () => {
-    ctx.onWorkspaceChange();
+    indexer.onWorkspaceChange();
   });
 
   vscode.workspace.onDidSaveTextDocument((ev) => {
@@ -72,13 +80,12 @@ export async function activate(context: vscode.ExtensionContext) {
     const isExcluded = micromatch.isMatch(filePath, foldersPattern, { dot: true });
 
     if (!isExcluded) {
-      ctx.indexFile(ev.uri);
+      indexer.indexFile(ev.uri);
     }
   });
   vscode.workspace.onDidDeleteFiles((ev) => {
-    ctx.deleteFiles(Array.from(ev.files));
+    indexer.deleteFiles(Array.from(ev.files));
   });
-  console.log(getActiveWorkspaces());
 }
 
 export function deactivate() {}

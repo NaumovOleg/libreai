@@ -13,24 +13,28 @@ import { BsDatabaseFillExclamation } from 'react-icons/bs';
 import { BsDatabaseFillDown } from 'react-icons/bs';
 import Add from '@mui/icons-material/Add';
 
-const initialIndex: { indexed: number; total: number; error?: string } = { indexed: 0, total: 0 };
+type InitialIndex = { indexed: number; total: number; error?: string };
 
 export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { payload } = useIndexing();
   const { clearSession } = useChat();
-  const calculated = Object.values(payload).reduce((acc, val) => {
-    acc.indexed += val.indexed ?? 0;
-    acc.total += val.total ?? 0;
-    if (val.error) {
-      acc.error = val.error;
-    }
-    return acc;
-  }, initialIndex);
+
+  const calculated = Object.values(payload).reduce(
+    (acc, val) => {
+      acc.indexed = acc.indexed + (val.indexed ?? 0);
+      acc.total = acc.total + (val.total ?? 0);
+      if (val.error) {
+        acc.error = val.error;
+      }
+      return acc;
+    },
+    { indexed: 0, total: 0 } as InitialIndex,
+  );
 
   const dataBaseIcon = () => {
-    if (!payload || !calculated.total || calculated.indexed === 0)
+    if (!calculated || !calculated.total || calculated.indexed === 0)
       return <BsDatabaseFillDash className="db not-indexed" />;
     if (calculated.indexed === calculated.total) {
       return <BsDatabaseFillCheck className="db indexed" />;
@@ -38,7 +42,7 @@ export const Header = () => {
     if (payload.error) {
       return <BsDatabaseFillExclamation className="db error" />;
     }
-    if (payload.indexed) {
+    if (calculated.indexed) {
       return <BsDatabaseFillDown className="db in-progress" />;
     }
   };

@@ -43,7 +43,7 @@ export class Observer {
 
   emit(event: COMMANDS.chatStreamEnd): void;
 
-  emit(event: COMMANDS.onChangeWorkspace, payload: string[]): void;
+  emit(event: COMMANDS.onChangeWorkspace, payload: { [key: string]: IndexingPayload }): void;
 
   emit(event: any, payload?: any) {
     this.observer.emit(event, payload);
@@ -82,7 +82,7 @@ export class Observer {
   chatStreamEnd() {
     this.web.webview.postMessage({ type: COMMANDS.chatStreamEnd });
   }
-  onChangeWorkspace(payload: string[]) {
+  onChangeWorkspace(payload: { [key: string]: IndexingPayload }) {
     this.web.webview.postMessage({ type: COMMANDS.onChangeWorkspace, payload });
   }
 }
