@@ -37,7 +37,7 @@ export const Command: FC<Props> = ({ message }) => {
       <div className="command container">
         {message.status === 'error' && (
           <div className="error item">
-            <div className="command-line">Error while executing command {command}</div>
+            <div className="command-error">Error {command}</div>
             <Typography color="error">{message.error}</Typography>
           </div>
         )}

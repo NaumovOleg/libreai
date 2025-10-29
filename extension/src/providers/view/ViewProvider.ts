@@ -79,8 +79,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       );
 
     this.web.webview.html = html;
-
-    this.indexer.checkAndIndexWorkspace();
   }
 
   private async useChat(message: ChatMessage) {

@@ -116,15 +116,17 @@ export class VectorStorage {
   async searchKNN(search: string, workspaces: string[], limit = 5): Promise<FileChunk[]> {
     if (!this.embedder) throw new Error('Embedder not initialized.');
     const queryEmbedding = (await this.embedder.embed([search]))[0];
-    let results: FileChunk[] = [];
+    let results: (FileChunk & { _distance: number })[] = [];
     for (const workspace of workspaces) {
       const table = await this.getOrCreateTable(workspace);
       let query = table.search(queryEmbedding).limit(limit);
 
       const wsResults = await query.toArray();
-      results = results.concat(wsResults as FileChunk[]);
+      results = results.concat(wsResults as (FileChunk & { _distance: number })[]);
     }
 
-    return results;
+    const sorted = results.sort((a, b) => (a._distance > b._distance ? 1 : -1));
+
+    return sorted.slice(0, limit);
   }
 }

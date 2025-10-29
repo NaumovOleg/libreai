@@ -58,6 +58,11 @@
       .result-prefix {
         color: var(--vscode-chat-linesAddedForeground);
       }
+      .command-error {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
     }
   }
 }
