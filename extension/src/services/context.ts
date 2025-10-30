@@ -6,7 +6,7 @@ import {
 } from '@utils';
 import * as vscode from 'vscode';
 
-import { VectorStorage } from './database/vectorStorage';
+import { Db } from '@db';
 
 export type ContextWithEmbeddings = {
   editor: vscode.TextEditor | undefined;
@@ -31,7 +31,6 @@ export type GetContextParams = {
   lookupEmbeddings?: boolean;
 };
 
-// Conditional return type
 export type GetContextReturn<P extends GetContextParams | undefined = undefined> = P extends {
   lookupEmbeddings: false;
 }
@@ -39,10 +38,7 @@ export type GetContextReturn<P extends GetContextParams | undefined = undefined>
   : ContextWithEmbeddings;
 
 export class Context {
-  constructor(
-    private database: VectorStorage,
-    private maxChars = 5000,
-  ) {}
+  constructor(private database: Db) {}
 
   static getStringUri(uri: vscode.Uri) {
     const folders = vscode.workspace.workspaceFolders;
@@ -72,7 +68,7 @@ export class Context {
 
   async searchRelevant(search: string, limit?: number) {
     if (!getActiveWorkspaces().length) return [];
-    return this.database.searchKNN(search, getActiveWorkspaces(), limit);
+    return this.database.searchEmbeddings(search, getActiveWorkspaces(), limit);
   }
 
   async getContext<P extends GetContextParams | undefined = undefined>(

@@ -23,17 +23,10 @@ export class Editor {
     edit.replace(this.uri, new vscode.Range(start, end), instruction.content);
 
     await vscode.workspace.applyEdit(edit);
-
-    // Ensure the document is opened in a visible editor
     await vscode.window.showTextDocument(this.uri, { preview: false });
-
-    // Force save with command to ensure it's written to disk
     await vscode.commands.executeCommand('workbench.action.files.save');
-
-    // Re-acquire the document after save (in case any reload happens)
     this.document = await vscode.workspace.openTextDocument(this.uri);
 
-    // Return updated content and metadata
     const content = this.document.getText();
     return { ...instruction, old, content };
   }
@@ -50,7 +43,6 @@ export class Editor {
   async save(instruction?: EditFileToolArgs) {
     await vscode.commands.executeCommand('editor.action.revert', this.uri);
     await this.apply(instruction ?? this.instruction);
-    // Use file save command to ensure
     await vscode.commands.executeCommand('workbench.action.files.save');
     return this.document.save();
   }

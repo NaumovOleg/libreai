@@ -13,14 +13,14 @@ import {
 } from '@utils';
 import * as vscode from 'vscode';
 
-import { VectorStorage } from './database/vectorStorage';
+import { Db } from '@db';
 
 export class Indexer {
   private observer = Observer.getInstance();
 
   constructor(
     private context: vscode.ExtensionContext,
-    private database: VectorStorage,
+    private database: Db,
     private maxChars = 5000,
   ) {}
 
@@ -62,7 +62,7 @@ export class Indexer {
         .map((line, idx) => `${startLine + idx}| ${line}`)
         .join('\n');
 
-      chunks.push({ path, text, workspace: getFileWorkspaceUrl(uri), id: uuid() });
+      chunks.push({ path, text, workspace: getFileWorkspaceUrl(uri), id: uuid(12) });
     }
 
     return chunks;
@@ -71,7 +71,7 @@ export class Indexer {
   async indexFile(uri: vscode.Uri, chunkSize = 10, deleteFiles = true) {
     console.log('indexFile');
     const chunks = await this.chunckFile(uri, chunkSize);
-    return this.database.putFileChunks(chunks, deleteFiles);
+    return this.database.addFiles(chunks, deleteFiles);
   }
 
   async deleteFiles(uris: vscode.Uri[]) {
@@ -148,7 +148,7 @@ export class Indexer {
     const uris: vscode.Uri[] = await vscode.workspace.findFiles(filePattern, foldersPattern);
     const total = uris.length;
     let indexed = 0;
-    const chunkSize = Math.min(50, total / 10);
+    const chunkSize = Math.min(50, Math.ceil(total / 10));
 
     for (const batch of batchArray(uris, chunkSize)) {
       let currentFile: string | undefined = undefined;

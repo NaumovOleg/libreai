@@ -33,6 +33,9 @@
             "@global/types": [
                 "../global.types.ts"
             ],
+            "@db": [
+                "./src/db/index.ts"
+            ],
         }
     },
     "include": [

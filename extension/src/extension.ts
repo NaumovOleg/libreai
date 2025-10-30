@@ -9,24 +9,27 @@ import {
   QuickFix,
   ViewProvider,
 } from './providers';
-import { Context, Indexer, SessionStorage } from './services';
-import { VectorStorage } from './services/database';
+import { Context, Indexer } from './services';
+
+import { Db } from '@db';
 
 export async function activate(context: vscode.ExtensionContext) {
-  const vectorizer = VectorStorage.getInstance(context);
-  const indexer = new Indexer(context, vectorizer);
-  const ctx = new Context(vectorizer);
-  const storage = new SessionStorage(context);
+  const db = Db.getInstance(context);
   const icons = new Icons();
+
+  await Promise.all([icons.initIcons(), db.init()]);
+
+  const indexer = new Indexer(context, db);
+  const ctx = new Context(db);
+
   const completions = new InlineCompletionProvider(ctx);
   const helperProvider = new Helper();
 
   const contextSelector = new ContextSelector();
 
-  await Promise.all([icons.initIcons(), vectorizer.init()]);
   const viewProvider = new ViewProvider(
     context.extensionUri,
-    storage,
+    db,
     ctx,
     indexer,
     icons,

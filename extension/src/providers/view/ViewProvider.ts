@@ -1,6 +1,6 @@
 import { Chat, Workflow } from '@ai';
 import { Observer } from '@observer';
-import { callbacks, Context, Indexer, SessionStorage, showMemoryDiff } from '@services';
+import { callbacks, Context, Indexer, showMemoryDiff } from '@services';
 import { Author, ChatMessage, COMMANDS, Conf, MESSAGE, ShowPreviewMessage, uuid } from '@utils';
 import fs from 'fs';
 import path from 'path';
@@ -15,6 +15,8 @@ import {
   useAgent as useAgentHelper,
 } from './ViewProviderHelpers';
 
+import { Db } from '@db';
+
 export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'robocodeView';
   private mediaFolder = 'out/view';
@@ -24,7 +26,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
   constructor(
     private readonly extensionUri: vscode.Uri,
-    private storage: SessionStorage,
+    private database: Db,
     private ctx: Context,
     private indexer: Indexer,
     private icons: Icons,
@@ -99,7 +101,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       const chatGenerator = this.chat.chatStream({
         ...ctx,
         text: message.text,
-        history: this.storage.history,
+        history: this.database.history,
         files,
       });
 
@@ -109,7 +111,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       }
 
       this.web.webview.postMessage({ type: COMMANDS.chatStreamEnd });
-      await this.storage.addChatHistoryItems([message, payload]);
+      await this.database.addChatHistoryItems([message, payload]);
     } catch (err: any) {
       console.log(err);
     }
@@ -124,7 +126,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       await Conf.updateConfig(message);
     }
     if (message.command === COMMANDS.removeChatSession) {
-      await this.storage.clear();
+      await this.database.clearHistory();
     }
 
     if (message.command === COMMANDS.configListenerMounted) {

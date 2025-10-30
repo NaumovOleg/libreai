@@ -1,12 +1,12 @@
 import { getActiveWorkspaces, SearchEmbeddingsToolArgs } from '@utils';
 
-import { VectorStorage } from '../database';
+import { Db } from '@db';
 
 export const retrieveEmbeddingsCb = async (args: SearchEmbeddingsToolArgs) => {
-  const db = VectorStorage.getInstance();
+  const db = Db.getInstance();
 
   const workspaces = getActiveWorkspaces();
   if (!workspaces?.length) return [];
 
-  return db.searchKNN(args.search, workspaces, Math.min(args.limit, 30));
+  return db.searchEmbeddings(args.search, workspaces, Math.min(args.limit, 30));
 };

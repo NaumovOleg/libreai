@@ -12,15 +12,7 @@ export class VectorStorage {
   private dbPath: string;
   private db!: lancedb.Connection;
   private embedder: FileEmbedder;
-  private static _instance: VectorStorage;
   private tables: { [key: string]: lancedb.Table } = {};
-
-  static getInstance(context?: vscode.ExtensionContext) {
-    if (context && !VectorStorage._instance) {
-      VectorStorage._instance = new VectorStorage(context);
-    }
-    return VectorStorage._instance;
-  }
 
   constructor(private context: vscode.ExtensionContext) {
     this.embedder = new FileEmbedder();
