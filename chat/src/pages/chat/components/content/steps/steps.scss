@@ -54,6 +54,7 @@
       }
       .prefix {
         width: auto;
+        min-width: 45px;
       }
       .result-prefix {
         color: var(--vscode-chat-linesAddedForeground);

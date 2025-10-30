@@ -242,3 +242,11 @@ export const getActiveWorkspaces = () => {
 
   return workspaces?.filter(Boolean) ?? [];
 };
+
+export const batchArray = <T>(arr: T[], size: number): T[][] => {
+  const result = [] as T[][];
+  for (let i = 0; i < arr.length; i += size) {
+    result.push(arr.slice(i, i + size));
+  }
+  return result;
+};

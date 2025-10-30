@@ -1,5 +1,6 @@
 import { Observer } from '@observer';
 import {
+  batchArray,
   COMMANDS,
   DbFile,
   filePattern,
@@ -130,51 +131,57 @@ export class Indexer {
   }
 
   async indexWorkspace(workspace: string) {
-    this.observer.emit('indexing', {
+    const startIndexData: IndexingPayload = {
       status: 'pending',
       progress: 0,
       indexed: 0,
       total: 0,
       workspace,
-    });
+    };
+    this.observer.emit('indexing', startIndexData);
 
-    await this.database.clearWorkspace(workspace);
+    await Promise.all([
+      this.persistWorkspaceIndex(workspace, startIndexData),
+      this.database.clearWorkspace(workspace),
+    ]);
 
     const uris: vscode.Uri[] = await vscode.workspace.findFiles(filePattern, foldersPattern);
-
     const total = uris.length;
     let indexed = 0;
+    const chunkSize = Math.min(50, total / 10);
 
-    for (const uri of uris) {
+    for (const batch of batchArray(uris, chunkSize)) {
+      let currentFile: string | undefined = undefined;
       try {
-        await this.indexFile(uri, 10, false);
-        indexed++;
+        await Promise.all(
+          batch.map(async (uri) => {
+            currentFile = uri.fsPath;
+            await this.indexFile(uri, 10, false);
+          }),
+        );
       } catch (err: any) {
-        console.error(`❌ Failed to index ${uri.fsPath}:`, err);
+        console.error(`❌ Failed to index batch starting with ${batch[0]?.fsPath}:`, err);
         this.observer.emit('indexing', {
           status: 'error',
           progress: 0,
           indexed,
           total,
           error: err.message,
-          currentFile: uri.fsPath,
+          currentFile,
           workspace,
         });
       }
 
-      const progress = Math.round((indexed / total) * 100);
-
       const indexData: IndexingPayload = {
-        status: 'pending',
-        progress,
+        status: indexed < total ? 'pending' : 'done',
+        progress: Math.round((indexed / total) * 100),
         indexed,
         total,
-        currentFile: uri.fsPath,
+        currentFile: batch[batch.length - 1]?.fsPath,
         workspace,
       };
-
+      indexed += batch.length;
       this.observer.emit('indexing', indexData);
-      await this.persistWorkspaceIndex(workspace, indexData);
     }
 
     const doneData: IndexingPayload = {
@@ -184,11 +191,8 @@ export class Indexer {
       total,
       workspace,
     };
-
     this.observer.emit('indexing', doneData);
-
     await this.persistWorkspaceIndex(workspace, doneData);
-
     return total;
   }
 
