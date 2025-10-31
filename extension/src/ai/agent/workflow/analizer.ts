@@ -1,9 +1,9 @@
 import { agent } from '@llamaindex/workflow';
 import { LLMFactory } from '@llm';
 import { Observer } from '@observer';
-import { PlannerQuery, safeJsonParse, uuid } from '@utils';
+import { AgentMessagePayload, PlannerQuery, safeJsonParse, uuid } from '@utils';
 import { FunctionTool, JSONValue } from 'llamaindex';
-
+import * as vscode from 'vscode';
 import { ANALYZER_AGENT_SYSTEM_PROMPT } from '../../prompts';
 
 export class Analizer {
@@ -28,8 +28,7 @@ export class Analizer {
   }
 
   async run(request: PlannerQuery): Promise<{ nextStep: boolean; text?: string }> {
-    const data = JSON.stringify(request, null, 1.5);
-
+    const observer = Observer.getInstance();
     const id = uuid(4);
     const event: AgentMessagePayload<'analizing'> = {
       id,
@@ -37,10 +36,11 @@ export class Analizer {
       args: 'Analizing',
       type: 'analizing',
     };
-    const observer = Observer.getInstance();
-    observer.emit('agent', event);
-    let nextStep = true;
     try {
+      const data = JSON.stringify(request, null, 1.5);
+
+      observer.emit('agent', event);
+      let nextStep = true;
       const response = await this.agent.run(data);
       const result = safeJsonParse<string | { nextStep: string }>(response.data.result);
 
@@ -50,6 +50,7 @@ export class Analizer {
     } catch (err: any) {
       event.status = 'error';
       event.error = err.message;
+      vscode.window.showErrorMessage(err.message);
       return { nextStep: false, text: err.message };
     } finally {
       observer.emit('agent', { ...event, status: 'done' });

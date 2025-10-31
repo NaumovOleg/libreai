@@ -25,17 +25,21 @@ export function onStartMessages(webview: vscode.WebviewView) {
 }
 
 export async function useAgent(message: ChatMessage, ctx: Context, workflow: Workflow) {
-  const [context, files] = await Promise.all([
-    ctx.getContext(message.text, { lookupEmbeddings: false }),
-    ctx.getFilesContent(message.files),
-  ]);
+  try {
+    const [context, files] = await Promise.all([
+      ctx.getContext(message.text, { lookupEmbeddings: false }),
+      ctx.getFilesContent(message.files),
+    ]);
 
-  return workflow.run({
-    fileTree: context.fileTree,
-    language: context.language,
-    request: message.text,
-    files,
-  });
+    return workflow.run({
+      fileTree: context.fileTree,
+      language: context.language,
+      request: message.text,
+      files,
+    });
+  } catch (err: any) {
+    vscode.window.showErrorMessage(err.message);
+  }
 }
 
 export function interactCommand(payload: any) {

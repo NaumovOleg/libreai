@@ -1,7 +1,7 @@
 import { createStatefulMiddleware, createWorkflow } from '@llamaindex/workflow';
 import { Observer } from '@observer';
 import { AgentMessagePayload, PlannerQuery, ToolCallbacks, uuid } from '@utils';
-
+import * as vscode from 'vscode';
 import {
   Analizer,
   analizerStep,
@@ -71,25 +71,29 @@ export class Workflow {
   }
 
   async run(data: PlannerQuery) {
-    const observer = Observer.getInstance();
+    try {
+      const observer = Observer.getInstance();
 
-    const resultEvent: AgentMessagePayload<'agentResponse'> = {
-      status: 'done',
-      id: uuid(),
-      args: {},
-      type: 'agentResponse',
-    };
-    const { stream, sendEvent } = this.workflow.createContext();
-    sendEvent(analizerStep.with(data));
+      const resultEvent: AgentMessagePayload<'agentResponse'> = {
+        status: 'done',
+        id: uuid(),
+        args: {},
+        type: 'agentResponse',
+      };
+      const { stream, sendEvent } = this.workflow.createContext();
+      sendEvent(analizerStep.with(data));
 
-    for await (const event of stream) {
-      if (finish.include(event)) {
-        resultEvent.args.content = event.data.output.toString();
-        observer.emit('agent', resultEvent);
-        break;
+      for await (const event of stream) {
+        if (finish.include(event)) {
+          resultEvent.args.content = event.data.output.toString();
+          observer.emit('agent', resultEvent);
+          break;
+        }
       }
-    }
 
-    return 'done';
+      return 'done';
+    } catch (err: any) {
+      vscode.window.showErrorMessage(err.message);
+    }
   }
 }

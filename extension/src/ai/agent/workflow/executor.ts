@@ -2,7 +2,7 @@ import { agent } from '@llamaindex/workflow';
 import { LLMFactory } from '@llm';
 import { PlannerTask } from '@utils';
 import { FunctionTool, JSONValue } from 'llamaindex';
-
+import * as vscode from 'vscode';
 import { SYSTEM_EXECUTOR_PROMPT } from '../../prompts';
 
 export class Executor {
@@ -29,7 +29,12 @@ export class Executor {
   }
 
   async run(instruction: PlannerTask, fileTree?: string[]) {
-    const data = JSON.stringify({ fileTree, instruction }, null, 1.5);
-    return this.agent.run(data);
+    try {
+      const data = JSON.stringify({ fileTree, instruction }, null, 1.5);
+      return this.agent.run(data);
+    } catch (err: any) {
+      vscode.window.showErrorMessage(err.message);
+      return { error: err.message, success: false, instructions: [] };
+    }
   }
 }

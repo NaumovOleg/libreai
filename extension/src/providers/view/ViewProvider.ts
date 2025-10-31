@@ -113,7 +113,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       this.web.webview.postMessage({ type: COMMANDS.chatStreamEnd });
       await this.database.addChatHistoryItems([message, payload]);
     } catch (err: any) {
-      console.log(err);
+      vscode.window.showErrorMessage(err.message);
     }
   }
 

@@ -2,9 +2,9 @@
 import { agent } from '@llamaindex/workflow';
 import { LLMFactory } from '@llm';
 import { Observer } from '@observer';
-import { PlannerQuery, PlannerTask, safeJsonParse, uuid } from '@utils';
+import { AgentMessagePayload, PlannerQuery, PlannerTask, safeJsonParse, uuid } from '@utils';
 import { FunctionTool, JSONValue } from 'llamaindex';
-
+import * as vscode from 'vscode';
 import { PLANNER_AGENT_SYSTEM_PROMPT } from '../../prompts';
 
 export class Planner {
@@ -31,8 +31,6 @@ export class Planner {
   async run(
     request: PlannerQuery,
   ): Promise<{ error?: string; success: boolean; instructions: PlannerTask[]; text?: string }> {
-    const data = JSON.stringify(request, null, 1.5);
-
     const id = uuid(4);
     const event: AgentMessagePayload<'planning'> = {
       id,
@@ -43,6 +41,7 @@ export class Planner {
     const observer = Observer.getInstance();
     observer.emit('agent', event);
     try {
+      const data = JSON.stringify(request, null, 1.5);
       const response = await this.agent.run(data);
       const result = safeJsonParse<string | PlannerTask[]>(response.data.result);
       event.status = 'done';
@@ -54,6 +53,7 @@ export class Planner {
     } catch (err: any) {
       event.status = 'error';
       event.error = err.message;
+      vscode.window.showErrorMessage(err.message);
       return { error: err.message, success: false, instructions: [] };
     } finally {
       observer.emit('agent', event);
