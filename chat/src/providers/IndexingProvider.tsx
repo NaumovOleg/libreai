@@ -8,14 +8,16 @@ import {
   IndexingPayload,
   ChangeWorkspaceMessage,
 } from '@utils';
+import { useStorage } from '@hooks';
 
 type Payload = { [key: string]: IndexingPayload };
 
 export const IndexingProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [payload, setPayload] = useState<Payload>({});
+  const { updateStorage } = useStorage();
 
   useEffect(() => {
-    vscode.setState({ ...vscode.getState(), indexing: payload });
+    updateStorage({ indexing: payload });
   }, [payload]);
 
   const handler = (event: MessageEvent<IndexingMessage | ChangeWorkspaceMessage>) => {

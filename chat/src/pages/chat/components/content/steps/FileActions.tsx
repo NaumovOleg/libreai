@@ -3,8 +3,7 @@ import { FC } from 'react';
 import { FileIcon } from '@elements';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
-import { getEditSummary } from '@utils';
-import { vscode, COMMANDS } from '@utils';
+import { vscode, COMMANDS, AgentMessagePayload, getEditSummary } from '@utils';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 
 const fileActions = {

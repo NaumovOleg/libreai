@@ -1,7 +1,6 @@
 import { useState, type FC, type ReactElement, useEffect } from 'react';
 import { ChatContext } from './context';
 import {
-  State,
   ChatMessage,
   vscode,
   uuid,
@@ -12,7 +11,7 @@ import {
   MAX_MESSAGES,
   FilePath,
 } from '@utils';
-
+import { useStorage } from '@hooks';
 const commands = [
   COMMANDS.agentResponse,
   COMMANDS.chatStreamEnd,
@@ -22,7 +21,9 @@ const commands = [
 ];
 
 export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
-  const vsCodeState = (vscode.getState() as State) ?? {};
+  const { updateStorage, getStorage } = useStorage();
+
+  const vsCodeState = getStorage();
 
   const [isStreaming, setIsStreaming] = useState(false);
   const [provider, setCatProvider] = useState<Author>(() => vsCodeState.provider ?? Author.chat);
@@ -31,18 +32,16 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
   const [tmpMessage, seTemporaryMessage] = useState<ChatMessage | undefined>();
 
-  // messages state always holds the most recent MAX_MESSAGES
   const [messages, setMessages] = useState<(ChatMessage | AgentMessage)[]>(() => {
     if (vsCodeState?.session) {
       const trimmed = vsCodeState.session.slice(-MAX_MESSAGES);
-      vscode.setState({ ...vscode.getState(), session: trimmed });
+      updateStorage({ session: trimmed });
       return trimmed;
     }
-    vscode.setState({ ...vscode.getState(), session: [] });
+    updateStorage({ session: [] });
     return [];
   });
 
-  // Utility to always trim to MAX_MESSAGES on addition
   const capMessages = (arr: (ChatMessage | AgentMessage)[]): (ChatMessage | AgentMessage)[] => {
     return arr.length > MAX_MESSAGES ? arr.slice(-MAX_MESSAGES) : arr;
   };
@@ -58,7 +57,8 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
       data = capMessages(data);
 
-      vscode.setState({ ...vscode.getState(), session: data });
+      updateStorage({ session: data });
+
       return data;
     });
   };
@@ -73,7 +73,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
     if (message.status === 'done' && message.type === 'agentResponse') {
       setIsAgentThinking(false);
-      vscode.setState({ ...vscode.getState(), isAgentThinking: false });
+      updateStorage({ isAgentThinking: false });
     }
   };
 
@@ -111,7 +111,8 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     setMessages([]);
     setIsAgentThinking(false);
 
-    vscode.setState({ ...vscode.getState(), session: [], isAgentThinking: false });
+    updateStorage({ session: [], isAgentThinking: false });
+
     vscode.postMessage({ command: COMMANDS.removeChatSession });
   };
 
@@ -130,16 +131,15 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
     if (provider === Author.agent) {
       setIsAgentThinking(true);
-      vscode.setState({ ...vsCodeState, isAgentThinking: true });
+      updateStorage({ isAgentThinking: true });
     }
   };
 
   const setProvider = (provider: Author) => {
     setCatProvider(provider);
-    vscode.setState({ ...vscode.getState(), provider });
+    updateStorage({ provider });
   };
 
-  // Always only return up to MAX_MESSAGES in memory (plus tmpMessage if exists)
   const displayMessages = [...messages, ...(tmpMessage ? [tmpMessage] : [])];
   const value = {
     messages: displayMessages.slice(-MAX_MESSAGES),
