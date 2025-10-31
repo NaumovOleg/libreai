@@ -175,6 +175,20 @@
             background-color: var(--vscode-editor-background, #1e1e1e);
             font-size: 10px;
             font-family: var(--vscode-editor-font-family);
+            .code-block-header {
+              display: flex;
+              justify-content: flex-end;
+              button {
+                margin-top: 5px;
+                margin-right: 5px;
+                padding: 0;
+                svg {
+                  color: var(--vscode-input-foreground);
+                  width: 15px;
+                  height: 15px;
+                }
+              }
+            }
             .react-syntax-highlighter-line-number {
               display: inline-block;
               width: 2em;

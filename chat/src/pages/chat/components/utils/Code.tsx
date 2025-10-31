@@ -1,9 +1,13 @@
 import ReactMarkdown from 'react-markdown';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import atomOneDark from 'react-syntax-highlighter/dist/esm/styles/prism/atom-dark';
 import { extractTextFromNode, rehypeCodeIndexPlugin } from '@utils';
 import remarkGfm from 'remark-gfm';
+import IconButton from '@mui/material/IconButton';
+import { FaCheck } from 'react-icons/fa';
+import { FaCopy } from 'react-icons/fa';
+// Added simple copy button using IconButton
 
 type Props = {
   text: string;
@@ -11,6 +15,18 @@ type Props = {
 };
 
 export const Code: FC<Props> = ({ text, type }) => {
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  };
+
   return (
     <ReactMarkdown
       rehypePlugins={[rehypeCodeIndexPlugin, remarkGfm]}
@@ -31,6 +47,19 @@ export const Code: FC<Props> = ({ text, type }) => {
 
           return (
             <div className="code-block" style={{ position: 'relative' }}>
+              <div className="code-block-header">
+                <IconButton
+                  aria-label="Copy code"
+                  onClick={() => copyToClipboard(codeText)}
+                  title={copied ? 'Copied' : 'Copy code'}
+                >
+                  {copied ? (
+                    <FaCheck style={{ height: 15, width: 15 }} />
+                  ) : (
+                    <FaCopy style={{ height: 15, width: 15 }} />
+                  )}
+                </IconButton>
+              </div>
               <SyntaxHighlighter
                 PreTag="pre"
                 language={isDiff ? 'diff' : lang}
@@ -43,7 +72,7 @@ export const Code: FC<Props> = ({ text, type }) => {
                         const lineContent = codeText.split('\n')[lineNumber - 1];
                         const style: React.CSSProperties = {
                           display: 'block',
-                          padding: '2px 12px',
+                          // padding: '2px 12px',
                           margin: '0 -12px',
                           width: '100vw',
                         };
@@ -74,7 +103,7 @@ export const Code: FC<Props> = ({ text, type }) => {
                 }}
                 customStyle={{
                   background: 'transparent',
-                  padding: '12px',
+                  padding: 0,
                   margin: 0,
                   lineHeight: 1.4,
                 }}
