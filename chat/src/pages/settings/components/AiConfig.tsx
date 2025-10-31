@@ -1,8 +1,13 @@
 import { Select, Input, Button } from '@elements';
-import { AI_PROVIDERS } from '@utils';
+import {
+  AI_PROVIDERS,
+  OPEN_AI_AGENT_MODELS,
+  OPEN_AI_CHAT_MODELS,
+  CONFIG_PARAGRAPH,
+  AiConfigT,
+} from '@utils';
 import { Fragment, FC, useEffect, useRef, useState } from 'react';
 import Typography from '@mui/material/Typography';
-import { CONFIG_PARAGRAPH, AiConfigT } from '@utils';
 import { useConfig } from '@hooks';
 
 const ProviderOptions = Object.entries(AI_PROVIDERS).map(([value, label]) => ({ value, label }));
@@ -58,6 +63,14 @@ export const AiConfig: FC<Props> = ({ configType }) => {
     timerRef.current = setTimeout(() => setShowSaved(false), 1500);
   };
 
+  // Prepare OpenAI model items
+  let openaiModels: { value: string; label: string }[] = [];
+  if (settings?.provider === 'openai') {
+    const modelObj =
+      configType === CONFIG_PARAGRAPH.agentConfig ? OPEN_AI_AGENT_MODELS : OPEN_AI_CHAT_MODELS;
+    openaiModels = Object.entries(modelObj).map(([label, value]) => ({ label, value }));
+  }
+
   return (
     <div className="provider-container">
       <Typography variant="body1">Please select provider:</Typography>
@@ -71,11 +84,19 @@ export const AiConfig: FC<Props> = ({ configType }) => {
 
       <Fragment>
         <Typography variant="body1">Please enter model:</Typography>
-        <Input
-          placeholder="Model"
-          value={settings?.model}
-          onChange={(model) => setConfig(configType, { model })}
-        />
+        {settings?.provider === 'openai' ? (
+          <Select
+            value={settings?.model}
+            items={openaiModels}
+            onChange={(model) => setConfig(configType, { model })}
+          />
+        ) : (
+          <Input
+            placeholder="Model"
+            value={settings?.model}
+            onChange={(model) => setConfig(configType, { model })}
+          />
+        )}
       </Fragment>
       <Fragment>
         <Typography variant="body1">Please enter endpoint:</Typography>

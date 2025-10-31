@@ -1,2 +1,44 @@
 .start-page {
+  margin: 30px 0;
+  .start-page-header {
+    margin-bottom: 36px;
+  }
+
+  .start-page-title {
+    font-weight: 700;
+    margin-bottom: 6px;
+
+    span {
+      color: #08c;
+    }
+  }
+
+  .start-page-subtitle {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .start-page-config-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    align-items: center;
+    margin-top: 16px;
+    width: 100%;
+    align-items: center;
+  }
+
+  .start-page-config-block {
+    min-width: 100px;
+  }
+
+  .config-block-title {
+    font-weight: 600;
+    margin-bottom: 9px;
+    color: #555;
+  }
+
+  .all-config-complete-message {
+    color: #5a5a5a;
+  }
 }

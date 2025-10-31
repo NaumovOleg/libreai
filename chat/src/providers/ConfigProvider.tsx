@@ -35,16 +35,17 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
       const chat = event.data.payload[CONFIG_PARAGRAPH.chatConfig] as AiConfigT;
       const agent = event.data.payload[CONFIG_PARAGRAPH.agentConfig] as AiConfigT;
       setIsConfigInited(true);
-      setIsConfigSetted({
-        [CONFIG_PARAGRAPH.chatConfig]: !!(chat.provider && chat.model),
-        [CONFIG_PARAGRAPH.agentConfig]: !!(agent.provider && agent.model),
-      });
+
       setConfig(CONFIG_PARAGRAPH.chatConfig, chat);
       setConfig(CONFIG_PARAGRAPH.autoCompleteConfig, agent);
       setConfig(
         CONFIG_PARAGRAPH.agentConfig,
         event.data.payload[CONFIG_PARAGRAPH.agentConfig] as AiConfigT,
       );
+      setIsConfigSetted({
+        [CONFIG_PARAGRAPH.chatConfig]: !!(chat.provider && chat.model),
+        [CONFIG_PARAGRAPH.agentConfig]: !!(agent.provider && agent.model),
+      });
     }
   };
 
@@ -70,6 +71,10 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
     }
     const command = COMMANDS.changeConfig;
     vscode.postMessage({ key, value, command });
+    setIsConfigSetted({
+      [CONFIG_PARAGRAPH.chatConfig]: !!(chatSettings.provider && chatSettings.model),
+      [CONFIG_PARAGRAPH.agentConfig]: !!(agentSettings.provider && agentSettings.model),
+    });
   };
 
   return (
