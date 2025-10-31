@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 export const filePattern = '**/*.{ts,tsx,js,jsx,py,md,json,html,scss,css,cpp}';
-export const foldersPattern = `{**/node_modules/**,**/dist/**,**/build/**,**/out/**,**/.vscode/**,**/.idea/**,**/.vs/**,**/.venv/**,**/venv/**,**/env/**,**/__pycache__/**,**/target/**,**/bin/**,**/obj/**,**/coverage/**,**/.nyc_output/**,**/.next/**,**/.nuxt/**,**/.svelte-kit/**,**/.expo/**,**/.gradle/**,**/.git/**,**/.hg/**,**/.svn/**,**/.cache/**,**/.parcel-cache/**,**/.tmp/**,**/tmp/**,**/logs/**,**/package-lock.json,**/yarn.lock,**/pnpm-lock.yaml,**/README.md,**/LICENSE,**/CHANGELOG.md,**/workspace.json,**/.DS_Store,**/.env,**/.env.*}`;
+export const foldersPattern = `{**/node_modules/**,**/dist/**,**/build/**,**/out/**,**/.vscode/**,**/.idea/**,**/.vs/**,**/.venv/**,**/venv/**,**/env/**,**/__pycache__/**,**/target/**,**/bin/**,**/obj/**,**/coverage/**,**/.nyc_output/**,**/.next/**,**/.nuxt/**,**/.svelte-kit/**,**/.expo/**,**/.gradle/**,**/.git/**,**/.hg/**,**/.svn/**,**/.cache/**,**/.parcel-cache/**,**/.tmp/**,**/tmp/**,**/logs/**,**/package-lock.json,**/yarn.lock,**/pnpm-lock.yaml,**/README.md,**/LICENSE,**/CHANGELOG.md,**/workspace.json,**/settings.json,**/.DS_Store,**/.env,**/.env.*}`;
 
 export const EXCLUDED_FOLDERS = [
   'node_modules',

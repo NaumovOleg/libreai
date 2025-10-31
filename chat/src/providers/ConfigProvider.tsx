@@ -3,14 +3,19 @@ import { ConfigContext } from './context';
 import { AiConfigT, CONFIG_PARAGRAPH, COMMANDS, vscode, globalListener } from '@utils';
 
 const defaultData = {
-  maxTokens: 500,
-  temperature: 0.2,
+  maxTokens: 0,
+  temperature: 0,
 } as AiConfigT;
 
 export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [chatSettings, setChatSettings] = useState<AiConfigT>({ ...defaultData });
   const [autocompleteSettings, setAutocompleteSettings] = useState<AiConfigT>({ ...defaultData });
   const [agentSettings, setAgentSettings] = useState<AiConfigT>({ ...defaultData });
+  const [isConfigInited, setIsConfigInited] = useState(false);
+  const [isConfigSetted, setIsConfigSetted] = useState({
+    [CONFIG_PARAGRAPH.chatConfig]: false,
+    [CONFIG_PARAGRAPH.agentConfig]: false,
+  });
 
   const setConfig = (type: CONFIG_PARAGRAPH, conf: Partial<AiConfigT>) => {
     if (type === CONFIG_PARAGRAPH.chatConfig) {
@@ -27,14 +32,15 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handler = (event: MessageEvent<any>) => {
     if (event.data.type === COMMANDS.changeConfig) {
-      setConfig(
-        CONFIG_PARAGRAPH.chatConfig,
-        event.data.payload[CONFIG_PARAGRAPH.chatConfig] as AiConfigT,
-      );
-      setConfig(
-        CONFIG_PARAGRAPH.autoCompleteConfig,
-        event.data.payload[CONFIG_PARAGRAPH.autoCompleteConfig] as AiConfigT,
-      );
+      const chat = event.data.payload[CONFIG_PARAGRAPH.chatConfig] as AiConfigT;
+      const agent = event.data.payload[CONFIG_PARAGRAPH.agentConfig] as AiConfigT;
+      setIsConfigInited(true);
+      setIsConfigSetted({
+        [CONFIG_PARAGRAPH.chatConfig]: !!(chat.provider && chat.model),
+        [CONFIG_PARAGRAPH.agentConfig]: !!(agent.provider && agent.model),
+      });
+      setConfig(CONFIG_PARAGRAPH.chatConfig, chat);
+      setConfig(CONFIG_PARAGRAPH.autoCompleteConfig, agent);
       setConfig(
         CONFIG_PARAGRAPH.agentConfig,
         event.data.payload[CONFIG_PARAGRAPH.agentConfig] as AiConfigT,
@@ -74,6 +80,8 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
         [CONFIG_PARAGRAPH.agentConfig]: agentSettings,
         setConfig,
         applyChanges,
+        isConfigInited,
+        isConfigSetted,
       }}
     >
       {children}

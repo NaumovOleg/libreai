@@ -13,6 +13,11 @@ export type ConfigContextType = {
   [CONFIG_PARAGRAPH.chatConfig]: AiConfigT;
   [CONFIG_PARAGRAPH.autoCompleteConfig]: AiConfigT;
   [CONFIG_PARAGRAPH.agentConfig]: AiConfigT;
+  isConfigInited: boolean;
+  isConfigSetted: {
+    [CONFIG_PARAGRAPH.chatConfig]: boolean;
+    [CONFIG_PARAGRAPH.agentConfig]: boolean;
+  };
   setConfig: (type: CONFIG_PARAGRAPH, conf: Partial<AiConfigT>) => void;
   applyChanges: (type: CONFIG_PARAGRAPH) => void;
 };
