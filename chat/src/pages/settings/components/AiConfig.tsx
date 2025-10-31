@@ -1,6 +1,6 @@
 import { Select, Input, Button } from '@elements';
 import { AI_PROVIDERS } from '@utils';
-import { Fragment, FC } from 'react';
+import { Fragment, FC, useEffect, useRef, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import { CONFIG_PARAGRAPH, AiConfigT } from '@utils';
 import { useConfig } from '@hooks';
@@ -9,10 +9,54 @@ const ProviderOptions = Object.entries(AI_PROVIDERS).map(([value, label]) => ({ 
 type Props = {
   configType: CONFIG_PARAGRAPH;
 };
+
+function shallowEqual(objA: any, objB: any) {
+  if (objA === objB) return true;
+  if (!objA || !objB) return false;
+  const keysA = Object.keys(objA);
+  const keysB = Object.keys(objB);
+  if (keysA.length !== keysB.length) return false;
+  for (let i = 0; i < keysA.length; i++) {
+    const key = keysA[i];
+    if (objA[key] !== objB[key]) return false;
+  }
+  return true;
+}
+
 export const AiConfig: FC<Props> = ({ configType }) => {
   const config = useConfig();
   const { setConfig, applyChanges } = config;
   const settings = config[configType];
+  const [original, setOriginal] = useState(settings);
+  const [changed, setChanged] = useState(false);
+  const [showSaved, setShowSaved] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Keep the original config in sync with settings loaded from parent/context
+  useEffect(() => {
+    setOriginal(settings);
+  }, [configType]);
+
+  // Detect changes
+  useEffect(() => {
+    setChanged(!shallowEqual(settings, original));
+  }, [settings, original]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  const handleSave = () => {
+    applyChanges(configType);
+    setShowSaved(true);
+    setChanged(false);
+    setOriginal({ ...settings });
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setShowSaved(false), 1500);
+  };
 
   return (
     <div className="provider-container">
@@ -76,12 +120,16 @@ export const AiConfig: FC<Props> = ({ configType }) => {
           />
         </Fragment>
       )}
-
-      <Button
-        onClick={() => applyChanges(configType)}
-        disabled={!settings?.provider || !settings?.model}
-        label="Save"
-      />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 16 }}>
+        <Button
+          onClick={handleSave}
+          disabled={!changed || !settings?.provider || !settings?.model}
+          label={showSaved ? 'Saved!' : 'Save'}
+        />
+        {showSaved && (
+          <span style={{ color: '#08c', fontSize: 14, marginLeft: 8 }}>Changes applied</span>
+        )}
+      </div>
     </div>
   );
 };

@@ -80,64 +80,80 @@
       "title": "Robocode configurations",
       "properties": {
         "chatConfig.provider": {
-          "type": "string"
+          "type": "string",
+          "description": "The provider to use for chat functionality (e.g., OpenAI, HuggingFace, etc.)"
         },
         "chatConfig.model": {
-          "type": "string"
+          "type": "string",
+          "description": "The model to use for chat operations (e.g., gpt-3.5-turbo, llama-2, etc.)"
         },
         "chatConfig.endpoint": {
           "type": "string",
-          "default": "http://localhost:11434"
+          "description": "The API endpoint URL for the chat provider."
         },
         "chatConfig.apiKey": {
-          "type": "string"
+          "type": "string",
+          "description": "API key to authenticate requests with the chat provider."
         },
         "chatConfig.maxTokens": {
-          "type": "number"
+          "type": "number",
+          "description": "Maximum number of tokens in a single chat response."
         },
         "chatConfig.temperature": {
-          "type": "number"
+          "type": "number",
+          "description": "Sampling temperature for controlling the randomness of responses in chat."
         },
         "autoCompleteConfig.provider": {
-          "type": "string"
+          "type": "string",
+          "description": "The provider for code autocompletion features."
         },
         "autoCompleteConfig.model": {
-          "type": "string"
+          "type": "string",
+          "description": "Model ID to be used for autocompletion (e.g., gpt-3.5, codex, etc.)."
         },
         "autoCompleteConfig.endpoint": {
           "type": "string",
-          "default": "http://localhost:11434"
+          "description": "The API endpoint for the autocompletion provider."
         },
         "autoCompleteConfig.apiKey": {
-          "type": "string"
+          "type": "string",
+          "description": "API key for autocompletion provider authentication."
         },
         "autoCompleteConfig.maxTokens": {
-          "type": "number"
+          "type": "number",
+          "description": "Maximum number of tokens to generate in autocomplete responses."
         },
         "autoCompleteConfig.temperature": {
-          "type": "number"
+          "type": "number",
+          "description": "Sampling temperature for code autocomplete generation."
         },
         "autoCompleteConfig.autocompleteDeleay": {
-          "type": "number"
+          "type": "number",
+          "description": "Delay in milliseconds before triggering code autocompletion."
         },
         "agentConfig.provider": {
-          "type": "string"
+          "type": "string",
+          "description": "The provider for the code agent feature."
         },
         "agentConfig.model": {
-          "type": "string"
+          "type": "string",
+          "description": "Model ID to be used by the agent for code tasks."
         },
         "agentConfig.endpoint": {
           "type": "string",
-          "default": "http://localhost:11434"
+          "description": "Endpoint for the agent API or service."
         },
         "agentConfig.apiKey": {
-          "type": "string"
+          "type": "string",
+          "description": "API key to authenticate agent operations."
         },
         "agentConfig.maxTokens": {
-          "type": "number"
+          "type": "number",
+          "description": "Maximum number of tokens in a single agent result or step."
         },
         "agentConfig.temperature": {
-          "type": "number"
+          "type": "number",
+          "description": "Sampling temperature for agent tasks."
         }
       }
     },
