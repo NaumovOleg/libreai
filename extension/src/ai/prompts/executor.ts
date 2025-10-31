@@ -39,4 +39,5 @@ You can use it to locate existing files, decide where to create new files, or ch
   - Do not rename fields.  
   - Use ONLY fields defined in the schema.  
 
-5. If a file does not exist and needs to be created, use "createFile" with full content.`;
+5. If a file does not exist and needs to be created, use "createFile" with full content.
+6. The final response should be short description of what You done within agent session.`;
