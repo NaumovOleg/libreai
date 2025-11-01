@@ -1,4 +1,4 @@
-import { DbFile, FileChunk } from '@utils';
+import { ChatMessage, DbFile, FileChunk } from '@utils';
 import * as vscode from 'vscode';
 import { SessionStorage, VectorStorage } from './storages';
 

@@ -150,6 +150,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     if (message.command === COMMANDS.sendMessage) {
       await onReceiveUserMessage(value, this.useChat.bind(this), this.useAgent.bind(this));
     }
+
+    if (message.command === COMMANDS.restoreAgentSession) {
+      const observer = Observer.getInstance();
+      observer.restoreAgentSession();
+    }
   }
 
   public onWorkspaceIndexRequest(workspace?: string) {

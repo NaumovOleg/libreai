@@ -1,5 +1,6 @@
 import { createStatefulMiddleware, createWorkflow } from '@llamaindex/workflow';
 import { Observer } from '@observer';
+import { AgentSession } from '@services';
 import { AgentMessagePayload, PlannerQuery, ToolCallbacks, uuid } from '@utils';
 import * as vscode from 'vscode';
 import {
@@ -22,9 +23,11 @@ export class Workflow {
   private planner: Planner;
   private executor: Executor;
   private analizer: Analizer;
+  private session: AgentSession;
 
   constructor(cbks: Omit<ToolCallbacks, 'planning'>) {
     const toolFactory = new ToolFactory(cbks);
+    this.session = AgentSession.getInstance();
     this.planner = new Planner(toolFactory.plannerTools);
     this.executor = new Executor(toolFactory.tools);
     this.analizer = new Analizer(toolFactory.analizerTools);
@@ -71,9 +74,9 @@ export class Workflow {
   }
 
   async run(data: PlannerQuery) {
+    await this.session.reset();
+    const observer = Observer.getInstance();
     try {
-      const observer = Observer.getInstance();
-
       const resultEvent: AgentMessagePayload<'agentResponse'> = {
         status: 'done',
         id: uuid(),

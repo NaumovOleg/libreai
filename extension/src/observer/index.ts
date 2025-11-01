@@ -5,11 +5,10 @@ import {
   AgentMessage,
   ChatMessage,
   COMMANDS,
-  EDITOR_EVENTS,
   ExecCommandPayload,
   IndexingPayload,
-  ObserverEditorHandler,
 } from '../../../global.types';
+import { AgentSession } from './../services/agent.session';
 import { PubSub } from './observer';
 
 export class Observer {
@@ -32,17 +31,12 @@ export class Observer {
   }
 
   emit(event: 'agent', payload: AgentMessage): void;
-
   emit(event: 'indexing', payload: IndexingPayload): void;
-
   emit(event: `interact-command-${string}`, payload: ExecCommandPayload): void;
-
   emit(event: COMMANDS.helperMessage, payload: ChatMessage): void;
-
   emit(event: COMMANDS.chatStream, payload: ChatMessage): void;
-
+  emit(event: COMMANDS.restoreAgentSession): void;
   emit(event: COMMANDS.chatStreamEnd): void;
-
   emit(event: COMMANDS.onChangeWorkspace, payload: { [key: string]: IndexingPayload }): void;
 
   emit(event: any, payload?: any) {
@@ -64,10 +58,22 @@ export class Observer {
     this.observer.subscribe(COMMANDS.chatStream, this.chatStream.bind(this));
     this.observer.subscribe(COMMANDS.chatStreamEnd, this.chatStreamEnd.bind(this));
     this.observer.subscribe(COMMANDS.onChangeWorkspace, this.onChangeWorkspace.bind(this));
+    this.observer.subscribe(COMMANDS.restoreAgentSession, this.restoreAgentSession.bind(this));
   }
-  agentResponse: ObserverEditorHandler<EDITOR_EVENTS.readFile> = (payload: AgentMessage) => {
+
+  async agentResponse(payload: AgentMessage) {
+    const agentSession = AgentSession.getInstance();
+    await agentSession.saveMessage(payload);
+
     this.web.webview.postMessage({ type: COMMANDS.agentResponse, payload });
-  };
+  }
+
+  restoreAgentSession() {
+    const agentSession = AgentSession.getInstance();
+    const messages = agentSession.getMessages();
+    this.web.webview.postMessage({ type: COMMANDS.restoreAgentSession, payload: messages });
+  }
+
   indexing = (payload: IndexingPayload) => {
     this.web.webview.postMessage({ type: COMMANDS.indexing, payload });
   };

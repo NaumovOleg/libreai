@@ -18,6 +18,7 @@ const commands = [
   COMMANDS.chatStream,
   COMMANDS.selectContext,
   COMMANDS.helperMessage,
+  COMMANDS.restoreAgentSession,
 ];
 
 export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
@@ -26,7 +27,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const vsCodeState = getStorage();
 
   const [isStreaming, setIsStreaming] = useState(false);
-  const [provider, setCatProvider] = useState<Author>(() => vsCodeState.provider ?? Author.chat);
+  const [provider, setChatProvider] = useState<Author>(() => vsCodeState.provider ?? Author.chat);
   const [files, setFiles] = useState<FilePath[]>([]);
   const [isAgentThinking, setIsAgentThinking] = useState(() => !!vsCodeState.isAgentThinking);
 
@@ -41,6 +42,12 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     updateStorage({ session: [] });
     return [];
   });
+
+  useEffect(() => {
+    if (vsCodeState.isAgentThinking) {
+      vscode.postMessage({ command: COMMANDS.restoreAgentSession });
+    }
+  }, []);
 
   const capMessages = (arr: (ChatMessage | AgentMessage)[]): (ChatMessage | AgentMessage)[] => {
     return arr.length > MAX_MESSAGES ? arr.slice(-MAX_MESSAGES) : arr;
@@ -77,6 +84,39 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     }
   };
 
+  const restoreAgentSession = (messages: AgentMessage[]) => {
+    const agentSession = messages[0]?.session;
+    if (!agentSession) return;
+
+    const terminator = messages.find(
+      (message) => message.status === 'done' && message.type === 'agentResponse',
+    );
+
+    if (terminator) {
+      setIsAgentThinking(false);
+      updateStorage({ isAgentThinking: false });
+    }
+
+    setMessages((prev) => {
+      const filterBc = (ms: AgentMessage | ChatMessage) => {
+        if (!('session' in ms)) return false;
+        return ms.session === agentSession;
+      };
+      const start = prev.findIndex(filterBc);
+      const end = prev.findLastIndex(filterBc);
+
+      prev.splice(start, end - start + 1, ...messages);
+
+      updateStorage({ session: prev });
+      return prev;
+    });
+
+    if (terminator) {
+      setIsAgentThinking(false);
+      updateStorage({ isAgentThinking: false });
+    }
+  };
+
   useEffect(() => {
     const handler = (event: MessageEvent) => {
       if (event.data.type === COMMANDS.chatStream) {
@@ -100,6 +140,9 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
       }
       if (event.data.type === COMMANDS.helperMessage) {
         updateMessages(event.data.payload);
+      }
+      if (event.data.type === COMMANDS.restoreAgentSession) {
+        restoreAgentSession(event.data.payload);
       }
     };
 
@@ -136,7 +179,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   };
 
   const setProvider = (provider: Author) => {
-    setCatProvider(provider);
+    setChatProvider(provider);
     updateStorage({ provider });
   };
 

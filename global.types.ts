@@ -31,6 +31,7 @@ export enum COMMANDS {
   interactCommand = 'interactCommand',
   helperMessage = 'helperMessage',
   onChangeWorkspace = 'onChangeWorkspace',
+  restoreAgentSession = 'restoreAgentSession',
 }
 
 export type ShowPreviewMessage = {
@@ -132,6 +133,7 @@ export type AgentMessagePayload<E extends keyof ObserverEditorEventArgs> = {
   error?: string;
   id: string;
   args: ObserverEditorEventArgs[E];
+  session?: string;
 };
 
 export type AgentMessage =

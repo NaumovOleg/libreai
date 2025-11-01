@@ -149,7 +149,7 @@ export class Indexer {
     const total = uris.length;
     let indexed = 0;
     const chunkSize = Math.min(50, Math.ceil(total / 10));
-
+    console.log('URLS', uris);
     for (const batch of batchArray(uris, chunkSize)) {
       let currentFile: string | undefined = undefined;
       try {

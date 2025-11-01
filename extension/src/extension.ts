@@ -9,11 +9,12 @@ import {
   QuickFix,
   ViewProvider,
 } from './providers';
-import { Context, Indexer } from './services';
+import { AgentSession, Context, Indexer } from './services';
 
 import { Db } from '@db';
 
 export async function activate(context: vscode.ExtensionContext) {
+  AgentSession.init(context);
   const db = Db.getInstance(context);
   const icons = new Icons();
 
