@@ -4,8 +4,8 @@ import { FileIcon } from '@elements';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import { vscode, COMMANDS, AgentMessagePayload, getEditSummary } from '@utils';
-import DoneAllIcon from '@mui/icons-material/DoneAll';
-
+import { FcCancel } from 'react-icons/fc';
+import { FaCheck } from 'react-icons/fa';
 const fileActions = {
   editFile: 'edit',
   deleteFile: 'delete',
@@ -66,15 +66,17 @@ export const FileActions: FC<Props> = ({ message }) => {
         )}
         {message.status === 'error' && (
           <div className="error item">
-            <div className="file-line">{messages[message.type]} Error</div>
-            <Typography color="error"> {message.error}</Typography>
+            <div className="error-file-line">
+              {messages[message.type]} {file} <FcCancel className="icon" />
+            </div>
+            <Typography color="error"> {message.error} Error test </Typography>
           </div>
         )}
         {message.status === 'done' && (
           <div className="done item">
             <div className="done-line">{messages[message.type]}</div>
             {file}
-            <DoneAllIcon className="done-icon" />
+            <FaCheck className="done-icon icon" />
           </div>
         )}
       </div>

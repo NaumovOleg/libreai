@@ -22,9 +22,9 @@ export class CommandTool {
         };
         observer.emit('agent', event);
         console.log(`Executing command: ${args.command}`);
-        event.status = 'done';
 
         const isConfirmed = await waitForUserConfirmation(event.id);
+
         event.args.state = isConfirmed ? 'confirmed' : 'declined';
 
         if (!isConfirmed) {
@@ -33,6 +33,9 @@ export class CommandTool {
           observer.emit('agent', event);
           return { success: false, name: AGENT_TOOLS.command, result: 'Declined by user' };
         }
+
+        event.args.state = 'confirmed';
+        event.status = 'done';
 
         const result = await cb(args).catch((error) => {
           event.error = error.message;

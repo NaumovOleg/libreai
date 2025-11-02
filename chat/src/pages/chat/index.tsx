@@ -8,7 +8,6 @@ import { TextArea, Message } from './components';
 import { TypingDots } from '@elements';
 import { MdLabelOutline } from 'react-icons/md';
 import { Author } from '@utils';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 const renderDivider = () => {
   return (

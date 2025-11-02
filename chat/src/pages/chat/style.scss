@@ -156,6 +156,7 @@
       font-size: 10px;
       .message-markdown {
         overflow-y: scroll;
+        min-height: 20px;
         .user-files {
           gap: 3px;
           max-height: 50px;

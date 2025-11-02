@@ -2,7 +2,7 @@ import './steps.scss';
 import { FC } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
-import DoneAllIcon from '@mui/icons-material/DoneAll';
+import { FaCheck } from 'react-icons/fa';
 import { AgentMessagePayload } from '../../../../../../../global.types';
 
 type Props = {
@@ -22,7 +22,7 @@ export const Plan: FC<Props> = ({ message }) => {
         {message.status === 'done' && (
           <div className="done item">
             {message.args}
-            <DoneAllIcon className="done-icon" />
+            <FaCheck className="done-icon icon" />
           </div>
         )}
         {message.status === 'error' && (

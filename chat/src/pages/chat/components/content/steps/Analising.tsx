@@ -3,8 +3,7 @@ import { FC } from 'react';
 import Typography from '@mui/material/Typography';
 import { AgentMessagePayload } from '@utils';
 import CircularProgress from '@mui/material/CircularProgress';
-import DoneAllIcon from '@mui/icons-material/DoneAll';
-
+import { FaCheck } from 'react-icons/fa';
 type Props = {
   message: AgentMessagePayload<'analizing'>;
 };
@@ -22,7 +21,7 @@ export const Analizing: FC<Props> = ({ message }) => {
         {message.status === 'done' && (
           <div className="done item">
             {message.args}
-            <DoneAllIcon className="done-icon" />
+            <FaCheck className="done-icon icon" />
           </div>
         )}
         {message.status === 'error' && (
