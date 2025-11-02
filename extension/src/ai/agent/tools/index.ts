@@ -11,7 +11,7 @@ import { RenameFileTool } from './renameFile';
 import { SearchEmbeddings } from './retrieveEmbeddings';
 
 export class ToolFactory {
-  tools: FunctionTool<any, any, any>[];
+  executorTools: FunctionTool<any, any, any>[];
   plannerTools: FunctionTool<any, any, any>[];
   analizerTools: FunctionTool<any, any, any>[];
 
@@ -24,7 +24,15 @@ export class ToolFactory {
     const rename = new RenameFileTool(cbks[AGENT_TOOLS.renameFile]);
     const retrieveEmbeddings = new SearchEmbeddings(cbks[AGENT_TOOLS.retrieveEmbeddings]);
 
-    this.tools = [command.tool, create.tool, deleteFile.tool, edit.tool, read.tool, rename.tool];
+    this.executorTools = [
+      command.tool,
+      create.tool,
+      deleteFile.tool,
+      edit.tool,
+      read.tool,
+      rename.tool,
+      retrieveEmbeddings.tool,
+    ];
     this.plannerTools = [retrieveEmbeddings.tool];
     this.analizerTools = [retrieveEmbeddings.tool, read.tool];
   }

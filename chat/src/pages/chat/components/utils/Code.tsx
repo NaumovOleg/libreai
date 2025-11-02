@@ -103,7 +103,7 @@ export const Code: FC<Props> = ({ text, type }) => {
                 }}
                 customStyle={{
                   background: 'transparent',
-                  padding: 0,
+                  padding: '5px 0',
                   margin: 0,
                   lineHeight: 1.4,
                 }}

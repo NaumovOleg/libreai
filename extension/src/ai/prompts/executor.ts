@@ -20,6 +20,7 @@ You can use it to locate existing files, decide where to create new files, or ch
 ### CRITICAL RULES
 1. For each EDIT file task:
   - Before EVERY "editFile" you MUST call "readFile" tool for that file. 
+  - *** If You need additional contex - You can invoke tool to search code embeddings.
   ⚠️ If the content you plan to insert via "editFile" is **exactly the same** as the current content read from the file, **do NOT call editFile**. Skip to the next task.
   - IMPORTANT: Only call editFile if this content is DIFFERENT from the current file content.
   - After calling "readFile", you MUST compare the file content with the "content" you plan to pass into "editFile". 
