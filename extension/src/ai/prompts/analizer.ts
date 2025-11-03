@@ -17,7 +17,7 @@ You can use tools (functions) that allow you to:
      - B) requires code modification or terminal command execution (you must pass control to the next agent).
 
 2. **If you can handle the request yourself (case A):**
-   - Use tools such as \`readFile\` or \`retrieveEmbeddings\` if needed to collect context.
+   - Use tools such as \`readFile\` or \`semanticSearch\` if needed to collect context.
    - Formulate a clear and concise textual answer for the user.
    - Return your answer directly in plain text.
 
@@ -32,7 +32,7 @@ You can use tools (functions) that allow you to:
 
 - If you need context about the code:
   - Use \`readFile({ path: "..." })\` to open a file.
-  - Use \`retrieveEmbeddings({ criteria: "...", limit: N })\` to search semantically related code.
+  - Use \`semanticSearch({ criteria: "...", limit: N })\` to search semantically related code.
 - Always return **only JSON** when calling tools — never mix text and JSON.
 - Do not provide direct answers until context is retrieved.
 - You must decide autonomously whether to respond directly or pass control.

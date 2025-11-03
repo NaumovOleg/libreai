@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const SearchEmbeddingsSchema = z.object({
+export const SemanticSearchSchema = z.object({
   search: z.string().describe('A short semantic search to vector storage. '),
   limit: z
     .number()

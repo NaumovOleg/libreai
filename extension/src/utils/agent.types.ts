@@ -48,7 +48,7 @@ export type RenameFileToolArgs = {
   file: string;
   newName: string;
 };
-export type SearchEmbeddingsToolArgs = {
+export type SemanticSearchToolArgs = {
   search: string;
   limit: number;
 };
@@ -61,7 +61,7 @@ export enum AGENT_TOOLS {
   createFile = 'createFile',
   readFile = 'readFile',
   planning = 'planning',
-  retrieveEmbeddings = 'retrieveEmbeddings',
+  semanticSearch = 'semanticSearch',
 }
 
 export type ToolCallbacks = {
@@ -74,7 +74,7 @@ export type ToolCallbacks = {
   [AGENT_TOOLS.createFile]: (args: CreateToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.readFile]: (args: string) => Promise<string>;
   [AGENT_TOOLS.planning]: (args: string) => Promise<string>;
-  [AGENT_TOOLS.retrieveEmbeddings]: (
-    args: SearchEmbeddingsToolArgs,
+  [AGENT_TOOLS.semanticSearch]: (
+    args: SemanticSearchToolArgs,
   ) => Promise<{ path: string; text: string }[]>;
 };

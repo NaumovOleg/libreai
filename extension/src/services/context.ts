@@ -68,7 +68,7 @@ export class Context {
 
   async searchRelevant(search: string, limit?: number) {
     if (!getActiveWorkspaces().length) return [];
-    return this.database.searchEmbeddings(search, getActiveWorkspaces(), limit);
+    return this.database.semanticSearch(search, getActiveWorkspaces(), limit);
   }
 
   async getContext<P extends GetContextParams | undefined = undefined>(

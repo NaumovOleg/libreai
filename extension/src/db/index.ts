@@ -26,7 +26,7 @@ export class Db {
     return this.vectorStorage.init();
   }
 
-  searchEmbeddings(search: string, workspaces: string[], limit = 5): Promise<FileChunk[]> {
+  semanticSearch(search: string, workspaces: string[], limit = 5): Promise<FileChunk[]> {
     return this.vectorStorage.searchKNN(search, workspaces, limit);
   }
 

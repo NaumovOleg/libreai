@@ -1,14 +1,14 @@
-import { AGENT_TOOLS, SearchEmbeddingsToolArgs, ToolCallbacks } from '@utils';
+import { AGENT_TOOLS, SemanticSearchToolArgs, ToolCallbacks } from '@utils';
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
 import { Schemas } from './schemas';
 
-export class SearchEmbeddings {
-  tool: FunctionTool<SearchEmbeddingsToolArgs, JSONValue | Promise<JSONValue>, object>;
+export class SemanticSearch {
+  tool: FunctionTool<SemanticSearchToolArgs, JSONValue | Promise<JSONValue>, object>;
 
-  constructor(cb: ToolCallbacks[AGENT_TOOLS.retrieveEmbeddings]) {
+  constructor(cb: ToolCallbacks[AGENT_TOOLS.semanticSearch]) {
     this.tool = tool({
-      execute: async (args: SearchEmbeddingsToolArgs) => {
+      execute: async (args: SemanticSearchToolArgs) => {
         console.log('Searching embedings', args);
 
         const response = await cb(args);
@@ -22,14 +22,14 @@ export class SearchEmbeddings {
 
         return {
           success: true,
-          name: AGENT_TOOLS.retrieveEmbeddings,
+          name: AGENT_TOOLS.semanticSearch,
           content: data,
         };
       },
 
-      name: AGENT_TOOLS.retrieveEmbeddings,
+      name: AGENT_TOOLS.semanticSearch,
       description: 'Search workspace embeddings by semantic criteria.',
-      parameters: Schemas[AGENT_TOOLS.retrieveEmbeddings],
+      parameters: Schemas[AGENT_TOOLS.semanticSearch],
     });
   }
 }

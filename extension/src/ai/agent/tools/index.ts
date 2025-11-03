@@ -8,7 +8,7 @@ import { DeleteFileTool } from './deleteFile';
 import { EditFileTool } from './editFile';
 import { ReadFileTool } from './readFile';
 import { RenameFileTool } from './renameFile';
-import { SearchEmbeddings } from './retrieveEmbeddings';
+import { SemanticSearch } from './semanticSearch';
 
 export class ToolFactory {
   executorTools: FunctionTool<any, any, any>[];
@@ -22,7 +22,7 @@ export class ToolFactory {
     const edit = new EditFileTool(cbks[AGENT_TOOLS.editFile]);
     const read = new ReadFileTool(cbks[AGENT_TOOLS.readFile]);
     const rename = new RenameFileTool(cbks[AGENT_TOOLS.renameFile]);
-    const retrieveEmbeddings = new SearchEmbeddings(cbks[AGENT_TOOLS.retrieveEmbeddings]);
+    const semanticSearch = new SemanticSearch(cbks[AGENT_TOOLS.semanticSearch]);
 
     this.executorTools = [
       command.tool,
@@ -31,9 +31,9 @@ export class ToolFactory {
       edit.tool,
       read.tool,
       rename.tool,
-      retrieveEmbeddings.tool,
+      semanticSearch.tool,
     ];
-    this.plannerTools = [retrieveEmbeddings.tool];
-    this.analizerTools = [retrieveEmbeddings.tool, read.tool];
+    this.plannerTools = [semanticSearch.tool];
+    this.analizerTools = [semanticSearch.tool, read.tool];
   }
 }
