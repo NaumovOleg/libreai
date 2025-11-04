@@ -1,7 +1,7 @@
 import { agent } from '@llamaindex/workflow';
 import { LLMFactory } from '@llm';
 import { Observer } from '@observer';
-import { AgentMessagePayload, PlannerQuery, safeJsonParse, uuid } from '@utils';
+import { AgentMessagePayload, PlannerQuery, raceAbortSignal, safeJsonParse, uuid } from '@utils';
 import { FunctionTool, JSONValue } from 'llamaindex';
 import * as vscode from 'vscode';
 import { ANALYZER_AGENT_SYSTEM_PROMPT } from '../../prompts';
@@ -27,7 +27,10 @@ export class Analizer {
     });
   }
 
-  async run(request: PlannerQuery): Promise<{ nextStep: boolean; text?: string }> {
+  async run(
+    request: PlannerQuery,
+    abortSignal?: AbortSignal,
+  ): Promise<{ nextStep: boolean; text?: string }> {
     const observer = Observer.getInstance();
     const id = uuid(4);
     const event: AgentMessagePayload<'analizing'> = {
@@ -41,19 +44,21 @@ export class Analizer {
 
       observer.emit('agent', event);
       let nextStep = true;
-      const response = await this.agent.run(data);
+      const response = await raceAbortSignal(() => this.agent.run(data), abortSignal);
       const result = safeJsonParse<string | { nextStep: string }>(response.data.result);
 
       nextStep = !!(result as any).nextStep;
-
+      observer.emit('agent', { ...event, status: 'done' });
       return { nextStep, text: result.toString() };
     } catch (err: any) {
+      if (abortSignal?.aborted) {
+        return { nextStep: false, text: 'Operation aborted' };
+      }
       event.status = 'error';
       event.error = err.message;
       vscode.window.showErrorMessage(err.message);
+      observer.emit('agent', { ...event, status: 'error' });
       return { nextStep: false, text: err.message };
-    } finally {
-      observer.emit('agent', { ...event, status: 'done' });
     }
   }
 }

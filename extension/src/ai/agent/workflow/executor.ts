@@ -1,6 +1,6 @@
 import { agent } from '@llamaindex/workflow';
 import { LLMFactory } from '@llm';
-import { PlannerTask } from '@utils';
+import { PlannerTask, raceAbortSignal } from '@utils';
 import { FunctionTool, JSONValue } from 'llamaindex';
 import * as vscode from 'vscode';
 import { SYSTEM_EXECUTOR_PROMPT } from '../../prompts';
@@ -17,6 +17,7 @@ export class Executor {
       systemPrompt: SYSTEM_EXECUTOR_PROMPT,
       verbose: false,
       name: 'Code copilot',
+
       description:
         // eslint-disable-next-line max-len
         'An AI coding copilot that executes coding tasks, edits files, creates new files, and runs commands based on structured instructions. It strictly follows the system prompt rules, ensuring only necessary file changes and tool calls are made, without providing explanations or plain text output.',
@@ -28,10 +29,12 @@ export class Executor {
     });
   }
 
-  async run(instruction: PlannerTask, fileTree?: string[]) {
+  async run(instruction: PlannerTask, fileTree?: string[], abortSignal?: AbortSignal) {
     try {
       const data = JSON.stringify({ fileTree, instruction }, null, 1.5);
-      return this.agent.run(data);
+      const response = await raceAbortSignal(() => this.agent.run(data), abortSignal);
+
+      return response.data?.message?.content?.toString() ?? '';
     } catch (err: any) {
       vscode.window.showErrorMessage(err.message);
       return { error: err.message, success: false, instructions: [] };

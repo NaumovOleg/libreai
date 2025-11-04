@@ -145,6 +145,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       interactCommand(message.value as any);
     }
 
+    if (message.command === COMMANDS.abortAgentWorkflow) {
+      this.workflow.abort();
+      return;
+    }
+
     const value = message.value as ChatMessage;
 
     if (message.command === COMMANDS.sendMessage) {

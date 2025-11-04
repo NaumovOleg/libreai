@@ -32,6 +32,7 @@ export enum COMMANDS {
   helperMessage = 'helperMessage',
   onChangeWorkspace = 'onChangeWorkspace',
   restoreAgentSession = 'restoreAgentSession',
+  abortAgentWorkflow = 'abortAgentWorkflow',
 }
 
 export type ShowPreviewMessage = {

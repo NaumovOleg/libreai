@@ -250,3 +250,16 @@ export const batchArray = <T>(arr: T[], size: number): T[][] => {
   }
   return result;
 };
+
+export const raceAbortSignal = async <T extends (...args: any[]) => Promise<any>>(
+  fn: T,
+  signal?: AbortSignal,
+): Promise<Awaited<ReturnType<T>>> => {
+  if (!signal) return fn();
+
+  const abortPromise = new Promise<never>((_, reject) => {
+    signal.addEventListener('abort', () => reject(new Error('Agent workflow aborted')));
+  });
+
+  return Promise.race([fn(), abortPromise]) as Promise<Awaited<ReturnType<T>>>;
+};

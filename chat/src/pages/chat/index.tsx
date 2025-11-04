@@ -7,7 +7,9 @@ import Icon from '@mui/material/Icon';
 import { TextArea, Message } from './components';
 import { TypingDots } from '@elements';
 import { MdLabelOutline } from 'react-icons/md';
-import { Author } from '@utils';
+import { Author, vscode, COMMANDS } from '@utils';
+import { GiCancel } from 'react-icons/gi';
+import IconButton from '@mui/material/IconButton';
 
 const renderDivider = () => {
   return (
@@ -39,6 +41,10 @@ export const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isAgentThinking, isAtBottom]);
 
+  const onAbortClick = () => {
+    vscode.postMessage({ command: COMMANDS.abortAgentWorkflow });
+  };
+
   return (
     <section className="chat-section">
       <Box className="messages-container" ref={containerRef} onScroll={handleScroll}>
@@ -54,11 +60,16 @@ export const Chat = () => {
           );
         })}
         {isAgentThinking && (
-          <div className="agent-spinner">
-            <Icon>
-              <RiRobot3Line />
-            </Icon>
-            <TypingDots />
+          <div className="agent-info-panel">
+            <div className="agent-spinner">
+              <Icon>
+                <RiRobot3Line />
+              </Icon>
+              <TypingDots />
+            </div>
+            <IconButton onClick={onAbortClick} className="abort-button">
+              <GiCancel />
+            </IconButton>
           </div>
         )}
         <div ref={messagesEndRef} />

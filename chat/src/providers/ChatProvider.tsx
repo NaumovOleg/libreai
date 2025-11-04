@@ -89,7 +89,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     if (!agentSession) return;
 
     const terminator = messages.find(
-      (message) => message.status === 'done' && message.type === 'agentResponse',
+      (message) => ['done', 'error'].includes(message.status) && message.type === 'agentResponse',
     );
 
     if (terminator) {
@@ -104,17 +104,15 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
       };
       const start = prev.findIndex(filterBc);
       const end = prev.findLastIndex(filterBc);
+      if (start === -1 || end === -1) return prev;
 
-      prev.splice(start, end - start + 1, ...messages);
+      const newMessages = [...prev];
+      newMessages.splice(start, end - start + 1, ...messages);
 
-      updateStorage({ session: prev });
-      return prev;
+      updateStorage({ session: newMessages });
+
+      return newMessages;
     });
-
-    if (terminator) {
-      setIsAgentThinking(false);
-      updateStorage({ isAgentThinking: false });
-    }
   };
 
   useEffect(() => {
@@ -195,6 +193,8 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     isAgentThinking,
     files,
   };
+
+  console.log('MESSAGES', value.messages);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as vscode from 'vscode';
 
+import { uuid } from '@utils';
 import {
   AgentMessage,
   ChatMessage,
@@ -32,6 +33,7 @@ export class Observer {
 
   emit(event: 'agent', payload: AgentMessage): void;
   emit(event: 'indexing', payload: IndexingPayload): void;
+  emit(event: 'abortAgentFlow'): void;
   emit(event: `interact-command-${string}`, payload: ExecCommandPayload): void;
   emit(event: COMMANDS.helperMessage, payload: ChatMessage): void;
   emit(event: COMMANDS.chatStream, payload: ChatMessage): void;
@@ -53,6 +55,7 @@ export class Observer {
 
   observe() {
     this.observer.subscribe('agent', this.agentResponse.bind(this));
+    this.observer.subscribe('abortAgentFlow', this.abortAgentFlow.bind(this));
     this.observer.subscribe('indexing', this.indexing.bind(this));
     this.observer.subscribe(COMMANDS.helperMessage, this.helperMessage.bind(this));
     this.observer.subscribe(COMMANDS.chatStream, this.chatStream.bind(this));
@@ -90,5 +93,26 @@ export class Observer {
   }
   onChangeWorkspace(payload: { [key: string]: IndexingPayload }) {
     this.web.webview.postMessage({ type: COMMANDS.onChangeWorkspace, payload });
+  }
+  abortAgentFlow() {
+    const agentSession = AgentSession.getInstance();
+    const payload = agentSession.getMessages();
+    payload.forEach((msg) => {
+      if (msg.status === 'pending') {
+        msg.status = 'done';
+      }
+    });
+    payload.push({
+      type: 'agentResponse',
+      status: 'done',
+      id: uuid(),
+      args: { content: 'Cancelled by user' },
+      session: payload?.[0]?.session,
+    });
+
+    this.web.webview.postMessage({
+      type: COMMANDS.restoreAgentSession,
+      payload,
+    });
   }
 }
