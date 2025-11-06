@@ -60,21 +60,23 @@ export const FileActions: FC<Props> = ({ message }) => {
       <div className="file-actions container">
         {message.status === 'pending' && (
           <div className="pending item">
-            {messages[message.type]} {file}
+            <div className="line">{messages[message.type]}</div> {file}
             <CircularProgress size={15} className="icon" />
           </div>
         )}
         {message.status === 'error' && (
           <div className="error item">
-            <div className="error-file-line">
-              {messages[message.type]} {file} <FcCancel className="icon" />
+            <div className="error-line">
+              <div className="line">{messages[message.type]}</div> {file}{' '}
+              <FcCancel className="icon" />
             </div>
+
             <Typography color="error"> {message.error} Error test </Typography>
           </div>
         )}
         {message.status === 'done' && (
           <div className="done item">
-            <div className="done-line">{messages[message.type]}</div>
+            <div className="done-line line">{messages[message.type]}</div>
             {file}
             <FaCheck className="done-icon icon" />
           </div>

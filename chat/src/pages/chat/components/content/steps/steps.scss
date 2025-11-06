@@ -15,9 +15,16 @@
           min-width: 15px;
           min-height: 15px;
         }
-        .done-line {
+        .line {
           min-width: 45px;
         }
+        .error-line {
+          display: flex;
+          gap: 3px;
+          align-items: center;
+          width: 100%;
+        }
+
         .done-icon {
           color: var(--vscode-chat-linesAddedForeground);
         }

@@ -146,6 +146,9 @@
     padding: 5px;
     width: calc(100% - 5px);
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
     .agent-info-panel {
       display: flex;
       align-items: center;
