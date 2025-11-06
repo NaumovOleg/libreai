@@ -4,7 +4,7 @@
   "displayName": "AI Inline + Chat",
   "publisher": "olgert",
   "description": "Code copilot",
-  "version": "1.9.0",
+  "version": "1.9.2",
   "main": "./out/extension.js",
   "engines": {
     "vscode": "^1.85.0"
@@ -129,6 +129,7 @@
         },
         "autoCompleteConfig.autocompleteDeleay": {
           "type": "number",
+          "default": 0,
           "description": "Delay in milliseconds before triggering code autocompletion."
         },
         "agentConfig.provider": {

@@ -40,11 +40,10 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
     document: vscode.TextDocument,
     position: vscode.Position,
   ): Promise<vscode.InlineCompletionList> {
-    console.log('auto complete ');
-
     const delay = Conf.autoCompleteConfig.autocompleteDeleay;
-    if (delay === 0) return { items: [] };
 
+    if (!delay) return { items: [] };
+    console.log('AUTOCOMPLETE TRIGGERED');
     return new Promise((resolve) => {
       if (this.debounceTimer) clearTimeout(this.debounceTimer);
       this.lastRequest = { resolve, document, position };

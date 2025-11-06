@@ -34,10 +34,11 @@ export const ConfigProvider: FC<{ children: ReactElement }> = ({ children }) => 
     if (event.data.type === COMMANDS.changeConfig) {
       const chat = event.data.payload[CONFIG_PARAGRAPH.chatConfig] as AiConfigT;
       const agent = event.data.payload[CONFIG_PARAGRAPH.agentConfig] as AiConfigT;
+      const autocomplete = event.data.payload[CONFIG_PARAGRAPH.autoCompleteConfig] as AiConfigT;
       setIsConfigInited(true);
 
       setConfig(CONFIG_PARAGRAPH.chatConfig, chat);
-      setConfig(CONFIG_PARAGRAPH.autoCompleteConfig, agent);
+      setConfig(CONFIG_PARAGRAPH.autoCompleteConfig, autocomplete);
       setConfig(
         CONFIG_PARAGRAPH.agentConfig,
         event.data.payload[CONFIG_PARAGRAPH.agentConfig] as AiConfigT,
