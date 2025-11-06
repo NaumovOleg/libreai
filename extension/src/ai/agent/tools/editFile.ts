@@ -33,7 +33,16 @@ export class EditFileTool {
         event.args.content = editResponse?.content ?? args.content;
 
         observer.emit('agent', event);
-        return { success: event.status === 'done', name: AGENT_TOOLS.editFile, file: args.file };
+        const response = {
+          success: event.status === 'done',
+          name: AGENT_TOOLS.editFile,
+          file: args.file,
+        };
+        if (event.error) {
+          Object.assign(response, { error: event.error });
+        }
+
+        return response;
       },
       name: AGENT_TOOLS.editFile,
       description: `Edit a file with content.

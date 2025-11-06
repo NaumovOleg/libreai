@@ -35,6 +35,11 @@ export class ReadFileTool {
           };
 
           observer.emit('agent', event);
+
+          if (event.error) {
+            Object.assign(result, { error: event.error });
+          }
+
           return result;
         } catch (err) {
           console.log(err);

@@ -34,11 +34,16 @@ export class CreateFileTool {
 
         observer.emit('agent', event);
 
-        return {
+        const response = {
           success: (event.status = 'done'),
           name: EDITOR_EVENTS.createFile,
           file: args.file,
         };
+        if (event.error) {
+          Object.assign(response, { error: event.error });
+        }
+
+        return response;
       },
       name: AGENT_TOOLS.createFile,
       description: 'Creates a new file with provided content.',

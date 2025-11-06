@@ -49,7 +49,12 @@ export class CommandTool {
 
         observer.emit('agent', event);
 
-        return { success: event.status === 'done', name: AGENT_TOOLS.command, result };
+        const response = { success: event.status === 'done', name: AGENT_TOOLS.command, result };
+        if (event.error) {
+          Object.assign(response, { error: event.error });
+        }
+
+        return response;
       },
     });
   }

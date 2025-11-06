@@ -33,12 +33,19 @@ export class RenameFileTool {
         });
 
         observer.emit('agent', event);
-        return {
+
+        const response = {
           success: event.status === 'done',
           name: EDITOR_EVENTS.renameFile,
           file: args.file,
           newName: args.newName,
         };
+
+        if (event.error) {
+          Object.assign(response, { error: event.error });
+        }
+
+        return response;
       },
 
       name: AGENT_TOOLS.renameFile,
