@@ -36,7 +36,7 @@ export class CreateFileTool {
 
         const response = {
           success: (event.status = 'done'),
-          name: EDITOR_EVENTS.createFile,
+          toolName: EDITOR_EVENTS.createFile,
           file: args.file,
         };
         if (event.error) {

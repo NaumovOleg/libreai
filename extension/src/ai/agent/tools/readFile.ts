@@ -26,19 +26,18 @@ export class ReadFileTool {
             event.error = err.message;
             event.status = 'error';
           });
+          observer.emit('agent', event);
 
           const result = {
             name: AGENT_TOOLS.readFile,
-            file: args.file,
-            content: content ?? '',
+            toolName: args.file,
             success: event.status === 'done',
           };
 
-          observer.emit('agent', event);
-
-          if (event.error) {
-            Object.assign(result, { error: event.error });
-          }
+          Object.assign(
+            result,
+            event.status === 'done' ? { content: content ?? '' } : { error: event.error },
+          );
 
           return result;
         } catch (err) {

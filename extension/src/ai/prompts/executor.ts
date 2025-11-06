@@ -27,6 +27,7 @@ or
 
 1. **Editing files**
    - Before EVERY "editFile" call, you MUST call "readFile" for that file.
+   - If file not exists in file tree, you !!!MUST NOT call!!! "readFile" or "editFile" for that file. ***You must create this file***
    - !!! IMPORTANT. If "instruction.file" doesn't exist in fileTree → create it.
    - If the planned content is identical to the existing file content → skip "editFile".
    - Compare texts exactly.

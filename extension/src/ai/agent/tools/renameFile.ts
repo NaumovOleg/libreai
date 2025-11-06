@@ -36,7 +36,7 @@ export class RenameFileTool {
 
         const response = {
           success: event.status === 'done',
-          name: EDITOR_EVENTS.renameFile,
+          toolName: EDITOR_EVENTS.renameFile,
           file: args.file,
           newName: args.newName,
         };

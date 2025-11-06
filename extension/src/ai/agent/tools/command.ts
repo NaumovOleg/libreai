@@ -40,7 +40,6 @@ export class CommandTool {
         const result = await cb(args).catch((error) => {
           event.error = error.message;
           event.status = 'error';
-          return error.message as string;
         });
 
         if (result) {
@@ -49,10 +48,8 @@ export class CommandTool {
 
         observer.emit('agent', event);
 
-        const response = { success: event.status === 'done', name: AGENT_TOOLS.command, result };
-        if (event.error) {
-          Object.assign(response, { error: event.error });
-        }
+        const response = { success: event.status === 'done', toolName: AGENT_TOOLS.command };
+        Object.assign(response, event.status === 'done' ? { result } : { error: event.error });
 
         return response;
       },

@@ -32,6 +32,7 @@ export class Executor {
   async run(instruction: PlannerTask, fileTree?: string[], abortSignal?: AbortSignal) {
     try {
       const data = JSON.stringify({ fileTree, instruction }, null, 1.5);
+
       const response = await raceAbortSignal(() => this.agent.run(data), abortSignal);
 
       return response.data?.message?.content?.toString() ?? '';

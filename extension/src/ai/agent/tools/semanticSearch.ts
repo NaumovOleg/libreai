@@ -22,7 +22,7 @@ export class SemanticSearch {
 
         return {
           success: true,
-          name: AGENT_TOOLS.semanticSearch,
+          toolName: AGENT_TOOLS.semanticSearch,
           content: data,
         };
       },

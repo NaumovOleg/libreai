@@ -33,11 +33,13 @@ export class EditFileTool {
         event.args.content = editResponse?.content ?? args.content;
 
         observer.emit('agent', event);
+
         const response = {
           success: event.status === 'done',
-          name: AGENT_TOOLS.editFile,
+          toolName: AGENT_TOOLS.editFile,
           file: args.file,
         };
+
         if (event.error) {
           Object.assign(response, { error: event.error });
         }

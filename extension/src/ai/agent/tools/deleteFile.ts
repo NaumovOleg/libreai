@@ -27,6 +27,7 @@ export class DeleteFileTool {
         console.log('Deleting', args);
         observer.emit('agent', event);
         event.status = 'done';
+
         await cb(args).catch((err) => {
           event.error = err.message;
           event.status = 'error';
@@ -36,7 +37,7 @@ export class DeleteFileTool {
 
         const response = {
           success: (event.status = 'done'),
-          name: EDITOR_EVENTS.deleteFile,
+          toolName: EDITOR_EVENTS.deleteFile,
           file: args.file,
         };
         if (event.error) {
