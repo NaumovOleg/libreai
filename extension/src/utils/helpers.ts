@@ -185,9 +185,9 @@ export const parseEmbeddings = (
   const filesMap = chunks.reduce<Record<string, string>>((acc, chunk) => {
     const path = getWorkspaceNameFromUrl(chunk.workspace) + '/' + chunk.path;
 
-    const fileHeader = `<file path="${path}">\n`;
-    const fileFooter = `</file>\n`;
-    const chunkBlock = `<code startLine="${chunk.startLine}" endLine="${chunk.endLine}">\n${chunk.text}\n</code>\n`;
+    const fileHeader = `<FILE path="${path}">\n`;
+    const fileFooter = `</FILE>\n`;
+    const chunkBlock = `<CODE startLine="${chunk.startLine}" endLine="${chunk.endLine}">\n${chunk.text}\n</CODE>\n`;
 
     if (!acc[path]) {
       acc[path] = fileHeader + chunkBlock + fileFooter;

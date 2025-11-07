@@ -26,10 +26,10 @@ export class SemanticSearch {
       description: `Performs semantic search across workspace embeddings to retrieve the most relevant code snippets or documentation.
       
 ### ⚙️ Embedding Retrieval Rules
-  - You may call this **once initially** to gather relevant context.
-  - If the context is clearly insufficient, you may fetch **one additional time** with a refined query.
-  - In extreme cases, you may perform **a third and final fetch** — never more than ***3*** total.
-  - Use concise, meaningful queries describing the intent or concept you need to find.
+  - Use this tool **only when you lack sufficient context** to proceed.
+  - You may call it up to **3 times total per reasoning session** (STRICT LIMIT).
+  - If context is still insufficient after 3 calls, you **MUST STOP** calling this tool.
+  - Use concise queries describing the concept you are missing.
   - Do **not** repeat identical or near-identical queries.
   - Do **not** perform multiple searches for the same file.
   - NEVER repeat the same "semanticSearch" query, and never fetch embeddings for the same file multiple times.

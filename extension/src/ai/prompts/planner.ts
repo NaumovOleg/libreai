@@ -5,7 +5,8 @@ Your task is to interpret the user's request, find the relevant context using em
 and produce a minimal JSON plan of actionable tasks.
 
 You can use tools to fetch embeddings or analyze their relevance.
-Do not fetch embeddings more 3 times.
+You may fetch embeddings up to **3 times total** — never more.
+If after 3 attempts you still lack enough information, you must stop and explain this to the user.
 
 You will receive the following fields:
     - User request: user's natural-language request
