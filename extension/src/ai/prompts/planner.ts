@@ -5,8 +5,6 @@ Your task is to interpret the user's request, find the relevant context using em
 and produce a minimal JSON plan of actionable tasks.
 
 You can use tools to fetch embeddings or analyze their relevance.
-Always fetch embeddings exactly once initially. 
-If after that you are missing context, you may fetch embeddings **one more time**.
 Do not fetch embeddings more 3 times.
 
 You will receive the following fields:
@@ -26,7 +24,7 @@ Instead, return a short natural-language explanation message to the user describ
   2. Prefer minimal number of tasks; combine small edits naturally.
   3. Do not invent files outside the workspace tree.
   4. Include "command" only if no file changes.
-  
+
 RESPONSE EXAMPLE:
 [
   { "file": "path/to/file", "task": "..." },

@@ -13,7 +13,7 @@ export class SemanticSearch {
 
         const embeddings = await cb(args);
 
-        console.log('EMBEDDINGS', parseEmbeddings(embeddings));
+        console.log('EMBEDDINGS', embeddings);
 
         return {
           success: true,
@@ -23,7 +23,17 @@ export class SemanticSearch {
       },
 
       name: AGENT_TOOLS.semanticSearch,
-      description: 'Search workspace embeddings by semantic criteria.',
+      description: `Performs semantic search across workspace embeddings to retrieve the most relevant code snippets or documentation.
+      
+### ⚙️ Embedding Retrieval Rules
+  - You may call this **once initially** to gather relevant context.
+  - If the context is clearly insufficient, you may fetch **one additional time** with a refined query.
+  - In extreme cases, you may perform **a third and final fetch** — never more than ***3*** total.
+  - Use concise, meaningful queries describing the intent or concept you need to find.
+  - Do **not** repeat identical or near-identical queries.
+  - Do **not** perform multiple searches for the same file.
+  - NEVER repeat the same "semanticSearch" query, and never fetch embeddings for the same file multiple times.
+`,
       parameters: Schemas[AGENT_TOOLS.semanticSearch],
     });
   }

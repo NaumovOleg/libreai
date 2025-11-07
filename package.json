@@ -4,7 +4,7 @@
   "displayName": "AI Inline + Chat",
   "publisher": "olgert",
   "description": "Code copilot",
-  "version": "1.10.4",
+  "version": "1.10.6",
   "main": "./out/extension.js",
   "engines": {
     "vscode": "^1.85.0"
