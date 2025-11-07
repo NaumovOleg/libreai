@@ -354,11 +354,10 @@ export function chunkCodeUniversal(
     const isGenericBoundary =
       (depth === 0 && isEmptyLine && buffer.length > 10) || (depth === 0 && atMaxSize);
 
-    // ✅ если достигнут лимит — форсируем коммит
     if ((isBoundary || isGenericBoundary || atMaxSize) && buffer.length >= 3) {
       commitChunk(i);
       startLine = i + 1;
-      depth = 0; // сбрасываем глубину
+      depth = 0;
     }
   }
 
