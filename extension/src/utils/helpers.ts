@@ -272,7 +272,7 @@ export function chunkCodeUniversal(
 
   const commitChunk = (endLine: number) => {
     const text = buffer.join('\n').trim();
-    if (text)
+    if (text) {
       chunks.push({
         text,
         startLine,
@@ -281,6 +281,7 @@ export function chunkCodeUniversal(
         id: uuid(12),
         workspace: getFileWorkspaceUrl(uri),
       });
+    }
     buffer = [];
   };
 
@@ -338,28 +339,30 @@ export function chunkCodeUniversal(
         isBoundary = isTextBoundary(line);
         break;
       default:
-        if (depth === 0 && isBoundaryKeyword(line)) {
-          if (buffer.length > 1) {
-            buffer.pop();
-            commitChunk(i - 1);
-            buffer = [line];
-            startLine = i;
-            continue;
-          }
+        if (depth === 0 && isBoundaryKeyword(line) && buffer.length > 1) {
+          buffer.pop();
+          commitChunk(i - 1);
+          buffer = [line];
+          startLine = i;
+          continue;
         }
         break;
     }
 
+    const atMaxSize = buffer.length >= maxLinesPerChunk;
+    const isEmptyLine = /^\s*$/.test(line);
     const isGenericBoundary =
-      (depth === 0 && /^\s*$/.test(line) && buffer.length > 10) ||
-      (depth === 0 && buffer.length >= maxLinesPerChunk);
+      (depth === 0 && isEmptyLine && buffer.length > 10) || (depth === 0 && atMaxSize);
 
-    if ((isBoundary || isGenericBoundary) && depth === 0 && buffer.length >= 3) {
+    // ✅ если достигнут лимит — форсируем коммит
+    if ((isBoundary || isGenericBoundary || atMaxSize) && buffer.length >= 3) {
       commitChunk(i);
       startLine = i + 1;
+      depth = 0; // сбрасываем глубину
     }
   }
 
-  commitChunk(lines.length - 1);
+  if (buffer.length) commitChunk(lines.length - 1);
+
   return chunks;
 }

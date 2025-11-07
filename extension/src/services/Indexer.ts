@@ -50,7 +50,7 @@ export class Indexer {
   }
 
   async indexFile(uri: vscode.Uri, deleteFiles = true) {
-    console.log('indexFile', uri);
+    console.log('indexFile', uri.fsPath);
     const chunks = await this.chunckFile(uri);
     return this.database.addFiles(chunks, deleteFiles);
   }
