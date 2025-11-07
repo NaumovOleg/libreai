@@ -44,7 +44,7 @@ export class Indexer {
 
   async chunckFile(uri: vscode.Uri) {
     const bytes = await vscode.workspace.fs.readFile(uri);
-    const content = new TextDecoder().decode(bytes).slice(0, this.maxChars);
+    const content = new TextDecoder().decode(bytes).slice(0);
 
     return chunkCodeUniversal(content, uri);
   }
