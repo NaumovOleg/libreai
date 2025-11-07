@@ -1,6 +1,6 @@
 import { agent } from '@llamaindex/workflow';
 import { LLMFactory } from '@llm';
-import { PlannerTask, raceAbortSignal } from '@utils';
+import { PlannerQuery, PlannerTask, raceAbortSignal } from '@utils';
 import { FunctionTool, JSONValue } from 'llamaindex';
 import * as vscode from 'vscode';
 import { SYSTEM_EXECUTOR_PROMPT } from '../../prompts';
@@ -29,11 +29,17 @@ export class Executor {
     });
   }
 
-  async run(instruction: PlannerTask, fileTree?: string[], abortSignal?: AbortSignal) {
+  async run(data: {
+    instruction: PlannerTask;
+    files?: PlannerQuery['files'];
+    fileTree?: string[];
+    abortSignal?: AbortSignal;
+  }) {
+    const { instruction, fileTree, files, abortSignal } = data;
     try {
-      const data = JSON.stringify({ fileTree, instruction }, null, 1.5);
+      const parsed = JSON.stringify({ fileTree, instruction, files }, null, 1.5);
 
-      const response = await raceAbortSignal(() => this.agent.run(data), abortSignal);
+      const response = await raceAbortSignal(() => this.agent.run(parsed), abortSignal);
 
       return response.data?.message?.content?.toString() ?? '';
     } catch (err: any) {

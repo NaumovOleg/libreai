@@ -54,13 +54,18 @@ export class Workflow {
       if (error || !success) {
         return finish.with({ output: [error ?? text ?? ''] });
       }
-      return startInstructionsStep.with({ fileTree: context.data.fileTree, instructions });
+      return startInstructionsStep.with({
+        files: context.data.files,
+        fileTree: context.data.fileTree,
+        instructions,
+      });
     });
 
     this.workflow.handle([startInstructionsStep], async (event, context) => {
       if (this.abortController?.signal.aborted) throw new Error('Workflow aborted');
       return processTaskStep.with({
         fileTree: context.data.fileTree,
+        files: context.data.files,
         instructions: context.data.instructions,
         index: 0,
         output: [],
@@ -70,12 +75,14 @@ export class Workflow {
     this.workflow.handle([processTaskStep], async (event, context) => {
       if (this.abortController?.signal.aborted) throw new Error('Workflow aborted');
       const index = context.data.index;
+
       const instruction = context.data.instructions[index];
-      const response = await this.executor.run(
+      const response = await this.executor.run({
         instruction,
-        context.data.fileTree,
-        this.abortController?.signal,
-      );
+        fileTree: context.data.fileTree,
+        files: context.data.files,
+        abortSignal: this.abortController?.signal,
+      });
 
       const output = context.data.output.concat(
         typeof response === 'string' ? response : response.error,

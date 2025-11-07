@@ -45,14 +45,14 @@ export const Command: FC<Props> = ({ message }) => {
         )}
         {message.status === 'pending' && (
           <div className="pending item">
-            <div> Awaiting: </div>
+            <div className="line"> Awaiting: </div>
             {command}
           </div>
         )}
         {message.status === 'done' && (
           <>
             <div className="done item">
-              <span className="prefix"> Cmd:</span>
+              <span className="prefix line"> Cmd:</span>
               {command}
               {message.args.state === 'confirmed' ? (
                 <FaCheck className="done-icon icon" />
@@ -62,7 +62,7 @@ export const Command: FC<Props> = ({ message }) => {
             </div>
             {message.args.result && (
               <div className="result">
-                <span className="prefix result-prefix"> Result:</span>
+                <span className="prefix result-prefix line"> Result:</span>
                 {message.args.result}
               </div>
             )}

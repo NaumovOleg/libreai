@@ -83,5 +83,10 @@
         align-items: center;
       }
     }
+    .command {
+      .result {
+        overflow-wrap: break-word;
+      }
+    }
   }
 }

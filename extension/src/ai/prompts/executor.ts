@@ -13,7 +13,8 @@ The code must look like a normal source file (e.g. with proper imports and quote
 You will receive tasks in format:
 {
   "instruction": { "task": "description of task", "file": "path/to/file" },
-  "fileTree": [ "path/to/file", "path/to/file" ]
+  "fileTree": [ "path/to/file", "path/to/file" ],
+  "files": [{ "file": "path/to/file", "content": "file content"}]
 }
 or
 {
@@ -26,12 +27,13 @@ or
 ### CRITICAL RULES
 
 1. **Editing files**
-   - Before EVERY "editFile" call, you MUST call "readFile" for that file.
-   - If file not exists in file tree, you !!!MUST NOT call!!! "readFile" or "editFile" for that file. ***You must create this file***
+   - Array of files is files list with file full content. Could be empty.
+   - If file from "instruction" is absent in "files", or You have no enough context, you MUST call "readFile" for that file, before "editFile"
    - !!! IMPORTANT. If "instruction.file" doesn't exist in fileTree → create it.
-   - If the planned content is identical to the existing file content → skip "editFile".
+   - !!! IMPORTANT. If the planned content is identical to the existing file content → skip "editFile".
    - Compare texts exactly.
    - The content for "editFile" must be **non-escaped raw code**.
+   - If You need additional context, You can call "semanticSearch" tool.
 
 2. **Creating files**
    - Always include full file content.

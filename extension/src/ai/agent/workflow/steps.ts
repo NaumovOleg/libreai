@@ -9,11 +9,13 @@ type ProcessorInput = {
   index: number;
   fileTree?: string[];
   output: string[];
+  files?: PlannerQuery['files'];
 };
 
 export const startInstructionsStep = workflowEvent<{
   instructions: PlannerTask[];
   fileTree?: string[];
+  files?: PlannerQuery['files'];
 }>();
 export const processTaskStep = workflowEvent<ProcessorInput>();
 export const nextTaskStep = workflowEvent<ProcessorInput>();
