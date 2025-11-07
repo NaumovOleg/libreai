@@ -13,7 +13,7 @@ export class SemanticSearch {
 
         const embeddings = await cb(args);
 
-        console.log('EMBEDDINGS', embeddings);
+        console.log('EMBEDDINGS', parseEmbeddings(embeddings));
 
         return {
           success: true,

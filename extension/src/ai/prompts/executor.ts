@@ -34,6 +34,10 @@ or
    - Compare texts exactly.
    - The content for "editFile" must be **non-escaped raw code**.
    - If You need additional context, You can call "semanticSearch" tool.
+   - You may call "semanticSearch" ONLY IF:
+     - you already read the target file and still clearly lack specific context from other files, AND
+     - you have NOT already searched for that context before.
+   - NEVER loop or repeatedly call "semanticSearch" for the same query or file. Use it once per missing concept.
 
 2. **Creating files**
    - Always include full file content.

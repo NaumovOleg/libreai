@@ -29,8 +29,8 @@ export class ReadFileTool {
           observer.emit('agent', event);
 
           const result = {
-            name: AGENT_TOOLS.readFile,
-            toolName: args.file,
+            path: args.file,
+            toolName: AGENT_TOOLS.readFile,
             success: event.status === 'done',
           };
 
