@@ -273,7 +273,7 @@ export function chunkCodeUniversal(
 
   const commitChunk = (endLine: number) => {
     const text = buffer.join('\n').trim();
-    if (text)
+    if (text) {
       chunks.push({
         text,
         startLine,
@@ -282,6 +282,7 @@ export function chunkCodeUniversal(
         id: uuid(12),
         workspace: getFileWorkspaceUrl(uri),
       });
+    }
     buffer = [];
   };
 
@@ -296,8 +297,16 @@ export function chunkCodeUniversal(
   const isStyleBoundary = (line: string): boolean =>
     /^\s*[.#@]?[a-zA-Z0-9_-]+\s*\{/.test(line) || /^\s*\}/.test(line);
 
-  const isDataBoundary = (line: string): boolean =>
-    /^\s*[{[]\s*$/.test(line) || /^\s*[}\]]\s*,?\s*$/.test(line) || /^-{3,}$/.test(line);
+  // улучшенная логика для JSON/YAML
+  const isDataBoundary = (line: string): boolean => {
+    // начало/конец объекта или массива
+    if (/^\s*[{\[]\s*$/.test(line) || /^\s*[}\]],?\s*$/.test(line)) return true;
+    // разделители между элементами верхнего уровня
+    if (/^\s*".+":\s*[{[]?\s*$/.test(line)) return true;
+    // YAML секции
+    if (/^-{3,}$/.test(line)) return true;
+    return false;
+  };
 
   const isTextBoundary = (line: string): boolean =>
     /^#+\s+/.test(line) || /^\s*```/.test(line) || /^={3,}$/.test(line);
@@ -331,7 +340,10 @@ export function chunkCodeUniversal(
       case 'json':
       case 'yaml':
       case 'yml':
-        isBoundary = isDataBoundary(line);
+        // в JSON нарезаем по ключам верхнего уровня
+        if (depth <= 1 && isDataBoundary(line)) {
+          isBoundary = true;
+        }
         break;
       case 'md':
       case 'markdown':
@@ -355,7 +367,7 @@ export function chunkCodeUniversal(
       (depth === 0 && /^\s*$/.test(line) && buffer.length > 10) ||
       (depth === 0 && buffer.length >= maxLinesPerChunk);
 
-    if ((isBoundary || isGenericBoundary) && depth === 0 && buffer.length >= 3) {
+    if ((isBoundary || isGenericBoundary) && buffer.length >= 3) {
       commitChunk(i);
       startLine = i + 1;
     }

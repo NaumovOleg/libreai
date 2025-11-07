@@ -18,7 +18,6 @@ export class Indexer {
   constructor(
     private context: vscode.ExtensionContext,
     private database: Db,
-    private maxChars = 5000,
   ) {}
 
   static getStringUri(uri: vscode.Uri) {
