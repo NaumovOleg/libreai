@@ -42,28 +42,16 @@ export class Indexer {
     return relativePath;
   }
 
-  async chunckFile(uri: vscode.Uri, chunkSize = 10) {
+  async chunckFile(uri: vscode.Uri) {
     const bytes = await vscode.workspace.fs.readFile(uri);
     const content = new TextDecoder().decode(bytes).slice(0, this.maxChars);
 
-    // Adaptive chunk size based on file extension/type
-    const fileExt = uri.fsPath.split('.').pop()?.toLowerCase() || '';
-    let adaptiveChunkSize = chunkSize;
-
-    if (['js', 'ts', 'jsx', 'tsx', 'json'].includes(fileExt)) {
-      adaptiveChunkSize = 10; // smaller chunks for code files
-    } else if (['md', 'txt', 'log'].includes(fileExt)) {
-      adaptiveChunkSize = 20; // larger chunks for markdown/ text files
-    } else {
-      adaptiveChunkSize = 15; // default intermediate chunk size
-    }
-
-    return chunkCodeUniversal(content, uri, { chunkSize: adaptiveChunkSize });
+    return chunkCodeUniversal(content, uri);
   }
 
-  async indexFile(uri: vscode.Uri, chunkSize = 10, deleteFiles = true) {
+  async indexFile(uri: vscode.Uri, deleteFiles = true) {
     console.log('indexFile', uri);
-    const chunks = await this.chunckFile(uri, chunkSize);
+    const chunks = await this.chunckFile(uri);
     return this.database.addFiles(chunks, deleteFiles);
   }
 
@@ -149,7 +137,7 @@ export class Indexer {
         await Promise.all(
           batch.map(async (uri) => {
             currentFile = uri.fsPath;
-            await this.indexFile(uri, 10, false);
+            await this.indexFile(uri, false);
           }),
         );
       } catch (err: any) {
