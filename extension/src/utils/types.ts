@@ -22,6 +22,8 @@ export type FileChunk = {
   path: string;
   text: string;
   workspace: string;
+  startLine: number;
+  endLine: number;
 };
 
 export type DbFile = FileChunk & { id: string };

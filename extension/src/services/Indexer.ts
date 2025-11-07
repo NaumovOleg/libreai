@@ -1,14 +1,11 @@
 import { Observer } from '@observer';
 import {
   batchArray,
+  chunkCodeUniversal,
   COMMANDS,
-  DbFile,
   filePattern,
   foldersPattern,
-  getFileWorkspaceUrl,
-  getRelativeToWorkspaceFilePath,
   IndexingPayload,
-  uuid,
   WORKSPACE_INDEX_PREFIX,
 } from '@utils';
 import * as vscode from 'vscode';
@@ -48,24 +45,7 @@ export class Indexer {
   async chunckFile(uri: vscode.Uri, chunkSize = 10) {
     const bytes = await vscode.workspace.fs.readFile(uri);
     const content = new TextDecoder().decode(bytes).slice(0, this.maxChars);
-    const path = getRelativeToWorkspaceFilePath(uri);
-
-    const chunks: DbFile[] = [];
-
-    const lines = content.split(/\r?\n/);
-
-    for (let startLine = 0; startLine < lines.length; startLine += chunkSize) {
-      const endLine = Math.min(startLine + chunkSize, lines.length);
-
-      const text = lines
-        .slice(startLine, endLine)
-        .map((line, idx) => `${startLine + idx}| ${line}`)
-        .join('\n');
-
-      chunks.push({ path, text, workspace: getFileWorkspaceUrl(uri), id: uuid(12) });
-    }
-
-    return chunks;
+    return chunkCodeUniversal(content, uri);
   }
 
   async indexFile(uri: vscode.Uri, chunkSize = 10, deleteFiles = true) {

@@ -1,23 +1,4 @@
 import { ContextT } from './types';
-export type EstimatedFile = { path: string; startLine: number; endLine: number };
-export type PlanInstruction = {
-  id: string;
-  title: string;
-  description: string;
-  priority: string;
-  estimatedFiles: EstimatedFile[];
-  dependencies: string[];
-  hasFollowUp: boolean;
-  executeCommand?: string[];
-};
-
-export type ExecutorInstruction = {
-  tasks: PlanInstruction[];
-  fileTree: string[];
-  fileContents: {
-    [key: string]: string;
-  };
-};
 
 export type PlannerQuery = Pick<ContextT, 'fileTree' | 'language'> & {
   request: string;
@@ -76,5 +57,7 @@ export type ToolCallbacks = {
   [AGENT_TOOLS.planning]: (args: string) => Promise<string>;
   [AGENT_TOOLS.semanticSearch]: (
     args: SemanticSearchToolArgs,
-  ) => Promise<{ path: string; text: string }[]>;
+  ) => Promise<
+    { path: string; text: string; startLine: number; endLine: number; workspace: string }[]
+  >;
 };

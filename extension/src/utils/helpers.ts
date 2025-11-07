@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { EXCLUDED_FOLDERS } from './constants';
-import { FileChunk } from './types';
+import { DbFile, FileChunk } from './types';
 
 export const uuid = (length: number = 4): string => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -179,36 +179,27 @@ function getWorkspaceNameFromUrl(workspaceUrl: string): string {
   return path.basename(uri.fsPath);
 }
 
-export const parseEmbeddings = (chunks: FileChunk[]) => {
-  const workcpacesCount = vscode.workspace.workspaceFolders?.length ?? 0;
+export const parseEmbeddings = (
+  chunks: Pick<FileChunk, 'endLine' | 'path' | 'startLine' | 'text' | 'workspace'>[],
+): string => {
+  const filesMap = chunks.reduce<Record<string, string>>((acc, chunk) => {
+    const path = getWorkspaceNameFromUrl(chunk.workspace) + '/' + chunk.path;
 
-  const ctx = chunks.reduce(
-    (acc, chunk) => {
-      let path = getWorkspaceNameFromUrl(chunk.workspace) + '/' + chunk.path;
-      if (workcpacesCount <= 1) {
-        path = chunk.path;
-      }
-      if (!acc[path]) {
-        acc[path] = `<FILE>${path}</FILE> \n
-          <CHUNK>
-          ${chunk.text}
-          </CHUNK>`;
-      } else {
-        const replaceString = `\n ${chunk.text}</CHUNK>`;
+    const fileHeader = `<file path="${path}">\n`;
+    const fileFooter = `</file>\n`;
+    const chunkBlock = `<code startLine="${chunk.startLine}" endLine="${chunk.endLine}">\n${chunk.text}\n</code>\n`;
 
-        acc[path] = replaceLast(acc[path], '</CHUNK>', replaceString);
-      }
-      return acc;
-    },
-    {} as { [key: string]: string },
-  );
+    if (!acc[path]) {
+      acc[path] = fileHeader + chunkBlock + fileFooter;
+    } else {
+      acc[path] = acc[path].replace(fileFooter, chunkBlock + fileFooter);
+    }
 
-  return Object.values(ctx).reduce((acc, val) => {
-    acc += val + '\n';
     return acc;
-  }, '');
-};
+  }, {});
 
+  return Object.values(filesMap).join('\n').trim();
+};
 /**
  * Securely parses a JSON input. If input is a JSON string, parses and returns the object.
  * If input is already an object, returns as is. If parsing fails, returns the original input.
@@ -263,3 +254,110 @@ export const raceAbortSignal = async <T extends (...args: any[]) => Promise<any>
 
   return Promise.race([fn(), abortPromise]) as Promise<Awaited<ReturnType<T>>>;
 };
+
+export function chunkCodeUniversal(
+  source: string,
+  uri: vscode.Uri,
+  maxLinesPerChunk?: number,
+): DbFile[] {
+  const ext = uri.fsPath.split('.').pop()?.toLowerCase() || '';
+  const lines = source.split('\n');
+  const chunks: DbFile[] = [];
+
+  let buffer: string[] = [];
+  let startLine = 0;
+  let depth = 0;
+
+  const commitChunk = (endLine: number) => {
+    const text = buffer.join('\n').trim();
+    if (text)
+      chunks.push({
+        text,
+        startLine,
+        endLine,
+        path: getRelativeToWorkspaceFilePath(uri),
+        id: uuid(12),
+        workspace: getFileWorkspaceUrl(uri),
+      });
+    buffer = [];
+  };
+
+  const isBoundaryKeyword = (line: string): boolean =>
+    /^\s*(export\s+)?(async\s+)?(function|class|def|struct|enum|interface|module|namespace)\b/.test(
+      line,
+    );
+
+  const isMarkupBoundary = (line: string): boolean =>
+    /<\s*\/?(div|section|article|table|script|style|head|body|html)\b/i.test(line);
+
+  const isStyleBoundary = (line: string): boolean =>
+    /^\s*[.#@]?[a-zA-Z0-9_-]+\s*\{/.test(line) || /^\s*\}/.test(line);
+
+  const isDataBoundary = (line: string): boolean =>
+    /^\s*[{[]\s*$/.test(line) || /^\s*[}\]]\s*,?\s*$/.test(line) || /^-{3,}$/.test(line);
+
+  const isTextBoundary = (line: string): boolean =>
+    /^#+\s+/.test(line) || /^\s*```/.test(line) || /^={3,}$/.test(line);
+
+  if (!maxLinesPerChunk) {
+    maxLinesPerChunk = ['html', 'xml', 'css', 'json', 'yaml', 'yml', 'md', 'txt'].includes(ext)
+      ? 60
+      : 40;
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    buffer.push(line);
+
+    const openBraces = (line.match(/{/g) || []).length;
+    const closeBraces = (line.match(/}/g) || []).length;
+    depth += openBraces - closeBraces;
+
+    let isBoundary = false;
+
+    switch (ext) {
+      case 'html':
+      case 'xml':
+        isBoundary = isMarkupBoundary(line);
+        break;
+      case 'css':
+      case 'scss':
+      case 'less':
+        isBoundary = isStyleBoundary(line);
+        break;
+      case 'json':
+      case 'yaml':
+      case 'yml':
+        isBoundary = isDataBoundary(line);
+        break;
+      case 'md':
+      case 'markdown':
+      case 'txt':
+        isBoundary = isTextBoundary(line);
+        break;
+      default:
+        if (depth === 0 && isBoundaryKeyword(line)) {
+          if (buffer.length > 1) {
+            buffer.pop();
+            commitChunk(i - 1);
+            buffer = [line];
+            startLine = i;
+            continue;
+          }
+        }
+        break;
+    }
+
+    const isGenericBoundary =
+      (depth === 0 && /^\s*$/.test(line) && buffer.length > 10) ||
+      (depth === 0 && buffer.length >= maxLinesPerChunk);
+
+    if ((isBoundary || isGenericBoundary) && depth === 0 && buffer.length >= 3) {
+      commitChunk(i);
+      startLine = i + 1;
+    }
+  }
+
+  commitChunk(lines.length - 1);
+  return chunks;
+}

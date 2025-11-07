@@ -1,4 +1,4 @@
-import { AGENT_TOOLS, SemanticSearchToolArgs, ToolCallbacks } from '@utils';
+import { AGENT_TOOLS, SemanticSearchToolArgs, ToolCallbacks, parseEmbeddings } from '@utils';
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
 import { Schemas } from './schemas';
@@ -11,19 +11,14 @@ export class SemanticSearch {
       execute: async (args: SemanticSearchToolArgs) => {
         console.log('Searching embedings', args);
 
-        const response = await cb(args);
+        const embeddings = await cb(args);
 
-        const data = response?.map((e) => ({
-          file: e.path,
-          content: e.text,
-        }));
-
-        console.log('EMBEDDINGS', data);
+        console.log('EMBEDDINGS', embeddings);
 
         return {
           success: true,
           toolName: AGENT_TOOLS.semanticSearch,
-          content: data,
+          content: parseEmbeddings(embeddings),
         };
       },
 

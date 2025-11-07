@@ -71,7 +71,7 @@ export const FileActions: FC<Props> = ({ message }) => {
               <FcCancel className="icon" />
             </div>
 
-            <Typography color="error"> {message.error} Error test </Typography>
+            <Typography color="error"> {message.error}</Typography>
           </div>
         )}
         {message.status === 'done' && (

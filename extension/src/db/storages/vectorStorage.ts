@@ -3,7 +3,7 @@ import * as lancedb from '@lancedb/lancedb';
 import { Table } from '@lancedb/lancedb';
 import { getRegistry, LanceSchema, register } from '@lancedb/lancedb/embedding';
 import { DbFile, FileChunk } from '@utils';
-import { Utf8 } from 'apache-arrow';
+import { Int32, Utf8 } from 'apache-arrow';
 import * as vscode from 'vscode';
 
 import { FileEmbedder } from './embedder';
@@ -44,11 +44,25 @@ export class VectorStorage {
       text: fileEmbedderFn.sourceField(new Utf8()),
       vector: fileEmbedderFn.vectorField(),
       path: new Utf8(),
+      startLine: new Int32(),
+      endLine: new Int32(),
       id: new Utf8(),
       workspace: new Utf8(),
     });
     if (tables.includes(tableName)) {
-      table = await this.db.openTable(tableName);
+      const existing = await this.db.openTable(tableName);
+      let existingSchema = await existing.schema();
+      const existedModel = existingSchema.fields.map((f) => f.name);
+      const newSchema = schema.fields.map((f) => f.name);
+
+      const same = JSON.stringify(existedModel) === JSON.stringify(newSchema);
+      if (!same) {
+        console.log(`Schema changed for ${tableName}, recreating...`);
+        await this.db.dropTable(tableName);
+        table = await this.db.createEmptyTable(tableName, schema);
+      } else {
+        table = existing;
+      }
       console.log(`Opened existing table: ${tableName}`);
     } else {
       table = await this.db.createEmptyTable(tableName, schema);
@@ -118,7 +132,6 @@ export class VectorStorage {
     }
 
     const sorted = results.sort((a, b) => (a._distance > b._distance ? 1 : -1));
-
     return sorted.slice(0, limit);
   }
 }
