@@ -27,9 +27,8 @@ export class SemanticSearch {
       
 ### ⚙️ Embedding Retrieval Rules
   - Use this tool **only when you lack sufficient context** to proceed.
-  - You may call it up to **3 times total per reasoning session** (STRICT LIMIT).
-  - If context is still insufficient after 3 calls, you **MUST STOP** calling this tool.
-  - Use concise queries describing the concept you are missing.
+  - You may call it up to **2 times total per reasoning session** (STRICT LIMIT).
+  - Use concise queries describing the context you are missing.
   - Do **not** repeat identical or near-identical queries.
   - Do **not** perform multiple searches for the same file.
   - NEVER repeat the same "semanticSearch" query, and never fetch embeddings for the same file multiple times.

@@ -198,7 +198,9 @@ export const parseEmbeddings = (
     return acc;
   }, {});
 
-  return Object.values(filesMap).join('\n').trim();
+  return `<!-- START_OF_EMBEDDINGS -->\n
+    ${Object.values(filesMap).join('\n').trim()}
+\n<!-- END_OF_EMBEDDINGS -->`;
 };
 /**
  * Securely parses a JSON input. If input is a JSON string, parses and returns the object.
@@ -301,8 +303,8 @@ export function chunkCodeUniversal(
 
   if (!maxLinesPerChunk) {
     maxLinesPerChunk = ['html', 'xml', 'css', 'json', 'yaml', 'yml', 'md', 'txt'].includes(ext)
-      ? 60
-      : 40;
+      ? 40
+      : 30;
   }
 
   for (let i = 0; i < lines.length; i++) {
