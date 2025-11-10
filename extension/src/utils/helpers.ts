@@ -198,9 +198,7 @@ export const parseEmbeddings = (
     return acc;
   }, {});
 
-  return `<!-- START_OF_EMBEDDINGS -->\n
-    ${Object.values(filesMap).join('\n').trim()}
-\n<!-- END_OF_EMBEDDINGS -->`;
+  return Object.values(filesMap).join('\n').trim();
 };
 /**
  * Securely parses a JSON input. If input is a JSON string, parses and returns the object.

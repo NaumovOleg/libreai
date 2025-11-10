@@ -1,10 +1,10 @@
 {
   "name": "robocode",
   "private": true,
-  "displayName": "AI Inline + Chat",
+  "displayName": "AI Copilot + Chat",
   "publisher": "olgert",
   "description": "Code copilot",
-  "version": "1.10.3",
+  "version": "1.10.4",
   "main": "./out/extension.js",
   "engines": {
     "vscode": "^1.85.0"

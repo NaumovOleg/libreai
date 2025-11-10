@@ -13,6 +13,8 @@ import { AgentSession, Context, Indexer } from './services';
 
 import { Db } from '@db';
 
+import './graph';
+
 export async function activate(context: vscode.ExtensionContext) {
   AgentSession.init(context);
   const db = Db.getInstance(context);

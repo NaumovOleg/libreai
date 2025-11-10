@@ -12,6 +12,7 @@ import {
 } from '@utils';
 import { FunctionTool, JSONValue } from 'llamaindex';
 import * as vscode from 'vscode';
+
 import { PLANNER_AGENT_SYSTEM_PROMPT } from '../../prompts';
 
 export class Planner {
