@@ -69,9 +69,8 @@ export class GraphWorkflow {
       console.log('=================dddddd', instructions, state);
 
       return 'start_editor';
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
+      console.log(err);
       return END;
     }
   }
@@ -134,7 +133,6 @@ export class GraphWorkflow {
   }
 
   async exec(ctx: PlannerQuery) {
-    console.log(parseHumanMessage(ctx).toJSON());
     const resp = await this.agent.invoke({
       analizerMessages: [parseHumanMessage(ctx)],
       plannerMessages: [parseHumanMessage(ctx)],

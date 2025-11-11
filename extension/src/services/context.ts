@@ -1,3 +1,4 @@
+import { Db } from '@db';
 import {
   getActiveWorkspaces,
   getSelectionText,
@@ -5,8 +6,6 @@ import {
   parseEmbeddings,
 } from '@utils';
 import * as vscode from 'vscode';
-
-import { Db } from '@db';
 
 export type ContextWithEmbeddings = {
   editor: vscode.TextEditor | undefined;

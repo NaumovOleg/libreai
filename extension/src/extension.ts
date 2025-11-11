@@ -1,6 +1,10 @@
+import './graph';
+
+import { Db } from '@db';
 import { foldersPattern } from '@utils';
 import micromatch from 'micromatch';
 import * as vscode from 'vscode';
+
 import {
   ContextSelector,
   Helper,
@@ -11,10 +15,6 @@ import {
 } from './providers';
 import { AgentSession, Context, Indexer } from './services';
 
-import { Db } from '@db';
-
-import './graph';
-
 export async function activate(context: vscode.ExtensionContext) {
   AgentSession.init(context);
   const db = Db.getInstance(context);
@@ -24,6 +24,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
   const indexer = new Indexer(context, db);
   const ctx = new Context(db);
+
+  console.log(await ctx.getContext('', { lookupEmbeddings: false }));
 
   const completions = new InlineCompletionProvider(ctx);
   const helperProvider = new Helper();

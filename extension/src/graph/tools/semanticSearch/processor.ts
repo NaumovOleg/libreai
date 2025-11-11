@@ -1,6 +1,5 @@
-import { getActiveWorkspaces, SemanticSearchToolArgs } from '@utils';
-
 import { Db } from '@db';
+import { getActiveWorkspaces, SemanticSearchToolArgs } from '@utils';
 
 export const processor = async (args: SemanticSearchToolArgs) => {
   const db = Db.getInstance();

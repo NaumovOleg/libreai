@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import * as path from 'path';
 import * as vscode from 'vscode';
 
@@ -227,7 +228,7 @@ export const getActiveWorkspaces = () => {
   const editor = vscode.window.activeTextEditor;
   const document = editor?.document;
 
-  let workspaces = document
+  const workspaces = document
     ? [vscode.workspace.getWorkspaceFolder(document.uri)?.uri.fsPath ?? 'noname']
     : vscode.workspace.workspaceFolders?.map((el) => el.uri.fsPath);
 
