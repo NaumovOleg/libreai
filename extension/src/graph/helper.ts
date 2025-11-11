@@ -28,10 +28,25 @@ export const CtxSchema = z.object({
     .optional(),
 });
 
+const FileTask = z
+  .object({
+    file: z.string(),
+    task: z.string(),
+  })
+  .strict();
+
+const CommandOnly = z
+  .object({
+    command: z.string(),
+  })
+  .strict();
+
 export const MessagesState = z.object({
   analizerMessages: z.array(z.custom<BaseMessage>()).register(registry, MessagesZodMeta as any),
   plannerMessages: z.array(z.custom<BaseMessage>()).register(registry, MessagesZodMeta as any),
   editorMessages: z.array(z.custom<BaseMessage>()).register(registry, MessagesZodMeta as any),
+  instructions: z.array(z.union([FileTask, CommandOnly])),
+  intructionIndex: z.number().default(0),
   ctx: CtxSchema,
 });
 
@@ -56,22 +71,15 @@ export const parseHumanMessage = (ctx: PlannerQuery) => {
     message += `  \n- Files content: ${JSON.stringify(ctx.files, null, 1)}`;
   }
 
-  console.log(message);
-
   return new HumanMessage(message);
 };
 
 export const makeEditorMessage = (state: z.infer<typeof MessagesState>) => {
-  let message = `User request: ${state.ctx.request}`;
-  if (state.ctx.language) {
-    message += `  \n- Language: ${state.ctx.language}`;
-  }
-  if (state.ctx.fileTree?.length) {
-    message += `  \n- File tree: ${JSON.stringify(state.ctx.fileTree, null, 1)}`;
-  }
-  if (state.ctx.files?.length) {
-    message += `  \n- Files content: ${JSON.stringify(state.ctx.files, null, 1)}`;
-  }
+  const data = {
+    instruction: state.instructions[state.intructionIndex],
+    fileTree: state.ctx.fileTree,
+    files: state.ctx.files,
+  };
 
-  return new HumanMessage(message);
+  return new HumanMessage(JSON.stringify(data, null, 1));
 };

@@ -17,7 +17,6 @@ export class Analizer {
   async exec(state: z.infer<typeof MessagesState>) {
     const data = [ANALYZER_SYSTEM_PROMPT, ...state.analizerMessages];
     const message = await this.model.invoke(data);
-    console.log('ANALIZER CALL', { state, message, data });
 
     return { ...state, analizerMessages: [...state.analizerMessages, message] };
   }

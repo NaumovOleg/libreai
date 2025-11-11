@@ -15,12 +15,10 @@ export class Planner {
   }
 
   async exec(state: z.infer<typeof MessagesState>) {
-    console.log('EXECCCC PLANNER', state, [PLANNER_AGENT_SYSTEM_PROMPT, ...state.plannerMessages]);
     const message = await this.model.invoke([
       PLANNER_AGENT_SYSTEM_PROMPT,
       ...state.plannerMessages,
     ]);
-    console.log('PLANNER CALL', { state, message });
 
     return { ...state, plannerMessages: [...state.plannerMessages, message] };
   }

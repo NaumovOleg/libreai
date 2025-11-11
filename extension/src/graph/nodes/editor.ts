@@ -4,14 +4,14 @@ import * as z from 'zod';
 import { MessagesState } from '../helper';
 import { LLMFactory } from '../LLMFactroy';
 import { SYSTEM_EDITOR_PROMPT } from '../prompts';
-import { read, semantic } from '../tools';
+import { command, create, edit, read, remove, rename, semantic } from '../tools';
 
 export class Editor {
   model: Runnable;
 
   constructor() {
     const model = new LLMFactory().agent;
-    this.model = model.bindTools([read, semantic]);
+    this.model = model.bindTools([read, semantic, edit, remove, create, command, rename]);
   }
 
   async exec(state: z.infer<typeof MessagesState>) {

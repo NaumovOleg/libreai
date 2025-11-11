@@ -4,6 +4,7 @@ import { Observer } from '@observer';
 import { AgentMessagePayload, PlannerQuery, raceAbortSignal, safeJsonParse, uuid } from '@utils';
 import { FunctionTool, JSONValue } from 'llamaindex';
 import * as vscode from 'vscode';
+
 import { ANALYZER_AGENT_SYSTEM_PROMPT } from '../../prompts';
 
 export class Analizer {

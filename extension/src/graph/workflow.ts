@@ -3,7 +3,7 @@ import { type CompiledStateGraph, END, START, StateGraph } from '@langchain/lang
 import { PlannerQuery } from '@utils';
 import * as z from 'zod';
 
-import { MessagesState, parseHumanMessage } from './helper';
+import { makeEditorMessage, MessagesState, parseHumanMessage } from './helper';
 import { Analizer, Editor, Planner, ToolNode } from './nodes';
 
 type inferMessageState = z.infer<typeof MessagesState>;
@@ -34,6 +34,27 @@ export class GraphWorkflow {
     return END;
   }
 
+  startEditor(state: inferMessageState) {
+    try {
+      if (!state.instructions.length) {
+        const lastMessage = state.plannerMessages.at(-1);
+        console.log('EDITOR START ROUTER ', state, AIMessage.isInstance(lastMessage));
+
+        const instructions = JSON.parse(lastMessage?.content as string);
+        state.instructions = instructions;
+      }
+
+      state.editorMessages = [makeEditorMessage(state)];
+      state.intructionIndex = state.intructionIndex + 1;
+
+      return state;
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      return state;
+    }
+  }
+
   async plannerRouter(state: inferMessageState) {
     const lastMessage = state.plannerMessages.at(-1);
     console.log('PLANNER ROUTER ', state, AIMessage.isInstance(lastMessage));
@@ -43,11 +64,12 @@ export class GraphWorkflow {
     }
 
     try {
-      const instructons = JSON.parse(lastMessage?.content as string);
+      const instructions = JSON.parse(lastMessage?.content as string);
 
-      console.log('=================dddddd', instructons);
-      state.editorMessages = [instructons];
-      return 'editor';
+      console.log('=================dddddd', instructions, state);
+
+      return 'start_editor';
+
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       return END;
@@ -55,11 +77,16 @@ export class GraphWorkflow {
   }
 
   async editorRouter(state: inferMessageState) {
-    const lastMessage = state.plannerMessages.at(-1);
+    const lastMessage = state.editorMessages.at(-1);
     console.log('EDITOR ROUTER ', state, AIMessage.isInstance(lastMessage));
 
     if (AIMessage.isInstance(lastMessage) && lastMessage?.tool_calls?.length) {
       return 'editor_tools';
+    }
+
+    if (state.intructionIndex + 1 < state.instructions.length) {
+      console.log('========aaaaaaaa', state);
+      return 'start_editor';
     }
 
     return END;
@@ -72,7 +99,7 @@ export class GraphWorkflow {
     this.tools = new ToolNode();
     const analizerTools = this.tools.analizer.bind(this.tools);
     const plannerTools = this.tools.planner.bind(this.tools);
-    const editorTools = this.tools.planner.bind(this.tools);
+    const editorTools = this.tools.editor.bind(this.tools);
     const agent = new StateGraph(MessagesState)
       .addNode('analizer', this.analizer.exec.bind(this.analizer))
       .addNode('planner', this.planner.exec.bind(this.planner))
@@ -84,6 +111,8 @@ export class GraphWorkflow {
       .addEdge('analizer_tools', 'analizer')
       .addEdge('planner_tools', 'planner')
       .addEdge('editor_tools', 'editor')
+      .addNode('start_editor', this.startEditor.bind(this))
+      .addEdge('start_editor', 'editor')
       .addConditionalEdges('analizer', this.analizerRouter.bind(this), [
         'analizer_tools',
         'planner',
@@ -91,10 +120,14 @@ export class GraphWorkflow {
       ])
       .addConditionalEdges('planner', this.plannerRouter.bind(this), [
         'planner_tools',
-        'editor',
+        'start_editor',
         END,
       ])
-      .addConditionalEdges('editor', this.editorRouter.bind(this), ['editor_tools', END])
+      .addConditionalEdges('editor', this.editorRouter.bind(this), [
+        'editor_tools',
+        'start_editor',
+        END,
+      ])
       .compile();
 
     this.agent = agent;
@@ -106,6 +139,8 @@ export class GraphWorkflow {
       analizerMessages: [parseHumanMessage(ctx)],
       plannerMessages: [parseHumanMessage(ctx)],
       editorMessages: [],
+      instructions: [],
+      intructionIndex: 0,
       ctx,
     });
 
