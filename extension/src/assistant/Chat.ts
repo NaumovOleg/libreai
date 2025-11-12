@@ -18,7 +18,6 @@ export class Chat {
   }
 
   async *chatStream(data: PromptProps) {
-    console.log('CHAT STARTED');
     const stream = await this.agent.stream(
       { messages: CHAT_PROMPT(data) },
       { streamMode: 'messages' },

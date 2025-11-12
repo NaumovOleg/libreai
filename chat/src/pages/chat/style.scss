@@ -135,10 +135,23 @@
   .navigation.bottom-navigation {
     justify-content: space-between;
     .left-side-block {
-      width: 100%;
+      width: calc(100% - 25px);
       display: flex;
       justify-content: flex-start;
       gap: 5px;
+      .model-name {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        direction: rtl;
+        text-align: left;
+        font-size: 10px;
+        transform: translate(0, 30%);
+      }
+    }
+    .send-message-button {
+      width: 15px;
     }
   }
   .messages-container {

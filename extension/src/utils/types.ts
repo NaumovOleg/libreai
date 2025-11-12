@@ -8,14 +8,21 @@ export const WORKSPACE_INDEX_PREFIX = 'workspace_index_';
 export type CHAT_HISTORY = string[];
 
 export type PromptProps = {
-  workspaceContext: string;
   selection: string;
   text: string;
   currentFilePath?: string;
-  history: string[];
+  history?: string[];
   language?: string;
   fileTree?: string[];
   files?: { file: string; content: string }[];
+};
+
+export type Ctx = {
+  editor: vscode.TextEditor | undefined;
+  selection: string;
+  currentFilePath: string;
+  language?: string;
+  fileTree: string[];
 };
 
 export type FileChunk = {

@@ -11,6 +11,7 @@ export const TextArea = () => {
   const onOpenContextSelect = () => {
     vscode.postMessage({ command: COMMANDS.selectContext });
   };
+
   return (
     <div className="ai-input">
       <div className="chat-input">
@@ -28,10 +29,10 @@ export const TextArea = () => {
         minRows={6}
         className="text-field"
         placeholder="Ask ai copilot"
-        value={text}
+        value={text.trim() ? text : ''}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
+          if (e.key === 'Enter' && !e.shiftKey && !!text.trim()) {
             sendMessage({ text });
             setText('');
           }
@@ -40,6 +41,7 @@ export const TextArea = () => {
 
       <BottomNavigation
         sendMessage={() => {
+          if (!text.trim()) return;
           sendMessage({ text });
           setText('');
         }}

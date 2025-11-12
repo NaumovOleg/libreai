@@ -3,6 +3,7 @@ import { diffLines } from 'diff';
 import { isValidElement, ReactNode } from 'react';
 import { visit } from 'unist-util-visit';
 
+import { MODEL_NAMES_MAP } from './constants';
 import { AgentMessage, ChatMessage } from './types';
 export const uuid = (length: number = 4): string => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -84,4 +85,8 @@ export const getEditSummary = ({ content, old }: { content?: string; old?: strin
 export const normalizeWorkspaceName = (workspace: string) => {
   const parts = workspace.split(/[\\/]+/).filter(Boolean);
   return parts.slice(-1).join('/');
+};
+
+export const getModelName = (model: string) => {
+  return (MODEL_NAMES_MAP as any)[model] ?? model;
 };

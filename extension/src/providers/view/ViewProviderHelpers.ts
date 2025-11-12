@@ -29,7 +29,7 @@ export function onStartMessages(webview: vscode.WebviewView) {
 export async function useAgent(message: ChatMessage, ctx: Context, workflow: GraphWorkflow) {
   try {
     const [context, files] = await Promise.all([
-      ctx.getContext(message.text, { lookupEmbeddings: false }),
+      ctx.getContext(),
       ctx.getFilesContent(message.files),
     ]);
 

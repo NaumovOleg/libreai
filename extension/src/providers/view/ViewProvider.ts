@@ -95,7 +95,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       };
 
       const [ctx, files] = await Promise.all([
-        this.ctx.getContext(message.text, { contextLimit: 5 }),
+        this.ctx.getContext(),
         this.ctx.getFilesContent(message.files),
       ]);
       observer.emit(COMMANDS.chatStream, payload);

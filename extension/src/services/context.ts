@@ -1,40 +1,6 @@
 import { Db } from '@db';
-import {
-  getActiveWorkspaces,
-  getSelectionText,
-  getWorkspaceFileTree,
-  parseEmbeddings,
-} from '@utils';
+import { Ctx, getActiveWorkspaces, getSelectionText, getWorkspaceFileTree } from '@utils';
 import * as vscode from 'vscode';
-
-export type ContextWithEmbeddings = {
-  editor: vscode.TextEditor | undefined;
-  workspaceContext: string;
-  selection: string;
-  currentFilePath: string;
-  language?: string;
-  fileTree: string[];
-};
-
-export type ContextWithoutEmbeddings = {
-  editor: vscode.TextEditor | undefined;
-  selection: string;
-  currentFilePath: string;
-  language?: string;
-  fileTree: string[];
-};
-
-export type GetContextParams = {
-  contextLimit?: number;
-  lookUpFileTree?: boolean;
-  lookupEmbeddings?: boolean;
-};
-
-export type GetContextReturn<P extends GetContextParams | undefined = undefined> = P extends {
-  lookupEmbeddings: false;
-}
-  ? ContextWithoutEmbeddings
-  : ContextWithEmbeddings;
 
 export class Context {
   constructor(private database: Db) {}
@@ -70,24 +36,8 @@ export class Context {
     return this.database.semanticSearch(search, getActiveWorkspaces(), limit);
   }
 
-  async getContext<P extends GetContextParams | undefined = undefined>(
-    message: string,
-    params?: P,
-  ): Promise<GetContextReturn<P>> {
-    const {
-      contextLimit = 10,
-      lookUpFileTree = true,
-      lookupEmbeddings = true,
-    } = (params ?? {}) as GetContextParams;
-
-    const [chunks, fileTree] = await Promise.all([
-      lookupEmbeddings ? this.searchRelevant(message, contextLimit) : [],
-      lookUpFileTree ? getWorkspaceFileTree() : [],
-    ]);
-
-    const workspaceContext: string | undefined = lookupEmbeddings
-      ? parseEmbeddings(chunks)
-      : undefined;
+  async getContext(): Promise<Ctx> {
+    const fileTree = await getWorkspaceFileTree();
 
     const editor = vscode.window.activeTextEditor;
     const selection = getSelectionText();
@@ -100,11 +50,8 @@ export class Context {
       currentFilePath,
       language,
       fileTree,
-    } as GetContextReturn<P>;
+    };
 
-    if (lookupEmbeddings) {
-      Object.assign(data, { workspaceContext: workspaceContext ?? '' });
-    }
     return data;
   }
 

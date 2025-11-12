@@ -53,4 +53,5 @@ or
    - Return a short summary of what you did within the agent session.
 
 ***IMPORTANT!!! NEVER call "readFile" tool twice for same file***
+***IMPORTANT!!! NEVER call "readFile" tool if file content exists in "files"***
 `);

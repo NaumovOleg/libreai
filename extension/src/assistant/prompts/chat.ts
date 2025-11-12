@@ -12,11 +12,15 @@ export const CHAT_PROMPT = (data: PromptProps) => {
 Use these tools whenever you need additional information before answering the user.
 If you call a tool, wait for its result before continuing.
 
-  - Project context: <***>${data.workspaceContext}<***>.
   - Current file:  <***>${data.currentFilePath}<***>.
   - Selection:  <***>${data.selection}<***>.
   - Programming language:  <***>${data.language}<***>.
-  - Files: ${formFileContent(data.files)}`),
+  - Files: ${formFileContent(data.files)}
+  
+  ---------
+
+  Prevoius history : ${JSON.stringify(data.history, null, 1)} 
+  `),
     new HumanMessage(`Instruction: <***>${data.text}<***>.`),
   ];
 };
