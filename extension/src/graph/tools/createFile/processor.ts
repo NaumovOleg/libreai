@@ -1,7 +1,7 @@
-import { CreateToolArgs, ensureDirectory, resolveFilePath } from '@utils';
+import { CreateFileToolArgs, ensureDirectory, resolveFilePath } from '@utils';
 import * as vscode from 'vscode';
 
-export const processor = async (instruction: CreateToolArgs) => {
+export const processor = async (instruction: CreateFileToolArgs) => {
   const uri = resolveFilePath(instruction.file);
 
   try {

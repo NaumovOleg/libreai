@@ -10,7 +10,7 @@ export type EditFileToolArgs = {
   content: string;
   old?: string;
 };
-export type CreateToolArgs = {
+export type CreateFileToolArgs = {
   file: string;
   content: string;
 };
@@ -52,7 +52,7 @@ export type ToolCallbacks = {
   [AGENT_TOOLS.command]: (args: CommandToolArgs) => Promise<string>;
   [AGENT_TOOLS.renameFile]: (args: RenameFileToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.deleteFile]: (args: DeleteFileToolArgs) => Promise<string | null>;
-  [AGENT_TOOLS.createFile]: (args: CreateToolArgs) => Promise<string | null>;
+  [AGENT_TOOLS.createFile]: (args: CreateFileToolArgs) => Promise<string | null>;
   [AGENT_TOOLS.readFile]: (args: string) => Promise<string>;
   [AGENT_TOOLS.planning]: (args: string) => Promise<string>;
   [AGENT_TOOLS.semanticSearch]: (

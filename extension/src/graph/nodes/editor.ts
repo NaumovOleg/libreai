@@ -15,10 +15,8 @@ export class Editor {
   }
 
   async exec(state: z.infer<typeof MessagesState>) {
-    console.log(' EXECC EDITOR', state, [SYSTEM_EDITOR_PROMPT, ...state.editorMessages]);
     const message = await this.model.invoke([SYSTEM_EDITOR_PROMPT, ...state.editorMessages]);
-    console.log('EDITOR CALL', { state, message });
 
-    return { ...state, editorMessages: [...state.editorMessages, message] };
+    return { ...state, response: message, editorMessages: [...state.editorMessages, message] };
   }
 }

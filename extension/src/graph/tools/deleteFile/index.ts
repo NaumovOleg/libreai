@@ -11,6 +11,6 @@ export const remove = tool<typeof schema, DeleteFileToolArgs>(async (args) => {
     return response;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
-    return err.message;
+    return `${err.name}. ${err.message}`;
   }
 }, meta);

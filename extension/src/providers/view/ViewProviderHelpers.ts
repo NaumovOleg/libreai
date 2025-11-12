@@ -1,8 +1,9 @@
-import { Workflow } from '@ai';
 import { Observer } from '@observer';
 import { Context } from '@services';
 import { Author, ChatMessage, COMMANDS, Conf, CONFIG_PARAGRAPH } from '@utils';
 import * as vscode from 'vscode';
+
+import { GraphWorkflow } from '../../graph';
 import { ContextSelector } from '../ContextSelector';
 
 export async function selectContextFiles(
@@ -24,14 +25,14 @@ export function onStartMessages(webview: vscode.WebviewView) {
   });
 }
 
-export async function useAgent(message: ChatMessage, ctx: Context, workflow: Workflow) {
+export async function useAgent(message: ChatMessage, ctx: Context, workflow: GraphWorkflow) {
   try {
     const [context, files] = await Promise.all([
       ctx.getContext(message.text, { lookupEmbeddings: false }),
       ctx.getFilesContent(message.files),
     ]);
 
-    return workflow.run({
+    return workflow.exec({
       fileTree: context.fileTree,
       language: context.language,
       request: message.text,

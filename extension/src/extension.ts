@@ -25,8 +25,6 @@ export async function activate(context: vscode.ExtensionContext) {
   const indexer = new Indexer(context, db);
   const ctx = new Context(db);
 
-  console.log(await ctx.getContext('', { lookupEmbeddings: false }));
-
   const completions = new InlineCompletionProvider(ctx);
   const helperProvider = new Helper();
 

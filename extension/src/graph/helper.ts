@@ -18,35 +18,28 @@ export const CtxSchema = z.object({
   language: z.string().optional(),
   fileTree: z.array(z.string()),
   request: z.string(),
-  files: z
-    .array(
-      z.object({
-        file: z.string(),
-        content: z.string(),
-      }),
-    )
-    .optional(),
+  files: z.array(z.object({ file: z.string(), content: z.string() })).optional(),
 });
 
-const FileTask = z
-  .object({
-    file: z.string(),
-    task: z.string(),
-  })
-  .strict();
-
-const CommandOnly = z
-  .object({
-    command: z.string(),
-  })
-  .strict();
+export const InstructionsSchema = z.array(
+  z.union([
+    z.object({ file: z.string(), task: z.string() }).strict(),
+    z.object({ command: z.string() }).strict(),
+  ]),
+);
 
 export const MessagesState = z.object({
   analizerMessages: z.array(z.custom<BaseMessage>()).register(registry, MessagesZodMeta as any),
   plannerMessages: z.array(z.custom<BaseMessage>()).register(registry, MessagesZodMeta as any),
   editorMessages: z.array(z.custom<BaseMessage>()).register(registry, MessagesZodMeta as any),
-  instructions: z.array(z.union([FileTask, CommandOnly])),
+  response: z
+    .custom<BaseMessage>()
+    .optional()
+    .register(registry, MessagesZodMeta as any),
+  instructions: InstructionsSchema,
   intructionIndex: z.number().default(0),
+  analizerId: z.string(),
+  plannerId: z.string(),
   ctx: CtxSchema,
 });
 

@@ -14,6 +14,6 @@ export const semantic = tool<typeof schema, SemanticSearchToolArgs>(async (args,
     return parseEmbeddings(embeddings);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
-    return err.message;
+    return `${err.name}. ${err.message}`;
   }
 }, meta);

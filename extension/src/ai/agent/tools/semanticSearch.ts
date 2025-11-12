@@ -1,4 +1,5 @@
-import { AGENT_TOOLS, SemanticSearchToolArgs, ToolCallbacks, parseEmbeddings } from '@utils';
+/* eslint-disable max-len */
+import { AGENT_TOOLS, parseEmbeddings, SemanticSearchToolArgs, ToolCallbacks } from '@utils';
 import { FunctionTool, JSONValue, tool } from 'llamaindex';
 
 import { Schemas } from './schemas';

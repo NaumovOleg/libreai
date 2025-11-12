@@ -57,3 +57,5 @@ export const EXCLUDED_FOLDERS = [
   '**/LICENSE.md',
   '**/cdk.out',
 ];
+
+export const DECLINED_COMMAND_MESSAGE = 'Declined by user';

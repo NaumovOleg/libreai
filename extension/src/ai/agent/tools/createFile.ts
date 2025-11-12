@@ -2,7 +2,7 @@ import { Observer } from '@observer';
 import {
   AGENT_TOOLS,
   AgentMessagePayload,
-  CreateToolArgs,
+  CreateFileToolArgs,
   EDITOR_EVENTS,
   ToolCallbacks,
   uuid,
@@ -12,11 +12,11 @@ import { FunctionTool, JSONValue, tool } from 'llamaindex';
 import { Schemas } from './schemas';
 
 export class CreateFileTool {
-  tool: FunctionTool<CreateToolArgs, JSONValue | Promise<JSONValue>, object>;
+  tool: FunctionTool<CreateFileToolArgs, JSONValue | Promise<JSONValue>, object>;
 
   constructor(cb: ToolCallbacks[AGENT_TOOLS.createFile]) {
     this.tool = tool({
-      execute: async (args: CreateToolArgs) => {
+      execute: async (args: CreateFileToolArgs) => {
         const observer = Observer.getInstance();
         const event: AgentMessagePayload<'createFile'> = {
           id: uuid(4),

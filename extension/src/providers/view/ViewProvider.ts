@@ -1,10 +1,13 @@
-import { Chat, Workflow } from '@ai';
+import { Chat } from '@ai';
+import { Db } from '@db';
 import { Observer } from '@observer';
-import { callbacks, Context, Indexer, showMemoryDiff } from '@services';
+import { Context, Indexer, showMemoryDiff } from '@services';
 import { Author, ChatMessage, COMMANDS, Conf, MESSAGE, ShowPreviewMessage, uuid } from '@utils';
 import fs from 'fs';
 import path from 'path';
 import * as vscode from 'vscode';
+
+import { GraphWorkflow } from '../../graph';
 import { ContextSelector } from '../ContextSelector';
 import { Icons } from '../Icons';
 import {
@@ -15,13 +18,11 @@ import {
   useAgent as useAgentHelper,
 } from './ViewProviderHelpers';
 
-import { Db } from '@db';
-
 export class ViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'robocodeView';
   private mediaFolder = 'out/view';
   private web!: vscode.WebviewView;
-  private workflow: Workflow;
+  private workflow: GraphWorkflow;
   private chat: Chat;
 
   constructor(
@@ -32,7 +33,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     private icons: Icons,
     private contextSelector: ContextSelector,
   ) {
-    this.workflow = new Workflow(callbacks);
+    this.workflow = new GraphWorkflow();
     this.chat = new Chat();
   }
 
@@ -146,7 +147,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
 
     if (message.command === COMMANDS.abortAgentWorkflow) {
-      this.workflow.abort();
+      // this.workflow.abort();
       return;
     }
 
