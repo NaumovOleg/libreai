@@ -16,9 +16,6 @@ function getAllDependencies(pkgName) {
 const externals = [
   ...getAllDependencies('@xenova/transformers'),
   ...getAllDependencies('onnxruntime-node'),
-  ...getAllDependencies('@xenova/transformers'),
-  ...getAllDependencies('@llamaindex'),
-  ...getAllDependencies('llamaindex'),
 ];
 
 const vscodeignorePath = path.resolve('../.vscodeignore');

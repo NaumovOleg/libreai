@@ -4,7 +4,7 @@
   "displayName": "AI Copilot + Chat",
   "publisher": "olgert",
   "description": "Code copilot",
-  "version": "1.10.4",
+  "version": "2.0.0",
   "main": "./out/extension.js",
   "engines": {
     "vscode": "^1.85.0"
@@ -166,19 +166,6 @@
         "when": "editorTextFocus"
       }
     ]
-  },
-  "dependencies": {
-    "@lancedb/lancedb-darwin-arm64": "^0.22.2",
-    "@llamaindex/core": "^0.6.22",
-    "@llamaindex/deepseek": "^0.0.38",
-    "@llamaindex/huggingface": "^0.1.30",
-    "@llamaindex/node-parser": "^2.0.22",
-    "@llamaindex/ollama": "^0.1.23",
-    "@llamaindex/openai": "^0.4.20",
-    "@llamaindex/workflow": "^1.1.24",
-    "@xenova/transformers": "^2.14.1",
-    "js-tiktoken": "^1.0.21",
-    "onnxruntime-node": "^1.17.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
