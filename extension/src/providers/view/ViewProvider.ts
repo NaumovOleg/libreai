@@ -147,7 +147,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
 
     if (message.command === COMMANDS.abortAgentWorkflow) {
-      // this.workflow.abort();
+      this.workflow.abort();
       return;
     }
 

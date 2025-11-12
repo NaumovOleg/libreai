@@ -18,11 +18,13 @@ export const edit = tool<typeof schema, EditFileToolArgs>(async (args, { toolCal
       type: 'editFile',
     };
     observer.emit('agent', event);
+    event.status = 'done';
 
     const editResponse = await processor(args).catch((err) => {
       event.status = 'error';
       event.error = err.message;
     });
+
     event.args.old = editResponse?.old;
     event.args.content = editResponse?.content ?? args.content;
 

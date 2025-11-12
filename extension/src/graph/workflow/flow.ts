@@ -9,7 +9,6 @@ type inferMessageState = z.infer<typeof MessagesState>;
 
 export class Flow {
   startAnalizer(state: inferMessageState) {
-    console.log('START ANALIZER', state);
     const observer = Observer.getInstance();
 
     const event: AgentMessagePayload<'analizing'> = {
@@ -23,7 +22,6 @@ export class Flow {
   }
 
   endAnalizer(state: inferMessageState) {
-    console.log('END ANALIZER', state);
     const observer = Observer.getInstance();
 
     const event: AgentMessagePayload<'analizing'> = {
@@ -64,7 +62,6 @@ export class Flow {
 
   async analizerRouter(state: inferMessageState) {
     const lastMessage = state.analizerMessages.at(-1);
-    console.log('ANALIZER ROUTER ', state, AIMessage.isInstance(lastMessage));
 
     if (lastMessage == null || !AIMessage.isInstance(lastMessage)) return END;
 
@@ -84,7 +81,6 @@ export class Flow {
     try {
       if (!state.instructions.length) {
         const lastMessage = state.plannerMessages.at(-1);
-        console.log('EDITOR START ROUTER ', state, AIMessage.isInstance(lastMessage));
 
         const instructions = JSON.parse(lastMessage?.content as string);
         state.instructions = instructions;
@@ -103,16 +99,13 @@ export class Flow {
 
   async plannerRouter(state: inferMessageState) {
     const lastMessage = state.plannerMessages.at(-1);
-    console.log('PLANNER ROUTER ', state, AIMessage.isInstance(lastMessage));
 
     if (AIMessage.isInstance(lastMessage) && lastMessage?.tool_calls?.length) {
       return 'planner_tools';
     }
 
     try {
-      const instructions = JSON.parse(lastMessage?.content as string);
-
-      console.log('=================dddddd', instructions, state);
+      JSON.parse(lastMessage?.content as string);
 
       return 'end_planner';
     } catch (err) {
@@ -129,7 +122,7 @@ export class Flow {
       return 'editor_tools';
     }
 
-    if (state.intructionIndex + 1 < state.instructions.length) {
+    if (state.intructionIndex < state.instructions.length) {
       console.log('========aaaaaaaa', state);
       return 'start_editor';
     }

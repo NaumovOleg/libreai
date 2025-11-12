@@ -78,7 +78,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const updateAgentMessages = (message: AgentMessage) => {
     updateMessages(message);
 
-    if (message.status === 'done' && message.type === 'agentResponse') {
+    if (['done', 'error'].includes(message.status) && message.type === 'agentResponse') {
       setIsAgentThinking(false);
       updateStorage({ isAgentThinking: false });
     }

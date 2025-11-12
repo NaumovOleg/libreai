@@ -1,5 +1,6 @@
 import { type CompiledStateGraph, END, START, StateGraph } from '@langchain/langgraph';
 import { Observer } from '@observer';
+import { AgentSession } from '@services';
 import { AgentMessagePayload, PlannerQuery, uuid } from '@utils';
 import * as vscode from 'vscode';
 
@@ -11,11 +12,14 @@ export class GraphWorkflow extends Flow {
   planner: Planner;
   editor: Editor;
   tools: ToolNode;
+  private session: AgentSession;
+  private abortController: AbortController | null = null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   agent: CompiledStateGraph<any, any, any, any>;
 
   constructor() {
     super();
+    this.session = AgentSession.getInstance();
     this.analizer = new Analizer();
     this.planner = new Planner();
     this.editor = new Editor();
@@ -71,24 +75,28 @@ export class GraphWorkflow extends Flow {
 
   async exec(ctx: PlannerQuery) {
     const observer = Observer.getInstance();
-
+    await this.session.reset();
+    this.abortController = new AbortController();
+    const resultEvent: AgentMessagePayload<'agentResponse'> = {
+      status: 'done',
+      id: uuid(),
+      args: {},
+      type: 'agentResponse',
+    };
     try {
-      const resultEvent: AgentMessagePayload<'agentResponse'> = {
-        status: 'done',
-        id: uuid(),
-        args: {},
-        type: 'agentResponse',
-      };
-      const state = await this.agent.invoke({
-        analizerMessages: [parseHumanMessage(ctx)],
-        plannerMessages: [parseHumanMessage(ctx)],
-        editorMessages: [],
-        instructions: [],
-        intructionIndex: 0,
-        analizerId: uuid(7),
-        plannerId: uuid(7),
-        ctx,
-      });
+      const state = await this.agent.invoke(
+        {
+          analizerMessages: [parseHumanMessage(ctx)],
+          plannerMessages: [parseHumanMessage(ctx)],
+          editorMessages: [],
+          instructions: [],
+          intructionIndex: 0,
+          analizerId: uuid(7),
+          plannerId: uuid(7),
+          ctx,
+        },
+        { signal: this.abortController?.signal, recursionLimit: 2000 },
+      );
 
       console.log('FINAL RESPONSE ', state);
 
@@ -105,6 +113,17 @@ export class GraphWorkflow extends Flow {
       } else {
         vscode.window.showErrorMessage(err.message);
       }
+      resultEvent.status = 'error';
+      resultEvent.error = err.message;
+      observer.emit('agent', resultEvent);
+    }
+  }
+
+  abort() {
+    if (this.abortController) {
+      this.abortController.abort();
+      const observer = Observer.getInstance();
+      observer.emit('abortAgentFlow');
     }
   }
 }

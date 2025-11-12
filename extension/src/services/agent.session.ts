@@ -37,7 +37,7 @@ export class AgentSession {
     const found = messages.find((el) => el.id === message.id);
     const newMessage = { ...found, ...message };
 
-    let data = found
+    const data = found
       ? messages.map((el) => (el.id === message.id ? newMessage : el))
       : messages.concat(newMessage);
 
