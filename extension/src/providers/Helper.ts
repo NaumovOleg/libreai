@@ -39,7 +39,7 @@ export class AssistantProvider {
       text: '',
       id: uuid(7),
     };
-
+    observer.emit(COMMANDS.chatStream, payload);
     for await (const chunk of generator) {
       payload.text += chunk;
       observer.emit(COMMANDS.chatStream, payload);

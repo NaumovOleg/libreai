@@ -23,7 +23,7 @@ const renderDivider = () => {
 };
 
 export const Chat = () => {
-  const { messages, isAgentThinking } = useChat();
+  const { messages, isAgentThinking, isStreaming } = useChat();
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -59,6 +59,7 @@ export const Chat = () => {
             </div>
           );
         })}
+        {isStreaming && <TypingDots />}
         {isAgentThinking && (
           <div className="agent-info-panel">
             <div className="agent-spinner">

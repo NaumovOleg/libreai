@@ -84,6 +84,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async useChat(message: ChatMessage) {
+    const observer = Observer.getInstance();
     try {
       const payload = {
         from: Author.chat,
@@ -97,7 +98,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         this.ctx.getContext(message.text, { contextLimit: 5 }),
         this.ctx.getFilesContent(message.files),
       ]);
-
+      observer.emit(COMMANDS.chatStream, payload);
       const chatGenerator = this.chat.chatStream({
         ...ctx,
         text: message.text,
@@ -107,10 +108,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
       for await (const chunk of chatGenerator) {
         payload.text += chunk;
-        this.web.webview.postMessage({ type: COMMANDS.chatStream, payload });
+        observer.emit(COMMANDS.chatStream, payload);
       }
 
-      this.web.webview.postMessage({ type: COMMANDS.chatStreamEnd });
+      observer.emit(COMMANDS.chatStreamEnd);
+
       await this.database.addChatHistoryItems([message, payload]);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {

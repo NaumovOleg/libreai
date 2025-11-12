@@ -127,7 +127,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
           updateLastMessage(prevMsg);
           return undefined;
         });
-        setIsStreaming(true);
+        setIsStreaming(false);
       }
       if (event.data.type === COMMANDS.agentResponse) {
         updateAgentMessages(event.data.payload as AgentMessage);
