@@ -1,11 +1,10 @@
+import { Assistant } from '@assistant';
 import { Observer } from '@observer';
 import { Editor } from '@services';
 import { Author, COMMANDS, getFileContent, getSelectionText, uuid } from '@utils';
 import * as vscode from 'vscode';
 
-import { Assistant } from '../graph';
-
-export class Helper {
+export class AssistantProvider {
   private assistant: Assistant;
 
   constructor() {

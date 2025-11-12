@@ -1,8 +1,7 @@
+import { Assistant } from '@assistant';
+import { Context } from '@services';
 import { Conf, stripCodeFences } from '@utils';
 import * as vscode from 'vscode';
-
-import { Assistant } from '../graph';
-import { Context } from '../services';
 
 export class InlineCompletionProvider implements vscode.InlineCompletionItemProvider {
   private debounceTimer: NodeJS.Timeout | null = null;

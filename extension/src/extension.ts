@@ -1,4 +1,4 @@
-import './graph';
+import './assistant';
 
 import { Db } from '@db';
 import { foldersPattern } from '@utils';
@@ -6,8 +6,8 @@ import micromatch from 'micromatch';
 import * as vscode from 'vscode';
 
 import {
+  AssistantProvider,
   ContextSelector,
-  Helper,
   Icons,
   InlineCompletionProvider,
   QuickFix,
@@ -26,7 +26,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const ctx = new Context(db);
 
   const completions = new InlineCompletionProvider(ctx);
-  const helperProvider = new Helper();
+  const assistantProvider = new AssistantProvider();
 
   const contextSelector = new ContextSelector();
 
@@ -64,21 +64,19 @@ export async function activate(context: vscode.ExtensionContext) {
         providedCodeActionKinds: QuickFix.providedCodeActionKinds,
       },
     ),
-    vscode.commands.registerCommand('robocode.openChat', () => {
-      vscode.commands.executeCommand('robocodeView.focus');
-    }),
-    vscode.commands.registerCommand(quiqFix.documentCodeCommand, (args) => {
-      helperProvider.callDocumentCode(args);
-    }),
+    vscode.commands.registerCommand('robocode.openChat', () =>
+      vscode.commands.executeCommand('robocodeView.focus'),
+    ),
+    vscode.commands.registerCommand(quiqFix.documentCodeCommand, (args) =>
+      assistantProvider.callDocumentCode(args),
+    ),
 
-    vscode.commands.registerCommand(quiqFix.explainCommand, (args) => {
-      helperProvider.callExplain(args);
-    }),
+    vscode.commands.registerCommand(quiqFix.explainCommand, (args) =>
+      assistantProvider.callExplain(args),
+    ),
   );
 
-  vscode.workspace.onDidChangeWorkspaceFolders(async () => {
-    indexer.onWorkspaceChange();
-  });
+  vscode.workspace.onDidChangeWorkspaceFolders(async () => indexer.onWorkspaceChange());
 
   vscode.workspace.onDidSaveTextDocument((ev) => {
     const filePath = ev.uri.fsPath;
@@ -89,9 +87,7 @@ export async function activate(context: vscode.ExtensionContext) {
       indexer.indexFile(ev.uri);
     }
   });
-  vscode.workspace.onDidDeleteFiles((ev) => {
-    indexer.deleteFiles(Array.from(ev.files));
-  });
+  vscode.workspace.onDidDeleteFiles((ev) => indexer.deleteFiles(Array.from(ev.files)));
 }
 
 export function deactivate() {}

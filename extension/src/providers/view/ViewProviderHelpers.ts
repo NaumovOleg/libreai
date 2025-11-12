@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { GraphWorkflow } from '@assistant';
 import { Observer } from '@observer';
 import { Context } from '@services';
 import { Author, ChatMessage, COMMANDS, Conf, CONFIG_PARAGRAPH } from '@utils';
 import * as vscode from 'vscode';
 
-import { GraphWorkflow } from '../../graph';
 import { ContextSelector } from '../ContextSelector';
 
 export async function selectContextFiles(

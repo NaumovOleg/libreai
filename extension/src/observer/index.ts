@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { uuid } from '@utils';
 import * as vscode from 'vscode';
 
-import { uuid } from '@utils';
 import {
   AgentMessage,
   ChatMessage,
@@ -32,13 +32,21 @@ export class Observer {
   }
 
   emit(event: 'agent', payload: AgentMessage): void;
+
   emit(event: 'indexing', payload: IndexingPayload): void;
+
   emit(event: 'abortAgentFlow'): void;
+
   emit(event: `interact-command-${string}`, payload: ExecCommandPayload): void;
+
   emit(event: COMMANDS.helperMessage, payload: ChatMessage): void;
+
   emit(event: COMMANDS.chatStream, payload: ChatMessage): void;
+
   emit(event: COMMANDS.restoreAgentSession): void;
+
   emit(event: COMMANDS.chatStreamEnd): void;
+
   emit(event: COMMANDS.onChangeWorkspace, payload: { [key: string]: IndexingPayload }): void;
 
   emit(event: any, payload?: any) {
@@ -76,7 +84,6 @@ export class Observer {
     const messages = agentSession.getMessages();
     this.web.webview.postMessage({ type: COMMANDS.restoreAgentSession, payload: messages });
   }
-
   indexing = (payload: IndexingPayload) => {
     this.web.webview.postMessage({ type: COMMANDS.indexing, payload });
   };
@@ -91,9 +98,11 @@ export class Observer {
   chatStreamEnd() {
     this.web.webview.postMessage({ type: COMMANDS.chatStreamEnd });
   }
+
   onChangeWorkspace(payload: { [key: string]: IndexingPayload }) {
     this.web.webview.postMessage({ type: COMMANDS.onChangeWorkspace, payload });
   }
+
   abortAgentFlow() {
     const agentSession = AgentSession.getInstance();
     const payload = agentSession.getMessages();

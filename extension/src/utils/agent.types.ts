@@ -44,20 +44,3 @@ export enum AGENT_TOOLS {
   planning = 'planning',
   semanticSearch = 'semanticSearch',
 }
-
-export type ToolCallbacks = {
-  [AGENT_TOOLS.editFile]: (
-    args: EditFileToolArgs,
-  ) => Promise<{ old: string; content: string; file: string } | null>;
-  [AGENT_TOOLS.command]: (args: CommandToolArgs) => Promise<string>;
-  [AGENT_TOOLS.renameFile]: (args: RenameFileToolArgs) => Promise<string | null>;
-  [AGENT_TOOLS.deleteFile]: (args: DeleteFileToolArgs) => Promise<string | null>;
-  [AGENT_TOOLS.createFile]: (args: CreateFileToolArgs) => Promise<string | null>;
-  [AGENT_TOOLS.readFile]: (args: string) => Promise<string>;
-  [AGENT_TOOLS.planning]: (args: string) => Promise<string>;
-  [AGENT_TOOLS.semanticSearch]: (
-    args: SemanticSearchToolArgs,
-  ) => Promise<
-    { path: string; text: string; startLine: number; endLine: number; workspace: string }[]
-  >;
-};

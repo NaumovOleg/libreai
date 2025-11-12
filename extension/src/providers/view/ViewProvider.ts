@@ -1,3 +1,4 @@
+import { Chat, GraphWorkflow } from '@assistant';
 import { Db } from '@db';
 import { Observer } from '@observer';
 import { Context, Indexer, showMemoryDiff } from '@services';
@@ -6,7 +7,6 @@ import fs from 'fs';
 import path from 'path';
 import * as vscode from 'vscode';
 
-import { Chat, GraphWorkflow } from '../../graph';
 import { ContextSelector } from '../ContextSelector';
 import { Icons } from '../Icons';
 import {

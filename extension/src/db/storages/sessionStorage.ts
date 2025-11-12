@@ -1,6 +1,5 @@
-import * as vscode from 'vscode';
-
 import { CHAT_HISTORY, CHAT_HISTORY_PROP, ChatMessage } from '@utils';
+import * as vscode from 'vscode';
 
 export class SessionStorage {
   private _chatHistory: CHAT_HISTORY;
