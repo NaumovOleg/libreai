@@ -4,7 +4,7 @@ import { CreateFileToolArgs } from '@utils';
 import { meta, schema } from './meta';
 import { processor } from './processor';
 export const create = tool<typeof schema, CreateFileToolArgs>(async (args) => {
-  console.log('-------------', meta.name, args);
+  console.log('TOOL----------->', meta.name, args);
   try {
     const response = await processor(args);
 

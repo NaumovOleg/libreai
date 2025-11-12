@@ -6,7 +6,7 @@ import { meta, schema } from './meta';
 import { processor } from './processor';
 
 export const edit = tool<typeof schema, EditFileToolArgs>(async (args, { toolCall }) => {
-  console.log('-------------', meta.name, args);
+  console.log('TOOL----------->', meta.name, args);
   try {
     const observer = Observer.getInstance();
 

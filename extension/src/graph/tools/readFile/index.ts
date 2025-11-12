@@ -3,7 +3,9 @@ import { ReadFileToolArgs } from '@utils';
 
 import { meta, schema } from './meta';
 import { processor } from './processor';
+
 export const read = tool<typeof schema, ReadFileToolArgs>(async (args, { toolCall }) => {
+  console.log('TOOL----------->', meta.name, args);
   try {
     const response = await processor(args.file);
 

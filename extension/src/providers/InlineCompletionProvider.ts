@@ -1,12 +1,12 @@
 import { Conf, stripCodeFences } from '@utils';
 import * as vscode from 'vscode';
 
-import { Autocomplete } from '../ai';
+import { Assistant } from '../graph';
 import { Context } from '../services';
 
 export class InlineCompletionProvider implements vscode.InlineCompletionItemProvider {
   private debounceTimer: NodeJS.Timeout | null = null;
-  private autocomplete = new Autocomplete();
+  private assistant = new Assistant();
   private lastRequest: {
     resolve: (list: vscode.InlineCompletionList) => void;
     document: vscode.TextDocument;
@@ -56,7 +56,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
         const after = this.getContextAfterCursor(document, position, 20);
 
         const language = this.ctx.language;
-        const suggestionText = await this.autocomplete.run({ language, before, after });
+        const suggestionText = await this.assistant.autocomplete({ language, before, after });
 
         const item = suggestionText
           ? new vscode.InlineCompletionItem(
@@ -83,7 +83,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
     const after = this.getContextAfterCursor(document, position, 10);
     const language = this.ctx.language;
 
-    const suggestionText = await this.autocomplete.run({ language, before, after });
+    const suggestionText = await this.assistant.autocomplete({ language, before, after });
 
     if (!suggestionText) {
       vscode.window.showInformationMessage('No AI suggestion available.');

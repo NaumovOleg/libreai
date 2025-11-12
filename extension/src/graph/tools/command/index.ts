@@ -5,7 +5,7 @@ import { CommandToolArgs, DECLINED_COMMAND_MESSAGE } from '@utils';
 import { meta, schema } from './meta';
 import { processor } from './processor';
 export const command = tool<typeof schema, string>(async (args: CommandToolArgs, { toolCall }) => {
-  console.log('-------------', meta.name, args);
+  console.log('TOOL----------->', meta.name, args);
 
   try {
     const isConfirmed = await waitForUserConfirmation(toolCall.id);

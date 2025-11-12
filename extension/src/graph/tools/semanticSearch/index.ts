@@ -4,8 +4,8 @@ import { parseEmbeddings, SemanticSearchToolArgs } from '@utils';
 import { meta, schema } from './meta';
 import { processor } from './processor';
 
-export const semantic = tool<typeof schema, SemanticSearchToolArgs>(async (args, tool) => {
-  console.log('-------------', meta.name, args, tool.toolCall);
+export const semantic = tool<typeof schema, SemanticSearchToolArgs>(async (args) => {
+  console.log('TOOL----------->', meta.name, args);
   try {
     const embeddings = await processor(args);
 

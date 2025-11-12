@@ -1,14 +1,15 @@
-import { HelperAi } from '@ai';
 import { Observer } from '@observer';
 import { Editor } from '@services';
 import { Author, COMMANDS, getFileContent, getSelectionText, uuid } from '@utils';
 import * as vscode from 'vscode';
 
+import { Assistant } from '../graph';
+
 export class Helper {
-  private helperAi: HelperAi;
+  private assistant: Assistant;
 
   constructor() {
-    this.helperAi = new HelperAi();
+    this.assistant = new Assistant();
   }
 
   public async callExplain(args: { uri: vscode.Uri; languageId: string }) {
@@ -26,7 +27,7 @@ export class Helper {
       id: uuid(7),
     });
 
-    const generator = this.helperAi.explain({
+    const generator = this.assistant.explain({
       language: args.languageId,
       content,
       selection,
@@ -57,7 +58,7 @@ export class Helper {
       return;
     }
 
-    const response = await this.helperAi.document(
+    const response = await this.assistant.document(
       {
         code: editor?.document.getText(editor.selection),
         language: data.language,

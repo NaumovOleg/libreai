@@ -1,4 +1,3 @@
-import { Chat } from '@ai';
 import { Db } from '@db';
 import { Observer } from '@observer';
 import { Context, Indexer, showMemoryDiff } from '@services';
@@ -7,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import * as vscode from 'vscode';
 
-import { GraphWorkflow } from '../../graph';
+import { Chat, GraphWorkflow } from '../../graph';
 import { ContextSelector } from '../ContextSelector';
 import { Icons } from '../Icons';
 import {
@@ -71,7 +70,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         )}`,
       )
       .replace(
-        /src=\"\/index\.js\"/,
+        /src="\/index\.js\"/,
         `src=${webviewView.webview.asWebviewUri(
           vscode.Uri.file(path.join(this.extensionUri.fsPath, this.mediaFolder, 'index.js')),
         )}`,
@@ -113,6 +112,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
       this.web.webview.postMessage({ type: COMMANDS.chatStreamEnd });
       await this.database.addChatHistoryItems([message, payload]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       vscode.window.showErrorMessage(err.message);
     }
@@ -143,7 +143,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       this.selectContextFiles();
     }
     if (message.command === COMMANDS.interactCommand) {
-      interactCommand(message.value as any);
+      interactCommand(message.value);
     }
 
     if (message.command === COMMANDS.abortAgentWorkflow) {

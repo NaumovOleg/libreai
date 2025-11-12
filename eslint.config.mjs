@@ -46,6 +46,7 @@ export default [
       'prettier/prettier': 'error',
       'brace-style': ['error', '1tbs', { allowSingleLine: true }],
       'no-duplicate-imports': 'error',
+      'no-useless-escape': 'off',
       'unused-imports/no-unused-imports': 'error',
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
