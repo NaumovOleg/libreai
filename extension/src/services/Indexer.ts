@@ -1,3 +1,4 @@
+import { Db } from '@db';
 import { Observer } from '@observer';
 import {
   batchArray,
@@ -9,8 +10,6 @@ import {
   WORKSPACE_INDEX_PREFIX,
 } from '@utils';
 import * as vscode from 'vscode';
-
-import { Db } from '@db';
 
 export class Indexer {
   private observer = Observer.getInstance();
@@ -55,7 +54,7 @@ export class Indexer {
   }
 
   async deleteFiles(uris: vscode.Uri[]) {
-    const workspaceMap = new Map<string, string[]>(); // workspacePath -> [fileUriStrings]
+    const workspaceMap = new Map<string, string[]>();
 
     for (const uri of uris) {
       const folder = vscode.workspace.getWorkspaceFolder(uri);
@@ -139,6 +138,7 @@ export class Indexer {
             await this.indexFile(uri, false);
           }),
         );
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.error(`❌ Failed to index batch starting with ${batch[0]?.fsPath}:`, err);
         this.observer.emit('indexing', {

@@ -123,7 +123,6 @@ export class Flow {
     }
 
     if (state.intructionIndex < state.instructions.length) {
-      console.log('========aaaaaaaa', state);
       return 'start_editor';
     }
 

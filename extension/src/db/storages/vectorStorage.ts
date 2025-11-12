@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import * as lancedb from '@lancedb/lancedb';
 import { Table } from '@lancedb/lancedb';
 import { getRegistry, LanceSchema, register } from '@lancedb/lancedb/embedding';
@@ -51,7 +50,7 @@ export class VectorStorage {
     });
     if (tables.includes(tableName)) {
       const existing = await this.db.openTable(tableName);
-      let existingSchema = await existing.schema();
+      const existingSchema = await existing.schema();
       const existedModel = existingSchema.fields.map((f) => f.name);
       const newSchema = schema.fields.map((f) => f.name);
 
@@ -98,9 +97,7 @@ export class VectorStorage {
       const wsChunks = workspaceGroups[workspace];
       const paths = wsChunks.map((c) => c.path);
       if (deleteFiles && paths.length > 0) {
-        await table.delete(
-          `path IN (${paths.map((fp) => `'${fp.replace(/'/g, "''")}'`).join(',')})`,
-        );
+        await this.deleteFiles(workspace, paths);
       }
       results.push(await table.add(wsChunks));
     }
@@ -110,7 +107,10 @@ export class VectorStorage {
   async deleteFiles(workspace: string, paths: string[]) {
     console.log('DELETE FILES ', workspace);
     const table = await this.getOrCreateTable(workspace);
-    return table.delete(`path IN (${paths.map((p) => `'${p.replace(/'/g, "''")}'`).join(',')})`);
+    const escaped = paths.map((p) => p.replace(/'/g, "''"));
+    const filter = escaped.map((p) => `(path = '${p}' OR starts_with(path, '${p}/'))`).join(' OR ');
+
+    return table.delete(filter);
   }
 
   async clearWorkspace(workspace: string) {
@@ -125,7 +125,7 @@ export class VectorStorage {
     let results: (FileChunk & { _distance: number })[] = [];
     for (const workspace of workspaces) {
       const table = await this.getOrCreateTable(workspace);
-      let query = table.search(queryEmbedding).limit(limit);
+      const query = table.search(queryEmbedding).limit(limit);
 
       const wsResults = await query.toArray();
       results = results.concat(wsResults as (FileChunk & { _distance: number })[]);

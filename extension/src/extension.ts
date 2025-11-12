@@ -87,6 +87,17 @@ export async function activate(context: vscode.ExtensionContext) {
       indexer.indexFile(ev.uri);
     }
   });
+  vscode.workspace.onDidRenameFiles((ev) => {
+    const remove: vscode.Uri[] = [];
+    const index: vscode.Uri[] = [];
+
+    ev.files.forEach(({ newUri, oldUri }) => {
+      remove.push(oldUri);
+      index.push(newUri);
+    });
+    indexer.deleteFiles(remove);
+    Promise.all(index.map((f) => indexer.indexFile(f)));
+  });
   vscode.workspace.onDidDeleteFiles((ev) => indexer.deleteFiles(Array.from(ev.files)));
 }
 
