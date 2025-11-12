@@ -61,7 +61,9 @@ export const FileActions: FC<Props> = ({ message }) => {
         {message.status === 'pending' && (
           <div className="pending item">
             <div className="line">{messages[message.type]}</div> {file}
-            <CircularProgress size={15} className="icon" />
+            <div className="progress">
+              <CircularProgress size={15} className="icon" />
+            </div>
           </div>
         )}
         {message.status === 'error' && (

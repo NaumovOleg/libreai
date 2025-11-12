@@ -9,6 +9,12 @@
         flex-direction: row;
         gap: 5px;
         word-break: break-all;
+        .progress {
+          overflow: hidden;
+          span {
+            color: var(--vscode-chat-linesAddedForeground);
+          }
+        }
         .icon {
           width: 15px;
           height: 15px;
