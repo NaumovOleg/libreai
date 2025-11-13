@@ -1,9 +1,13 @@
 /* eslint-disable max-len */
+import {
+  RecursiveCharacterTextSplitter,
+  SupportedTextSplitterLanguage,
+} from '@langchain/textsplitters';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { EXCLUDED_FOLDERS } from './constants';
-import { DbFile, FileChunk } from './types';
+import { EXCLUDED_FOLDERS, EXTENSION_TO_LANGUAGE } from './constants';
+import { FileChunk } from './types';
 
 export const uuid = (length: number = 4): string => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -256,122 +260,33 @@ export const raceAbortSignal = async <T extends (...args: any[]) => Promise<any>
   return Promise.race([fn(), abortPromise]) as Promise<Awaited<ReturnType<T>>>;
 };
 
-export function chunkCodeUniversal(
-  source: string,
-  uri: vscode.Uri,
-  maxLinesPerChunk?: number,
-): DbFile[] {
-  const ext = uri.fsPath.split('.').pop()?.toLowerCase() || '';
-  const lines = source.split('\n');
+export function detectLanguageByExtension(filePath: string): SupportedTextSplitterLanguage {
+  const ext = path.extname(filePath).toLowerCase();
 
-  const chunks: DbFile[] = [];
-
-  let buffer: string[] = [];
-  let startLine = 0;
-  let depth = 0;
-
-  const commitChunk = (endLine: number) => {
-    const text = buffer.join('\n').trim();
-    if (text) {
-      chunks.push({
-        text,
-        startLine,
-        endLine,
-        path: getRelativeToWorkspaceFilePath(uri),
-        id: uuid(12),
-        workspace: getFileWorkspaceUrl(uri),
-      });
-    }
-    buffer = [];
-  };
-
-  const isBoundaryKeyword = (line: string): boolean =>
-    /^\s*(export\s+)?(async\s+)?(function|class|def|struct|enum|interface|module|namespace)\b/.test(
-      line,
-    );
-
-  const isMarkupBoundary = (line: string): boolean =>
-    /<\s*\/?(div|section|article|table|script|style|head|body|html)\b/i.test(line);
-
-  const isStyleBoundary = (line: string): boolean =>
-    /^\s*[.#@]?[a-zA-Z0-9_-]+\s*\{/.test(line) || /^\s*\}/.test(line);
-
-  // улучшенная логика для JSON/YAML
-  const isDataBoundary = (line: string): boolean => {
-    // начало/конец объекта или массива
-    if (/^\s*[{\[]\s*$/.test(line) || /^\s*[}\]],?\s*$/.test(line)) return true;
-    // разделители между элементами верхнего уровня
-    if (/^\s*".+":\s*[{[]?\s*$/.test(line)) return true;
-    // YAML секции
-    if (/^-{3,}$/.test(line)) return true;
-    return false;
-  };
-
-  const isTextBoundary = (line: string): boolean =>
-    /^#+\s+/.test(line) || /^\s*```/.test(line) || /^={3,}$/.test(line);
-
-  if (!maxLinesPerChunk) {
-    maxLinesPerChunk = ['html', 'xml', 'css', 'json', 'yaml', 'yml', 'md', 'txt'].includes(ext)
-      ? 40
-      : 30;
-  }
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    buffer.push(line);
-
-    const openBraces = (line.match(/{/g) || []).length;
-    const closeBraces = (line.match(/}/g) || []).length;
-    depth += openBraces - closeBraces;
-
-    let isBoundary = false;
-
-    switch (ext) {
-      case 'html':
-      case 'xml':
-        isBoundary = isMarkupBoundary(line);
-        break;
-      case 'css':
-      case 'scss':
-      case 'less':
-        isBoundary = isStyleBoundary(line);
-        break;
-      case 'json':
-      case 'yaml':
-      case 'yml':
-        // в JSON нарезаем по ключам верхнего уровня
-        if (depth <= 1 && isDataBoundary(line)) {
-          isBoundary = true;
-        }
-        break;
-      case 'md':
-      case 'markdown':
-      case 'txt':
-        isBoundary = isTextBoundary(line);
-        break;
-      default:
-        if (depth === 0 && isBoundaryKeyword(line)) {
-          if (buffer.length > 1) {
-            buffer.pop();
-            commitChunk(i - 1);
-            buffer = [line];
-            startLine = i;
-            continue;
-          }
-        }
-        break;
-    }
-
-    const isGenericBoundary =
-      (depth === 0 && /^\s*$/.test(line) && buffer.length > 10) ||
-      (depth === 0 && buffer.length >= maxLinesPerChunk);
-
-    if ((isBoundary || isGenericBoundary) && buffer.length >= 3) {
-      commitChunk(i);
-      startLine = i + 1;
-    }
-  }
-
-  commitChunk(lines.length - 1);
-  return chunks;
+  return (EXTENSION_TO_LANGUAGE[ext] as SupportedTextSplitterLanguage) ?? 'markdown';
 }
+
+export const chunkFile = async (doc: string, uri: vscode.Uri) => {
+  const extension = detectLanguageByExtension(uri.fsPath);
+
+  const splitter = RecursiveCharacterTextSplitter.fromLanguage(extension, {
+    chunkSize: 300,
+    chunkOverlap: 20,
+  });
+  const texts = await splitter.createDocuments([doc]);
+
+  const chunks = texts.map((t) => {
+    return {
+      text: t.pageContent,
+      startLine: t.metadata.loc.lines.from,
+      endLine: t.metadata.loc.lines.to,
+      path: getRelativeToWorkspaceFilePath(uri),
+      id: uuid(12),
+      workspace: getFileWorkspaceUrl(uri),
+    };
+  });
+
+  return chunks;
+};
+
+console.log(RecursiveCharacterTextSplitter.fromLanguage('markdown'));

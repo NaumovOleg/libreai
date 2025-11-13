@@ -2,7 +2,7 @@ import { Db } from '@db';
 import { Observer } from '@observer';
 import {
   batchArray,
-  chunkCodeUniversal,
+  chunkFile,
   COMMANDS,
   filePattern,
   foldersPattern,
@@ -44,7 +44,7 @@ export class Indexer {
     const bytes = await vscode.workspace.fs.readFile(uri);
     const content = new TextDecoder().decode(bytes).slice(0);
 
-    return chunkCodeUniversal(content, uri);
+    return chunkFile(content, uri);
   }
 
   async indexFile(uri: vscode.Uri, deleteFiles = true) {

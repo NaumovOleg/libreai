@@ -771,6 +771,13 @@
     openai "^6.3.0"
     zod "^3.25.76 || ^4"
 
+"@langchain/textsplitters@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@langchain/textsplitters/-/textsplitters-1.0.0.tgz#1fe78562b9bf74b0a88f13d443cb3c79f4d28331"
+  integrity sha512-L1gOwOJXeM+6MKzrj9shSsDyH32j898jgqvVArOjdge2zLyY+Mv4aOuyAAxbPyaFdQXlxKfa9xjqIUyv8TzrqA==
+  dependencies:
+    js-tiktoken "^1.0.12"
+
 "@mui/core-downloads-tracker@^7.3.5":
   version "7.3.5"
   resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-7.3.5.tgz#2c7769498a287eb9456269571b328f807b69f731"

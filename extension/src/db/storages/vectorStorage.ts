@@ -99,7 +99,8 @@ export class VectorStorage {
       if (deleteFiles && paths.length > 0) {
         await this.deleteFiles(workspace, paths);
       }
-      results.push(await table.add(wsChunks));
+      const result = await table.add(wsChunks);
+      results.push(result);
     }
     return results;
   }
