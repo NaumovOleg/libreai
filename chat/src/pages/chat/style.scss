@@ -39,6 +39,19 @@
           gap: 3px;
           max-height: 40px;
           overflow-y: scroll;
+          .file-block {
+            width: 100%;
+            display: flex;
+            .delete-file-button {
+              color: var(--vscode-input-foreground);
+              padding: 0;
+              border: none;
+              svg {
+                width: 15px;
+                height: 15px;
+              }
+            }
+          }
         }
       }
 

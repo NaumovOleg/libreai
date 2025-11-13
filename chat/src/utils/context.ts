@@ -41,6 +41,7 @@ export type ChatContextType = {
   isAgentThinking: boolean;
   provider: Author;
   setProvider: (provider: Author) => void;
+  deleteFile: (path: string) => void;
   sendMessage: (message: Omit<ChatMessage, 'id' | 'session' | 'from' | 'time' | 'to'>) => void;
   clearSession: () => void;
 };

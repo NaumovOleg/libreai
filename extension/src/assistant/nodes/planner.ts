@@ -23,8 +23,6 @@ export class Planner {
         ...state.plannerMessages,
       ]);
 
-      console.log('PLANNER MESSAGE', message);
-
       return { ...state, response: message, plannerMessages: [...state.plannerMessages, message] };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {

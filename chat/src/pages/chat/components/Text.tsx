@@ -4,9 +4,11 @@ import { FileIcon } from '@elements';
 import { useChat } from '@hooks';
 import { vscode, COMMANDS } from '@utils';
 import { BottomNavigation } from './BottomNavigation';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
 
 export const TextArea = () => {
-  const { files, sendMessage } = useChat();
+  const { files, sendMessage, deleteFile } = useChat();
   const [text, setText] = useState<string>('');
   const onOpenContextSelect = () => {
     vscode.postMessage({ command: COMMANDS.selectContext });
@@ -20,7 +22,12 @@ export const TextArea = () => {
         </button>
         <div className="files">
           {files.map((el) => (
-            <FileIcon path={el.relative} />
+            <div className="file-block">
+              <FileIcon path={el.relative} />
+              <IconButton onClick={() => deleteFile(el.absolute)} className="delete-file-button">
+                <DeleteIcon />
+              </IconButton>
+            </div>
           ))}
         </div>
       </div>

@@ -116,7 +116,6 @@ export class Flow {
 
   async editorRouter(state: inferMessageState) {
     const lastMessage = state.editorMessages.at(-1);
-    console.log('EDITOR ROUTER ', state, AIMessage.isInstance(lastMessage));
 
     if (AIMessage.isInstance(lastMessage) && lastMessage?.tool_calls?.length) {
       return 'editor_tools';

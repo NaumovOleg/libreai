@@ -181,6 +181,10 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     updateStorage({ provider });
   };
 
+  const deleteFile = (path: string) => {
+    setFiles((prev) => prev.filter((f) => ![f.absolute, f.relative].includes(path)));
+  };
+
   const displayMessages = [...messages, ...(tmpMessage ? [tmpMessage] : [])];
   const value = {
     messages: displayMessages.slice(-MAX_MESSAGES),
@@ -192,6 +196,7 @@ export const ChatProvider: FC<{ children: ReactElement }> = ({ children }) => {
     provider,
     isAgentThinking,
     files,
+    deleteFile,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

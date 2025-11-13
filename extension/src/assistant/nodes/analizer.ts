@@ -22,8 +22,6 @@ export class Analizer {
       const data = [ANALYZER_SYSTEM_PROMPT, ...state.analizerMessages];
       const message = await this.model.invoke(data);
 
-      console.log('ANALIZER MESSAGE', message);
-
       return {
         ...state,
         response: message,
