@@ -1,7 +1,7 @@
 import './assistant';
 
 import { Db } from '@db';
-import { foldersPattern, getWorkspaceFileTree } from '@utils';
+import { foldersPattern } from '@utils';
 import micromatch from 'micromatch';
 import * as vscode from 'vscode';
 
@@ -19,8 +19,6 @@ export async function activate(context: vscode.ExtensionContext) {
   AgentSession.init(context);
   const db = Db.getInstance(context);
   const icons = new Icons();
-
-  console.log(await getWorkspaceFileTree());
 
   await Promise.all([icons.initIcons(), db.init()]);
 

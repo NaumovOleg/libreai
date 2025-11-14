@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AIMessage, BaseMessage, ToolMessage } from '@langchain/core/messages';
+import { AIMessage, BaseMessage, MessageStructure, ToolMessage } from '@langchain/core/messages';
 import { Observer } from '@observer';
 import {
   AgentMessagePayload,
@@ -44,22 +44,35 @@ export type ToolCall<T extends ToolTypeS = ToolTypeS> = {
 };
 
 export class ToolNode {
-  async analizer(state: z.infer<typeof MessagesState>) {
+  _cashedFiles = new Map<string, string>();
+
+  casheFiles(messages: ToolMessage<MessageStructure>[]) {
+    messages.forEach((m) => {
+      if (m.name === 'readFile' && m.status === 'success' && m.content) {
+        console.log(m.content, m.status, m.name);
+        this._cashedFiles.set(m.name, m.content as string);
+      }
+    });
+  }
+
+  async analizer(state: State) {
     const message = state.analizerMessages.at(-1);
     if (!message) {
       return { ...state, plannerMessages: [] };
     }
     const result = await this.runTools(message);
+    this.casheFiles(result);
+    console.log('RESULT---------', result);
     return { ...state, analizerMessages: [...state.analizerMessages, ...result] };
   }
 
-  async planner(state: z.infer<typeof MessagesState>) {
+  async planner(state: State) {
     const message = state.plannerMessages.at(-1);
     if (!message) {
       return { ...state, plannerMessages: [] };
     }
-    const result = await this.runTools(message, 'planner');
-
+    const result = await this.runTools(message);
+    this.casheFiles(result);
     return { ...state, plannerMessages: [...state.plannerMessages, ...result] };
   }
 
@@ -68,8 +81,9 @@ export class ToolNode {
     if (!message) {
       return { ...state, editorMessages: [] };
     }
-    const result = await this.runTools(message, 'editor');
 
+    const result = await this.runTools(message);
+    this.casheFiles(result);
     return { ...state, editorMessages: [...state.editorMessages, ...result] };
   }
 
@@ -79,6 +93,24 @@ export class ToolNode {
       return [];
     }
     for (const toolCall of message.tool_calls ?? []) {
+      if (toolCall.name === 'readFile' && this._cashedFiles.has(toolCall.args.file)) {
+        console.log('=========================', toolCall, {
+          content: this._cashedFiles.get(toolCall.args.file),
+          name: toolCall.name,
+          tool_call_id: toolCall.id!,
+        });
+        result.push(
+          new ToolMessage({
+            content: this._cashedFiles.get(toolCall.args.file),
+            name: toolCall.name,
+            tool_call_id: toolCall.id!,
+          }),
+        );
+        continue;
+      }
+      if (toolCall.name === 'editFile') {
+        this._cashedFiles.delete(toolCall.args.file);
+      }
       const name = toolCall.name as ToolName;
 
       const tool: any = TOOLS[name];
@@ -86,6 +118,7 @@ export class ToolNode {
 
       await this.emit('pre', toolCall as ToolCall);
       const observation = await tool.invoke(toolCall);
+
       await this.emit('post', toolCall as ToolCall, observation);
       result.push(observation);
     }
