@@ -40,6 +40,7 @@ export const MessagesState = z.object({
   intructionIndex: z.number().default(0),
   analizerId: z.string(),
   plannerId: z.string(),
+  finalEventId: z.string(),
   ctx: CtxSchema,
 });
 

@@ -77,9 +77,10 @@ export class GraphWorkflow extends Flow {
     const observer = Observer.getInstance();
     await this.session.reset();
     this.abortController = new AbortController();
+    const finshId = uuid();
     const resultEvent: AgentMessagePayload<'agentResponse'> = {
       status: 'done',
-      id: uuid(),
+      id: finshId,
       args: {},
       type: 'agentResponse',
     };
@@ -94,6 +95,7 @@ export class GraphWorkflow extends Flow {
           analizerId: uuid(7),
           plannerId: uuid(7),
           ctx,
+          finalEventId: finshId,
         },
         { signal: this.abortController?.signal, recursionLimit: 2000 },
       );
