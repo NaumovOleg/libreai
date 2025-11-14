@@ -75,7 +75,7 @@ async function collectEntries(
 
     if (type === vscode.FileType.Directory) {
       const subDirHasFiles = await collectEntries(entryUri, rootPath, tree);
-      if (!subDirHasFiles) {
+      if (!subDirHasFiles || !hasFiles) {
         tree.push(relativePath + '/');
       }
       hasFiles = hasFiles || subDirHasFiles;

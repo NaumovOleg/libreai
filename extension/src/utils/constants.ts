@@ -1,5 +1,7 @@
 /* eslint-disable max-len */
-export const filePattern = '**/*.{ts,tsx,js,jsx,py,md,json,html,scss,css,cpp}';
+import { SupportedTextSplitterLanguage } from '@langchain/textsplitters';
+export const filePattern =
+  '**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,py,pyw,pyi,rpy,pyx,pyd,md,markdown,mdown,mkd,mkdn,json,html,htm,xhtml,shtml,scss,css,cpp,cc,cxx,hpp,hh,hxx,h,ino,go,java,php,phtml,php3,php4,php5,phps,proto,rst,rb,erb,gemspec,rake,rs,scala,sc,swift,tex,ltx,sty,cls,sol}';
 export const foldersPattern = `{**/node_modules/**,**/dist/**,**/build/**,**/out/**,**/.vscode/**,**/.idea/**,**/.vs/**,**/.venv/**,**/venv/**,**/env/**,**/__pycache__/**,**/target/**,**/bin/**,**/obj/**,**/coverage/**,**/.nyc_output/**,**/.next/**,**/.nuxt/**,**/.svelte-kit/**,**/.expo/**,**/.gradle/**,**/.git/**,**/.hg/**,**/.svn/**,**/.cache/**,**/.parcel-cache/**,**/.tmp/**,**/tmp/**,**/logs/**,**/package-lock.json,**/yarn.lock,**/pnpm-lock.yaml,**/README.md,**/LICENSE,**/CHANGELOG.md,**/workspace.json,**/settings.json,**/.DS_Store,**/.env,**/.env.*,**/LICENSE.md,**/cdk.out}`;
 
 export const EXCLUDED_FOLDERS = [
@@ -60,7 +62,7 @@ export const EXCLUDED_FOLDERS = [
 
 export const DECLINED_COMMAND_MESSAGE = 'Declined by user';
 
-export const EXTENSION_TO_LANGUAGE: Record<string, string> = {
+export const EXTENSION_TO_LANGUAGE: Record<string, SupportedTextSplitterLanguage | 'ts'> = {
   // HTML
   html: 'html',
   htm: 'html',

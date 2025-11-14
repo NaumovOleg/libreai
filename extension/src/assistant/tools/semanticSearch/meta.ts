@@ -1,13 +1,13 @@
-import { z } from 'zod';
-
+/* eslint-disable max-len */
 import { AGENT_TOOLS } from '@utils';
+import { z } from 'zod';
 
 export const schema = z.object({
   search: z.string().describe('A short semantic search to vector storage. '),
   limit: z
     .number()
     .optional()
-    .default(5)
+    .default(10)
     .describe('Maximum number of nearest neighbor vectors to retrieve from the embedding index.'),
 });
 
