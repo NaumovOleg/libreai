@@ -6,6 +6,8 @@ import {
   COMMANDS,
   filePattern,
   foldersPattern,
+  getFileWorkspaceUrl,
+  getRelativeToWorkspaceFilePath,
   IndexingPayload,
   WORKSPACE_INDEX_PREFIX,
 } from '@utils';
@@ -205,5 +207,20 @@ export class Indexer {
       },
       {} as { [key: string]: IndexingPayload },
     );
+  }
+
+  async renameFile(newUri: vscode.Uri, oldUri: vscode.Uri) {
+    const oldWorkspace = getFileWorkspaceUrl(oldUri);
+    const newWorkspace = getFileWorkspaceUrl(newUri);
+
+    if (oldWorkspace === newWorkspace) {
+      return this.database.renameFile(
+        oldWorkspace,
+        getRelativeToWorkspaceFilePath(oldUri),
+        getRelativeToWorkspaceFilePath(newUri),
+      );
+    }
+
+    return Promise.all([this.deleteFiles([oldUri]), this.indexFile(newUri)]);
   }
 }

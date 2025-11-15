@@ -58,4 +58,8 @@ export class Db {
   clearHistory() {
     return this.sessionStorage.clear();
   }
+
+  renameFile(workspace: string, oldPath: string, newPath: string) {
+    return this.vectorStorage.renameFile(workspace, oldPath, newPath);
+  }
 }
