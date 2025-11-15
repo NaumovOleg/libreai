@@ -4,11 +4,13 @@ import Typography from '@mui/material/Typography';
 import { AgentMessagePayload } from '@utils';
 import CircularProgress from '@mui/material/CircularProgress';
 import { FaCheck } from 'react-icons/fa';
+import { FcCancel } from 'react-icons/fc';
+
 type Props = {
-  message: AgentMessagePayload<'analizing'>;
+  message: AgentMessagePayload<'analizing' | 'executing' | 'planning'>;
 };
 
-export const Analizing: FC<Props> = ({ message }) => {
+export const StepInfo: FC<Props> = ({ message }) => {
   return (
     <div>
       <div className="analizing container">
@@ -26,7 +28,10 @@ export const Analizing: FC<Props> = ({ message }) => {
         )}
         {message.status === 'error' && (
           <div className="error item">
-            {message.args}
+            <div className="error-line">
+              {message.args} <FcCancel className="icon" />
+            </div>
+
             <Typography color="error"> {message.error}</Typography>
           </div>
         )}

@@ -6,6 +6,7 @@ import { MessagesZodMeta } from '@langchain/langgraph';
 import { registry } from '@langchain/langgraph/zod';
 import { ChatOllama } from '@langchain/ollama';
 import { ChatOpenAI } from '@langchain/openai';
+import { Observer } from '@observer';
 import { PlannerQuery } from '@utils';
 import { z } from 'zod';
 
@@ -40,6 +41,7 @@ export const MessagesState = z.object({
   intructionIndex: z.number().default(0),
   analizerId: z.string(),
   plannerId: z.string(),
+  editorId: z.string(),
   finalEventId: z.string(),
   ctx: CtxSchema,
 });
@@ -76,4 +78,46 @@ export const makeEditorMessage = (state: z.infer<typeof MessagesState>) => {
   };
 
   return new HumanMessage(JSON.stringify(data, null, 1));
+};
+
+export type State = z.infer<typeof MessagesState>;
+
+export const emitErorr = (
+  state: State,
+  meta: { error: string; type: 'analizer' | 'planner' | 'editor' },
+) => {
+  const { error, type } = meta;
+  const observer = Observer.getInstance();
+
+  const ev = { status: 'error', error };
+  const eventData = { ...ev };
+  if (type === 'analizer') {
+    Object.assign(eventData, {
+      args: 'Analizing',
+      type: 'analizing',
+      id: state.analizerId,
+    });
+  }
+  if (type === 'planner') {
+    Object.assign(eventData, {
+      args: 'Planning',
+      type: 'planning',
+      id: state.plannerId,
+    });
+  }
+  if (type === 'editor') {
+    Object.assign(eventData, {
+      args: 'Executing',
+      type: 'executing',
+      id: state.editorId,
+    });
+  }
+
+  observer.emit('agent', eventData as any);
+  observer.emit('agent', {
+    ...eval,
+    id: state.finalEventId,
+    type: 'agentResponse',
+    args: {},
+  } as any);
 };

@@ -125,6 +125,7 @@ export type ObserverEditorEventArgs = {
   command: { command: string; state?: 'confirmed' | 'declined'; result?: string };
   planning: string;
   analizing: string;
+  executing: string;
   agentResponse: { content?: string };
 };
 
@@ -146,7 +147,8 @@ export type AgentMessage =
   | AgentMessagePayload<'command'>
   | AgentMessagePayload<'readFile'>
   | AgentMessagePayload<'agentResponse'>
-  | AgentMessagePayload<'analizing'>;
+  | AgentMessagePayload<'analizing'>
+  | AgentMessagePayload<'executing'>;
 
 export type ObserverEditorHandler<E extends keyof ObserverEditorEventArgs> = (
   payload: AgentMessagePayload<E>,

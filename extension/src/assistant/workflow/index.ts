@@ -94,6 +94,7 @@ export class GraphWorkflow extends Flow {
           intructionIndex: 0,
           analizerId: uuid(7),
           plannerId: uuid(7),
+          editorId: uuid(7),
           ctx,
           finalEventId: finshId,
         },

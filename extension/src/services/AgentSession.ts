@@ -34,6 +34,7 @@ export class AgentSession {
   async saveMessage(message: AgentMessage) {
     message.session = this._session;
     const messages = this.getMessages();
+
     const found = messages.find((el) => el.id === message.id);
     const newMessage = { ...found, ...message };
 

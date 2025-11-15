@@ -1,16 +1,15 @@
 import { Runnable } from '@langchain/core/runnables';
 import { Observer } from '@observer';
-import { AgentMessagePayload } from '@utils';
-import * as vscode from 'vscode';
 import * as z from 'zod';
 
-import { MessagesState } from '../helper';
+import { emitErorr, MessagesState } from '../helper';
 import { LLMFactory } from '../LLMFactroy';
 import { ANALYZER_SYSTEM_PROMPT } from '../prompts';
 import { read, semantic } from '../tools';
 
 export class Analizer {
   model: Runnable;
+  observer = Observer.getInstance();
 
   constructor() {
     const model = new LLMFactory().agent;
@@ -29,18 +28,8 @@ export class Analizer {
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      const observer = Observer.getInstance();
-
-      const event: AgentMessagePayload<'analizing'> = {
-        id: state.analizerId,
-        status: 'error',
-        args: 'Analizing',
-        type: 'analizing',
-        error: err.message,
-      };
-      event.error = err.message;
-      vscode.window.showErrorMessage(err.message);
-      observer.emit('agent', event);
+      emitErorr(state, { error: err.name, type: 'analizer' });
+      throw new Error(err);
     }
   }
 }

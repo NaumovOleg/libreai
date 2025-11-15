@@ -1,62 +1,51 @@
 import { AIMessage } from '@langchain/core/messages';
 import { END } from '@langchain/langgraph';
 import { Observer } from '@observer';
-import { AgentMessagePayload } from '@utils';
 import * as z from 'zod';
 
 import { makeEditorMessage, MessagesState, parseHumanMessage } from '../helper';
 type inferMessageState = z.infer<typeof MessagesState>;
 
 export class Flow {
-  startAnalizer(state: inferMessageState) {
-    const observer = Observer.getInstance();
+  observer = Observer.getInstance();
 
-    const event: AgentMessagePayload<'analizing'> = {
+  startAnalizer(state: inferMessageState) {
+    this.observer.emit('agent', {
       id: state.analizerId,
       status: 'pending',
       args: 'Analizing',
       type: 'analizing',
-    };
-    observer.emit('agent', event);
+    });
     return state;
   }
 
   endAnalizer(state: inferMessageState) {
-    const observer = Observer.getInstance();
-
-    const event: AgentMessagePayload<'analizing'> = {
+    this.observer.emit('agent', {
       id: state.analizerId,
       status: 'done',
       args: 'Analizing',
       type: 'analizing',
-    };
-    observer.emit('agent', event);
+    });
     return state;
   }
 
   startPlanner(state: inferMessageState) {
-    const observer = Observer.getInstance();
-
-    const event: AgentMessagePayload<'planning'> = {
+    this.observer.emit('agent', {
       id: state.plannerId,
       status: 'pending',
       args: 'Planning',
       type: 'planning',
-    };
-    observer.emit('agent', event);
+    });
     return state;
   }
 
   endPlanner(state: inferMessageState) {
-    const observer = Observer.getInstance();
-
-    const event: AgentMessagePayload<'planning'> = {
+    this.observer.emit('agent', {
       id: state.plannerId,
       status: 'done',
       args: 'Planning',
       type: 'planning',
-    };
-    observer.emit('agent', event);
+    });
     return state;
   }
 
@@ -79,6 +68,12 @@ export class Flow {
 
   startEditor(state: inferMessageState) {
     try {
+      this.observer.emit('agent', {
+        id: state.editorId,
+        status: 'pending',
+        args: 'Executing',
+        type: 'executing',
+      });
       if (!state.instructions.length) {
         const lastMessage = state.plannerMessages.at(-1);
 
@@ -125,6 +120,12 @@ export class Flow {
       return 'start_editor';
     }
 
+    this.observer.emit('agent', {
+      id: state.editorId,
+      status: 'done',
+      args: 'Executing',
+      type: 'executing',
+    });
     return END;
   }
 }

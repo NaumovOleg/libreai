@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { uuid } from '@utils';
-import * as vscode from 'vscode';
-
+import { AgentSession } from '@services';
 import {
   AgentMessage,
   ChatMessage,
   COMMANDS,
   ExecCommandPayload,
   IndexingPayload,
-} from '../../../global.types';
-import { AgentSession } from './../services/agent.session';
+  uuid,
+} from '@utils';
+import * as vscode from 'vscode';
+
 import { PubSub } from './observer';
 
 export class Observer {

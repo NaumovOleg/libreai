@@ -9,9 +9,8 @@ import {
   ReadFileToolArgs,
   RenameFileToolArgs,
 } from '@utils';
-import * as z from 'zod';
 
-import { MessagesState } from '../helper';
+import { emitErorr, State } from '../helper';
 import { command, create, edit, read, remove, rename, semantic } from '../tools';
 
 const TOOLS = {
@@ -24,7 +23,6 @@ const TOOLS = {
   semanticSearch: semantic,
 };
 
-type State = z.infer<typeof MessagesState>;
 type ToolName = keyof typeof TOOLS;
 
 type ToolCallMap = {
@@ -56,13 +54,8 @@ export class ToolNode {
       const result = await this.runTools(message);
       return { ...state, analizerMessages: [...state.analizerMessages, ...result] };
     } catch (err: any) {
-      this.observer.emit('agent', {
-        status: 'error',
-        id: state.finalEventId,
-        args: {},
-        type: 'agentResponse',
-        error: err.message,
-      });
+      emitErorr(state, { error: err.message, type: 'analizer' });
+
       throw new Error(err);
     }
   }
@@ -76,13 +69,7 @@ export class ToolNode {
       const result = await this.runTools(message);
       return { ...state, plannerMessages: [...state.plannerMessages, ...result] };
     } catch (err: any) {
-      this.observer.emit('agent', {
-        status: 'error',
-        id: state.finalEventId,
-        args: {},
-        type: 'agentResponse',
-        error: err.message,
-      });
+      emitErorr(state, { error: err.name, type: 'planner' });
       throw new Error(err);
     }
   }
@@ -97,13 +84,7 @@ export class ToolNode {
       const result = await this.runTools(message);
       return { ...state, editorMessages: [...state.editorMessages, ...result] };
     } catch (err: any) {
-      this.observer.emit('agent', {
-        status: 'error',
-        id: state.finalEventId,
-        args: {},
-        type: 'agentResponse',
-        error: err.message,
-      });
+      emitErorr(state, { error: err.name, type: 'editor' });
       throw new Error(err);
     }
   }
