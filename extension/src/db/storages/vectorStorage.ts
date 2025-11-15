@@ -141,12 +141,6 @@ export class VectorStorage {
 
     const escape = (str: string) => str.replace(/'/g, "''");
     const where = `path = '${escape(oldPath)}'`;
-    console.log({
-      where: { where, valuesSql: { path: escape(newPath) } },
-      workspace,
-      oldPath,
-      newPath,
-    });
 
     return table.update({ where, values: { path: escape(newPath) } });
   }

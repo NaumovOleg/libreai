@@ -85,9 +85,7 @@ export class Flow {
       state.intructionIndex = state.intructionIndex + 1;
 
       return state;
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
+    } catch (_err) {
       return state;
     }
   }
@@ -103,8 +101,7 @@ export class Flow {
       JSON.parse(lastMessage?.content as string);
 
       return 'end_planner';
-    } catch (err) {
-      console.log(err);
+    } catch (_err) {
       return 'finish_planner';
     }
   }
