@@ -1,7 +1,7 @@
 import './assistant';
 
 import { Db } from '@db';
-import { foldersPattern } from '@utils';
+import { filePattern, foldersPattern } from '@utils';
 import micromatch from 'micromatch';
 import * as vscode from 'vscode';
 
@@ -14,7 +14,7 @@ import {
   ViewProvider,
 } from './providers';
 import { AgentSession, Context, Indexer } from './services';
-
+const timersMap = new Map<string, NodeJS.Timeout | undefined>();
 export async function activate(context: vscode.ExtensionContext) {
   AgentSession.init(context);
   const db = Db.getInstance(context);
@@ -50,11 +50,27 @@ export async function activate(context: vscode.ExtensionContext) {
     completions.triggerAutocomplete(),
   );
 
+  const disposableChangeFile = vscode.workspace.onDidChangeTextDocument((ev) => {
+    const filePath = ev.document.uri.fsPath;
+    const timeout = timersMap.get(filePath);
+    const folderMatch = micromatch.isMatch(filePath, foldersPattern, { dot: true });
+    const fileMatch = micromatch.isMatch(filePath, filePattern, { dot: true });
+
+    if (!fileMatch || folderMatch) return;
+    if (timeout) clearTimeout(timeout);
+
+    const timer = setTimeout(() => {
+      indexer.indexFile(ev.document.uri);
+    }, 2000);
+    timersMap.set(filePath, timer);
+  });
+
   context.subscriptions.push(
     chatView,
     inlineProvider,
     contextSelector.subscription,
     triggerAutocomplete,
+    disposableChangeFile,
 
     vscode.languages.registerCodeActionsProvider(
       { pattern: '**' },
@@ -74,15 +90,15 @@ export async function activate(context: vscode.ExtensionContext) {
 
   vscode.workspace.onDidChangeWorkspaceFolders(async () => indexer.onWorkspaceChange());
 
-  vscode.workspace.onDidSaveTextDocument(async (ev) => {
-    const filePath = ev.uri.fsPath;
+  // vscode.workspace.onDidSaveTextDocument(async (ev) => {
+  //   const filePath = ev.uri.fsPath;
 
-    const isExcluded = micromatch.isMatch(filePath, foldersPattern, { dot: true });
+  //   const isExcluded = micromatch.isMatch(filePath, foldersPattern, { dot: true });
 
-    if (!isExcluded) {
-      await indexer.indexFile(ev.uri);
-    }
-  });
+  //   if (!isExcluded) {
+  //     await indexer.indexFile(ev.uri);
+  //   }
+  // });
   vscode.workspace.onDidRenameFiles(async (ev) => {
     await Promise.all(ev.files.map(({ newUri, oldUri }) => indexer.renameFile(newUri, oldUri)));
   });

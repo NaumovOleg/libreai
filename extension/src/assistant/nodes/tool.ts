@@ -96,6 +96,10 @@ export class ToolNode {
     }
 
     for (const toolCall of message.tool_calls ?? []) {
+      const name = toolCall.name as ToolName;
+
+      const tool: any = TOOLS[name];
+      if (!tool) continue;
       if (toolCall.name === 'readFile' && this._cashedFiles.has(toolCall.args.file)) {
         result.push(
           new ToolMessage({
@@ -109,10 +113,6 @@ export class ToolNode {
       if (toolCall.name === 'editFile') {
         this._cashedFiles.delete(toolCall.args.file);
       }
-      const name = toolCall.name as ToolName;
-
-      const tool: any = TOOLS[name];
-      if (!tool) continue;
 
       await this.emit('pre', toolCall as ToolCall);
       const observation = await tool.invoke(toolCall);

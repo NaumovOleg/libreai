@@ -58,6 +58,7 @@ export const EXCLUDED_FOLDERS = [
   '**/.env.*',
   '**/LICENSE.md',
   '**/cdk.out',
+  'git',
 ];
 
 export const DECLINED_COMMAND_MESSAGE = 'Declined by user';
