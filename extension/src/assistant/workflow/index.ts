@@ -75,7 +75,7 @@ export class GraphWorkflow extends Flow {
 
   async exec(ctx: PlannerQuery) {
     const observer = Observer.getInstance();
-    await this.session.reset();
+    this.session.reset();
     this.abortController = new AbortController();
     const finshId = uuid();
     const resultEvent: AgentMessagePayload<'agentResponse'> = {

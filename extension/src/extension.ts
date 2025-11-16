@@ -52,7 +52,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     chatView,
-
     inlineProvider,
     contextSelector.subscription,
     triggerAutocomplete,
@@ -60,9 +59,7 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerCodeActionsProvider(
       { pattern: '**' },
       quiqFix as vscode.CodeActionProvider,
-      {
-        providedCodeActionKinds: QuickFix.providedCodeActionKinds,
-      },
+      { providedCodeActionKinds: QuickFix.providedCodeActionKinds },
     ),
     vscode.commands.registerCommand('robocode.openChat', () =>
       vscode.commands.executeCommand('robocodeView.focus'),
@@ -70,7 +67,6 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(quiqFix.documentCodeCommand, (args) =>
       assistantProvider.callDocumentCode(args),
     ),
-
     vscode.commands.registerCommand(quiqFix.explainCommand, (args) =>
       assistantProvider.callExplain(args),
     ),
@@ -78,19 +74,19 @@ export async function activate(context: vscode.ExtensionContext) {
 
   vscode.workspace.onDidChangeWorkspaceFolders(async () => indexer.onWorkspaceChange());
 
-  vscode.workspace.onDidSaveTextDocument((ev) => {
+  vscode.workspace.onDidSaveTextDocument(async (ev) => {
     const filePath = ev.uri.fsPath;
 
     const isExcluded = micromatch.isMatch(filePath, foldersPattern, { dot: true });
 
     if (!isExcluded) {
-      indexer.indexFile(ev.uri);
+      await indexer.indexFile(ev.uri);
     }
   });
-  vscode.workspace.onDidRenameFiles((ev) => {
-    Promise.all(ev.files.map(({ newUri, oldUri }) => indexer.renameFile(newUri, oldUri)));
+  vscode.workspace.onDidRenameFiles(async (ev) => {
+    await Promise.all(ev.files.map(({ newUri, oldUri }) => indexer.renameFile(newUri, oldUri)));
   });
-  vscode.workspace.onDidDeleteFiles((ev) => indexer.deleteFiles(Array.from(ev.files)));
+  vscode.workspace.onDidDeleteFiles(async (ev) => await indexer.deleteFiles(Array.from(ev.files)));
 }
 
 export function deactivate() {}

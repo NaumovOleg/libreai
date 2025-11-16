@@ -5,6 +5,7 @@ export class AgentSession {
   private static _instance: AgentSession;
   private _session: string;
   private context: vscode.ExtensionContext;
+  private storageKey = 'agentSession.messages';
 
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
@@ -27,8 +28,8 @@ export class AgentSession {
   }
 
   reset() {
+    this.context.globalState.update(this.storageKey, undefined);
     this._session = uuid(7);
-    return this.context.globalState.update(this._getSessionKey(), []);
   }
 
   async saveMessage(message: AgentMessage) {
@@ -42,18 +43,12 @@ export class AgentSession {
       ? messages.map((el) => (el.id === message.id ? newMessage : el))
       : messages.concat(newMessage);
 
-    await this.context.globalState.update(this._getSessionKey(), data);
+    await this.context.globalState.update(this.storageKey, data);
 
     return data;
   }
 
   getMessages() {
-    const key = this._getSessionKey();
-
-    return this.context.globalState.get<AgentMessage[]>(key, []);
-  }
-
-  private _getSessionKey(): string {
-    return `agentSession.messages.${this._session}`;
+    return this.context.globalState.get<AgentMessage[]>(this.storageKey, []);
   }
 }
