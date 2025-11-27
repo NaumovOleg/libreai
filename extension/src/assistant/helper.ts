@@ -75,6 +75,7 @@ export const makeEditorMessage = (state: z.infer<typeof MessagesState>) => {
     instruction: state.instructions[state.intructionIndex],
     fileTree: state.ctx.fileTree,
     files: state.ctx.files,
+    originalUserRequest: state.ctx.request,
   };
 
   return new HumanMessage(JSON.stringify(data, null, 1));

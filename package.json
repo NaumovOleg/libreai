@@ -4,7 +4,7 @@
   "displayName": "AI Copilot + Chat",
   "publisher": "olgert",
   "description": "Code copilot",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "main": "./out/extension.js",
   "engines": {
     "vscode": "^1.85.0"

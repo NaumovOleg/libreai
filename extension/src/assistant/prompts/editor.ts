@@ -17,12 +17,14 @@ You will receive tasks in format:
 {
   "instruction": { "task": "description of task", "file": "path/to/file" },
   "fileTree": [ "path/to/file", "path/to/file" ],
-  "files": [{ "file": "path/to/file", "content": "file content"}]
+  "files": [{ "file": "path/to/file", "content": "file content"}],
+  "originalUserRequest": "...",
 }
 or
 {
   "instruction": { "command": "..." },
-  "fileTree": [ "path/to/file", "path/to/file" ]
+  "fileTree": [ "path/to/file", "path/to/file" ],
+  "originalUserRequest": "...",
 }
 
 ---
