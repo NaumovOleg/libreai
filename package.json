@@ -4,7 +4,7 @@
   "displayName": "AI Copilot + Chat",
   "publisher": "olgert",
   "description": "Code copilot",
-  "version": "2.1.4",
+  "version": "2.1.6",
   "main": "./out/extension.js",
   "engines": {
     "vscode": "^1.85.0"
@@ -81,6 +81,7 @@
       "properties": {
         "chatConfig.provider": {
           "type": "string",
+          "default": "openai",
           "description": "The provider to use for chat functionality (e.g., OpenAI, HuggingFace, etc.)"
         },
         "chatConfig.model": {
@@ -105,6 +106,7 @@
         },
         "autoCompleteConfig.provider": {
           "type": "string",
+          "default": "openai",
           "description": "The provider for code autocompletion features."
         },
         "autoCompleteConfig.model": {
@@ -134,6 +136,7 @@
         },
         "agentConfig.provider": {
           "type": "string",
+          "default": "openai",
           "description": "The provider for the code agent feature."
         },
         "agentConfig.model": {

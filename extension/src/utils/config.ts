@@ -5,6 +5,7 @@ import { AiConfigT, CONFIG_PARAGRAPH, MESSAGE } from './types';
 const DEFAULT_AI_CONFIG = {
   maxTokens: 512,
   temperature: 0.2,
+  provider: 'openai',
 };
 
 class Configuration {
