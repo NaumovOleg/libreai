@@ -30,16 +30,15 @@ export const InstructionsSchema = z.array(
 );
 
 export const MessagesState = z.object({
-  analizerMessages: z.array(z.custom<BaseMessage>()).register(registry, MessagesZodMeta as any),
-  plannerMessages: z.array(z.custom<BaseMessage>()).register(registry, MessagesZodMeta as any),
   editorMessages: z.array(z.custom<BaseMessage>()).register(registry, MessagesZodMeta as any),
+  plannerMessages: z.array(z.custom<BaseMessage>()).register(registry, MessagesZodMeta as any),
   response: z
     .custom<BaseMessage>()
     .optional()
     .register(registry, MessagesZodMeta as any),
   instructions: InstructionsSchema,
   intructionIndex: z.number().default(0),
-  analizerId: z.string(),
+
   plannerId: z.string(),
   editorId: z.string(),
   finalEventId: z.string(),
@@ -83,22 +82,13 @@ export const makeEditorMessage = (state: z.infer<typeof MessagesState>) => {
 
 export type State = z.infer<typeof MessagesState>;
 
-export const emitErorr = (
-  state: State,
-  meta: { error: string; type: 'analizer' | 'planner' | 'editor' },
-) => {
+export const emitErorr = (state: State, meta: { error: string; type: 'planner' | 'editor' }) => {
   const { error, type } = meta;
   const observer = Observer.getInstance();
 
   const ev = { status: 'error', error };
   const eventData = { ...ev };
-  if (type === 'analizer') {
-    Object.assign(eventData, {
-      args: 'Analizing',
-      type: 'analizing',
-      id: state.analizerId,
-    });
-  }
+
   if (type === 'planner') {
     Object.assign(eventData, {
       args: 'Planning',

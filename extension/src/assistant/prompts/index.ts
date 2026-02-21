@@ -1,4 +1,3 @@
-export * from './analizer';
 export * from './assistant';
 export * from './chat';
 export * from './editor';

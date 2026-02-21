@@ -3,31 +3,11 @@ import { END } from '@langchain/langgraph';
 import { Observer } from '@observer';
 import * as z from 'zod';
 
-import { makeEditorMessage, MessagesState, parseHumanMessage } from '../helper';
+import { makeEditorMessage, MessagesState } from '../helper';
 type inferMessageState = z.infer<typeof MessagesState>;
 
 export class Flow {
   observer = Observer.getInstance();
-
-  startAnalizer(state: inferMessageState) {
-    this.observer.emit('agent', {
-      id: state.analizerId,
-      status: 'pending',
-      args: 'Analizing',
-      type: 'analizing',
-    });
-    return state;
-  }
-
-  endAnalizer(state: inferMessageState) {
-    this.observer.emit('agent', {
-      id: state.analizerId,
-      status: 'done',
-      args: 'Analizing',
-      type: 'analizing',
-    });
-    return state;
-  }
 
   startPlanner(state: inferMessageState) {
     this.observer.emit('agent', {
@@ -47,23 +27,6 @@ export class Flow {
       type: 'planning',
     });
     return state;
-  }
-
-  async analizerRouter(state: inferMessageState) {
-    const lastMessage = state.analizerMessages.at(-1);
-
-    if (lastMessage == null || !AIMessage.isInstance(lastMessage)) return END;
-
-    if (lastMessage.tool_calls?.length) {
-      return 'analizer_tools';
-    }
-
-    if ((lastMessage.content as string).includes('nextStep')) {
-      state.plannerMessages = [parseHumanMessage(state.ctx)];
-      return 'end_analizer';
-    }
-
-    return 'finish_analizer';
   }
 
   startEditor(state: inferMessageState) {

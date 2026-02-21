@@ -45,21 +45,6 @@ export class ToolNode {
   _cashedFiles = new Map<string, string>();
   observer = Observer.getInstance();
 
-  async analizer(state: State) {
-    try {
-      const message = state.analizerMessages.at(-1);
-      if (!message) {
-        return { ...state, plannerMessages: [] };
-      }
-      const result = await this.runTools(message);
-      return { ...state, analizerMessages: [...state.analizerMessages, ...result] };
-    } catch (err: any) {
-      emitErorr(state, { error: err.message, type: 'analizer' });
-
-      throw new Error(err);
-    }
-  }
-
   async planner(state: State) {
     try {
       const message = state.plannerMessages.at(-1);

@@ -5,10 +5,9 @@ import { AgentMessagePayload, PlannerQuery, uuid } from '@utils';
 import * as vscode from 'vscode';
 
 import { MessagesState, parseHumanMessage } from '../helper';
-import { Analizer, Editor, Planner, ToolNode } from '../nodes';
+import { Editor, Planner, ToolNode } from '../nodes';
 import { Flow } from './flow';
 export class GraphWorkflow extends Flow {
-  analizer: Analizer;
   planner: Planner;
   editor: Editor;
   tools: ToolNode;
@@ -20,44 +19,27 @@ export class GraphWorkflow extends Flow {
   constructor() {
     super();
     this.session = AgentSession.getInstance();
-    this.analizer = new Analizer();
     this.planner = new Planner();
     this.editor = new Editor();
     this.tools = new ToolNode();
-    const analizerTools = this.tools.analizer.bind(this.tools);
     const plannerTools = this.tools.planner.bind(this.tools);
     const editorTools = this.tools.editor.bind(this.tools);
     const agent = new StateGraph(MessagesState)
-      .addNode('start_analizer', this.startAnalizer.bind(this))
-      .addNode('end_analizer', this.endAnalizer.bind(this))
-      .addNode('finish_analizer', this.endAnalizer.bind(this))
       .addNode('start_planner', this.startPlanner.bind(this))
       .addNode('end_planner', this.endPlanner.bind(this))
       .addNode('finish_planner', this.endPlanner.bind(this))
-      .addNode('analizer', this.analizer.exec.bind(this.analizer))
       .addNode('planner', this.planner.exec.bind(this.planner))
       .addNode('editor', this.editor.exec.bind(this.editor))
-      .addNode('analizer_tools', analizerTools)
       .addNode('planner_tools', plannerTools)
       .addNode('editor_tools', editorTools)
       .addNode('start_editor', this.startEditor.bind(this))
-      .addEdge(START, 'start_analizer')
-      .addEdge('start_analizer', 'analizer')
-      .addEdge('analizer_tools', 'analizer')
-      .addEdge('end_analizer', 'start_planner')
+      .addEdge(START, 'start_planner')
       .addEdge('start_planner', 'planner')
-      .addEdge('end_analizer', 'start_planner')
       .addEdge('planner_tools', 'planner')
       .addEdge('end_planner', 'start_editor')
       .addEdge('start_editor', 'editor')
       .addEdge('editor_tools', 'editor')
-      .addEdge('finish_analizer', END)
       .addEdge('finish_planner', END)
-      .addConditionalEdges('analizer', this.analizerRouter.bind(this), [
-        'analizer_tools',
-        'end_analizer',
-        'finish_analizer',
-      ])
       .addConditionalEdges('planner', this.plannerRouter.bind(this), [
         'planner_tools',
         'end_planner',
@@ -87,12 +69,10 @@ export class GraphWorkflow extends Flow {
     try {
       const state = await this.agent.invoke(
         {
-          analizerMessages: [parseHumanMessage(ctx)],
-          plannerMessages: [parseHumanMessage(ctx)],
           editorMessages: [],
+          plannerMessages: [parseHumanMessage(ctx)],
           instructions: [],
           intructionIndex: 0,
-          analizerId: uuid(7),
           plannerId: uuid(7),
           editorId: uuid(7),
           ctx,
